@@ -3,6 +3,7 @@ const cors = require('cors');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const pool = require('./db');
+const verificarToken = require('./authMiddleware');
 require('dotenv').config();
 
 const app = express();
@@ -85,6 +86,22 @@ app.post('/api/auth/login', async (req, res) => {
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: 'Error al iniciar sesión' });
+  }
+});
+
+app.get('/api/auth/perfil', verificarToken, async (req, res) => {
+  try {
+    const usuario = await pool.query(
+      'SELECT id, nombre, email, rol FROM usuarios WHERE id = $1',
+      [req.usuario.id]
+    );
+    if (usuario.rows.length === 0) {
+      return res.status(404).json({ error: 'Usuario no encontrado' });
+    }
+    res.json(usuario.rows[0]);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: 'Error al obtener datos del perfil' });
   }
 });
 
