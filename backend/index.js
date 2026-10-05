@@ -46,6 +46,48 @@ app.post('/api/auth/register', async (req, res) => {
   }
 });
 
+app.post('/api/auth/login', async (req, res) => {
+  const { email, password } = req.body;
+
+  if (!email || !password) {
+    return res.status(400).json({ error: 'Por favor ingresa correo y contraseña' });
+  }
+
+  try {
+    const resultado = await pool.query('SELECT * FROM usuarios WHERE email = $1', [email]);
+    if (resultado.rows.length === 0) {
+      return res.status(400).json({ error: 'Credenciales inválidas' });
+    }
+
+    const usuario = resultado.rows[0];
+
+    const passwordCorrecto = await bcrypt.compare(password, usuario.password);
+    if (!passwordCorrecto) {
+      return res.status(400).json({ error: 'Credenciales inválidas' });
+    }
+
+    const token = jwt.sign(
+      { id: usuario.id, rol: usuario.rol },
+      process.env.JWT_SECRET || 'secreto_por_defecto',
+      { expiresIn: '24h' }
+    );
+
+    res.json({
+      mensaje: 'Inicio de sesión exitoso',
+      token,
+      usuario: {
+        id: usuario.id,
+        nombre: usuario.nombre,
+        email: usuario.email,
+        rol: usuario.rol
+      }
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: 'Error al iniciar sesión' });
+  }
+});
+
 app.listen(PORT, () => {
   console.log(`Servidor escuchando en el puerto ${PORT}`);
 });
