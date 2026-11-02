@@ -5,6 +5,7 @@ const jwt = require('jsonwebtoken');
 const pool = require('./db');
 const verificarToken = require('./authMiddleware');
 require('dotenv').config();
+const { generarCodigo } = require('./utils');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -14,6 +15,16 @@ app.use(express.json());
 
 app.get('/', (req, res) => {
   res.send('Servidor de SpeakUp funcionando correctamente');
+});
+
+app.get('/api/test-db', async (req, res) => {
+  try {
+    const resultado = await pool.query('SELECT NOW()');
+    res.json({ mensaje: 'Conexión exitosa a la Base de Datos', hora: resultado.rows[0].now });
+  } catch (error) {
+    console.error('Error al conectar con la BD:', error);
+    res.status(500).json({ error: 'Error al conectar con la base de datos', detalle: error.message });
+  }
 });
 
 app.post('/api/auth/register', async (req, res) => {
@@ -102,6 +113,34 @@ app.get('/api/auth/perfil', verificarToken, async (req, res) => {
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: 'Error al obtener datos del perfil' });
+  }
+});
+
+app.post('/api/clases/crear', verificarToken, async (req, res) => {
+  const { materia } = req.body;
+
+  if (req.usuario.rol !== 'profesor') {
+    return res.status(403).json({ error: 'Solo los profesores pueden crear clases.' });
+  }
+
+  if (!materia) {
+    return res.status(400).json({ error: 'El nombre de la materia es obligatorio.' });
+  }
+
+  try {
+    const codigo = generarCodigo();
+    const nuevaClase = await pool.query(
+      'INSERT INTO clases (codigo, materia, profesor_id) VALUES ($1, $2, $3) RETURNING *',
+      [codigo, materia, req.usuario.id]
+    );
+
+    res.status(201).json({
+      mensaje: 'Clase creada exitosamente',
+      clase: nuevaClase.rows[0]
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: 'Error al crear la clase.' });
   }
 });
 
