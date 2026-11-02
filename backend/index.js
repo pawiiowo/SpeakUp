@@ -144,6 +144,57 @@ app.post('/api/clases/crear', verificarToken, async (req, res) => {
   }
 });
 
+app.post('/api/clases/unirse', verificarToken, async (req, res) => {
+  const { codigo } = req.body;
+
+  if (req.usuario.rol !== 'alumno') {
+    return res.status(403).json({ error: 'Solo los alumnos pueden unirse a clases' });
+  }
+
+  if (!codigo) {
+    return res.status(400).json({ error: 'El código de la clase es obligatorio' });
+  }
+
+  try {
+    const clase = await pool.query(
+      'SELECT * FROM clases WHERE codigo = $1 AND activa = true',
+      [codigo.toUpperCase()]
+    );
+
+    if (clase.rows.length === 0) {
+      return res.status(404).json({ error: 'Clase no encontrada o inactiva' });
+    }
+
+    res.json({
+      mensaje: 'Te has unido exitosamente a la clase',
+      clase: clase.rows[0]
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: 'Error al unirse a la clase' });
+  }
+});
+
+app.get('/api/clases', verificarToken, async (req, res) => {
+  try {
+    if (req.usuario.rol === 'profesor') {
+      const clases = await pool.query(
+        'SELECT * FROM clases WHERE profesor_id = $1 ORDER BY fecha_creacion DESC',
+        [req.usuario.id]
+      );
+      return res.json(clases.rows);
+    } else {
+      const clases = await pool.query(
+        'SELECT * FROM clases WHERE activa = true ORDER BY fecha_creacion DESC'
+      );
+      return res.json(clases.rows);
+    }
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: 'Error al obtener las clases' });
+  }
+});
+
 app.listen(PORT, () => {
   console.log(`Servidor escuchando en el puerto ${PORT}`);
 });
