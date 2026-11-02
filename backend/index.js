@@ -10,11 +10,19 @@ const { generarCodigo } = require('./utils');
 const app = express();
 const PORT = process.env.PORT || 3000;
 
+const classRoutes = require('./src/routes/classRoutes');
+
 app.use(cors());
 app.use(express.json());
 
 app.get('/', (req, res) => {
   res.send('Servidor de SpeakUp funcionando correctamente');
+});
+
+app.use('/api/classes', classRoutes);
+
+app.listen(PORT, () => {
+  console.log(`Servidor escuchando en el puerto ${PORT}`);
 });
 
 app.get('/api/test-db', async (req, res) => {

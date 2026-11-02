@@ -1,44 +1,227 @@
-const express = require('express');
-const router = express.Router();
-const pool = require('../config/db'); 
+import React, { useState } from 'react';
+import { 
+  View, 
+  Text, 
+  TextInput, 
+  TouchableOpacity, 
+  StyleSheet, 
+  Alert, 
+  ScrollView,
+  Image,
+  Clipboard
+} from 'react-native';
+import api from '../services/api';
 
-const generateClassCode = () => {
-  const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
-  let result = '';
-  for (let i = 0; i < 6; i++) {
-    result += characters.charAt(Math.floor(Math.random() * characters.length));
-  }
-  return result;
-};
+export default function TeacherDashboardScreen({ navigation }) {
+  const [materia, setMateria] = useState('');
+  const [codigoClase, setCodigoClase] = useState('');
+  const [cargando, setCargando] = useState(false);
+  const [copiado, setCopiado] = useState(false);
 
-router.post('/create', async (req, res) => {
-  try {
-    const { materia, profesor_id } = req.body;
-
-    if (!materia) {
-      return res.status(400).json({ error: 'El nombre de la materia es obligatorio' });
+  const handleCreateClass = async () => {
+    if (!materia.trim()) {
+      return Alert.alert('Atención', 'Por favor ingresa el nombre de la materia');
     }
 
-    const codigo = generateClassCode();
+    try {
+      setCargando(true);
+      const response = await api.post('/classes/create', { materia });
+      
+      const nuevoCodigo = response.data.clase.codigo;
+      setCodigoClase(nuevoCodigo);
+      setCopiado(false);
+      Alert.alert('¡Éxito!', `Sesión creada correctamente con el código: ${nuevoCodigo}`);
+    } catch (error) {
+      console.error('Error al crear clase:', error);
+      const msg = error.response?.data?.error || 'No se pudo conectar con el servidor backend';
+      Alert.alert('Error', msg);
+    } finally {
+      setCargando(false);
+    }
+  };
 
-    const queryText = `
-      INSERT INTO clases (materia, profesor_id, codigo, estado)
-      VALUES ($1, $2, $3, $4)
-      RETURNING *;
-    `;
-    const values = [materia, profesor_id || null, codigo, 'activa'];
+  const copyToClipboard = () => {
+    if (codigoClase) {
+      Clipboard.setString(codigoClase);
+      setCopiado(true);
+      setTimeout(() => setCopiado(false), 3000);
+    }
+  };
 
-    const result = await pool.query(queryText, values);
+  return (
+    <ScrollView 
+      contentContainerStyle={styles.container} 
+      showsVerticalScrollIndicator={false}
+    >
+      <View style={styles.centerWrapper}>
+        <View style={styles.header}>
+          <Image 
+            source={require('../../assets/SpeakUpLogo.png')} 
+            style={styles.logoImage}
+            resizeMode="contain"
+          />
+          <Text style={styles.title}>Panel del Docente</Text>
+          <Text style={styles.subtitle}>Crea una sesión de clase para tus alumnos</Text>
+        </View>
 
-    return res.status(201).json({
-      message: 'Clase creada exitosamente',
-      clase: result.rows[0]
-    });
+        <View style={styles.card}>
+          <Text style={styles.label}>Nombre de la Materia</Text>
+          <TextInput 
+            style={styles.input} 
+            placeholder="Ej. Aplicaciones Móviles" 
+            placeholderTextColor="#A09891"
+            value={materia} 
+            onChangeText={setMateria} 
+          />
 
-  } catch (error) {
-    console.error('Error al crear clase:', error);
-    return res.status(500).json({ error: 'Error interno del servidor' });
-  }
+          <TouchableOpacity 
+            style={styles.primaryButton} 
+            onPress={handleCreateClass}
+            disabled={cargando}
+            activeOpacity={0.8}
+          >
+            <Text style={styles.primaryButtonText}>
+              {cargando ? 'Creando clase...' : 'Crear Clase'}
+            </Text>
+          </TouchableOpacity>
+        </View>
+
+        {codigoClase !== '' && (
+          <View style={styles.codeCard}>
+            <Text style={styles.codeTitle}>Código de Sesión Activa</Text>
+            
+            <TouchableOpacity onPress={copyToClipboard} activeOpacity={0.7}>
+              <Text style={styles.codeText}>{codigoClase}</Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity 
+              style={styles.copyButton} 
+              onPress={copyToClipboard}
+              activeOpacity={0.8}
+            >
+              <Text style={styles.copyButtonText}>
+                {copiado ? '✓ ¡Copiado!' : '📋 Copiar Código'}
+              </Text>
+            </TouchableOpacity>
+
+            <Text style={styles.codeHelper}>Comparte este código con tus alumnos para unirse</Text>
+          </View>
+        )}
+      </View>
+    </ScrollView>
+  );
+}
+
+const styles = StyleSheet.create({
+  container: {
+    flexGrow: 1,
+    backgroundColor: '#FDFBF7',
+    justifyContent: 'center',
+    paddingHorizontal: 25,
+    paddingVertical: 60, 
+  },
+  centerWrapper: {
+    width: '100%',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  header: {
+    alignItems: 'center',
+    marginBottom: 25,
+  },
+  logoImage: {
+    width: 100,
+    height: 100,
+    marginBottom: 10,
+  },
+  title: {
+    fontSize: 26,
+    fontWeight: 'bold',
+    color: '#3D3531',
+  },
+  subtitle: {
+    fontSize: 14,
+    color: '#8A827A',
+    marginTop: 4,
+    textAlign: 'center',
+  },
+  card: {
+    width: '100%',
+    backgroundColor: '#FFFFFF',
+    borderRadius: 20,
+    padding: 22,
+    elevation: 3,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.08,
+    shadowRadius: 8,
+    marginBottom: 20,
+  },
+  label: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: '#3D3531',
+    marginBottom: 10,
+  },
+  input: {
+    backgroundColor: '#EFECE6',
+    borderRadius: 15,
+    paddingVertical: 14,
+    paddingHorizontal: 16,
+    fontSize: 15,
+    color: '#3D3531',
+    marginBottom: 18,
+  },
+  primaryButton: {
+    backgroundColor: '#D98A6C',
+    borderRadius: 25,
+    paddingVertical: 14,
+    alignItems: 'center',
+  },
+  primaryButtonText: {
+    color: '#FFFFFF',
+    fontSize: 16,
+    fontWeight: '600',
+  },
+  codeCard: {
+    width: '100%',
+    backgroundColor: '#EFECE6',
+    borderRadius: 20,
+    padding: 22,
+    alignItems: 'center',
+    borderWidth: 2,
+    borderColor: '#D98A6C',
+  },
+  codeTitle: {
+    fontSize: 12,
+    fontWeight: '600',
+    color: '#8A827A',
+    textTransform: 'uppercase',
+    letterSpacing: 1,
+  },
+  codeText: {
+    fontSize: 38,
+    fontWeight: 'bold',
+    color: '#3D3531',
+    letterSpacing: 6,
+    marginVertical: 6,
+  },
+  copyButton: {
+    backgroundColor: '#3D3531',
+    paddingVertical: 8,
+    paddingHorizontal: 18,
+    borderRadius: 15,
+    marginVertical: 8,
+  },
+  copyButtonText: {
+    color: '#FDFBF7',
+    fontSize: 13,
+    fontWeight: '600',
+  },
+  codeHelper: {
+    fontSize: 12,
+    color: '#8A827A',
+    textAlign: 'center',
+    marginTop: 4,
+  },
 });
-
-module.exports = router;
