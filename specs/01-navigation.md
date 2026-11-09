@@ -7,7 +7,7 @@ y el rol del usuario, y qué datos viajan entre pantallas.
 ## Regla de entrada
 1. Al abrir la app se muestra `Splash` mientras se lee la sesión guardada (AsyncStorage).
 2. Sin sesión válida → `AuthStack`.
-3. Con sesión válida → `TeacherTabs` si el rol es `profesor`, `StudentTabs` si es `alumno`.
+3. Con sesión válida → `TeacherStack` si el rol es `profesor`, `StudentStack` si es `alumno`.
 4. Un usuario nunca puede navegar a pantallas del otro rol.
 
 ## Mapa de pantallas
@@ -18,18 +18,20 @@ RootStack
 │   ├── Login                         F02
 │   └── Register                      F01
 │
-├── TeacherTabs                       (rol: profesor)
-│   ├── Classes      — Mis clases     F03
-│   ├── History      — Historial      F08
-│   └── Profile      — Perfil/salir   F02
+├── TeacherStack                      (rol: profesor)
+│   ├── TeacherTabs
+│   │   ├── Classes      — Mis clases     F03
+│   │   ├── History      — Historial      F08
+│   │   └── Profile      — Perfil/salir   F02
 │   ├── ClassForm         (stack)     F03  crear / editar clase
 │   ├── TeacherSession    (stack)     F03, F06  código + QR + fila con nombres
 │   └── ProjectionModal   (modal)     F06  fila anónima + código y QR para proyectar
 │
-└── StudentTabs                       (rol: alumno)
-    ├── JoinClass    — Unirse         F04
-    ├── History      — Historial      F08
-    └── Profile      — Perfil/salir   F02
+└── StudentStack                      (rol: alumno)
+    ├── StudentTabs
+    │   ├── JoinClass    — Unirse         F04
+    │   ├── History      — Historial      F08
+    │   └── Profile      — Perfil/salir   F02
     ├── QrScanner         (modal)     F04  cámara para escanear el QR
     └── StudentQueue      (stack)     F05, F07  pedir turno y ver mi posición
 
