@@ -11,6 +11,7 @@ y el rol del usuario, y qué datos viajan entre pantallas.
 4. Un usuario nunca puede navegar a pantallas del otro rol.
 
 ## Mapa de pantallas
+```text
 RootStack
 ├── Splash
 │
@@ -34,6 +35,7 @@ RootStack
     │   └── Profile      — Perfil/salir   F02
     ├── QrScanner         (modal)     F04  cámara para escanear el QR
     └── StudentQueue      (stack)     F05, F07  pedir turno y ver mi posición
+```
 
 Total: 12 pantallas (requisito del curso: mínimo 5, con Stack + Tabs + Modal).
 
