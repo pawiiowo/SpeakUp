@@ -108,3 +108,21 @@ Formato de cada entrada:
 - **Alternativas:** camelCase en el frontend (`profesorId`) con conversión en la API.
 - **Por qué:** Evita una capa de traducción de nombres que puede introducir errores, y
   coincide con lo que el backend ya devuelve.
+
+### D13 — Un solo router de clases bajo `/api/clases`
+- **Fecha:** 2026-11-09 · **Spec:** F03
+- **Decisión:** Todas las rutas de clases (crear, listar, editar, cerrar, reabrir, eliminar
+  y unirse) viven en un solo router montado en `/api/clases`. Se elimina `classRoutes.js`.
+- **Alternativas:** Mantener las rutas en `index.js` junto al router `/api/classes`.
+- **Por qué:** Había dos implementaciones distintas y el frontend llamaba a una ruta que no
+  existía. Un solo router, en español como el resto del backend, evita esa confusión y
+  deja `index.js` más limpio.
+
+### D14 — Código nuevo al reabrir una clase
+- **Fecha:** 2026-11-09 · **Spec:** F03
+- **Decisión:** Una clase cerrada se puede reabrir, y al hacerlo recibe un código nuevo.
+- **Alternativas:** Reabrir con el mismo código, o no permitir reabrir (crear una clase nueva
+  cada sesión).
+- **Por qué:** El docente reutiliza su clase cada sesión sin crearla de nuevo, y un código
+  compartido en una sesión anterior deja de servir. El QR se genera a partir del código,
+  así que también cambia sin trabajo extra.
