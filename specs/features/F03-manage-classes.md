@@ -1,7 +1,7 @@
 # F03 — Gestionar clases
 
 ## Objetivo
-Permitir que el docente cree, consulte, edite, cierre y elimine sus clases, y que abra una
+Permitir que el docente cree, consulte, edite, cierre, reabra y elimine sus clases, y que abra una
 sesión donde se muestran el código y el QR para que los alumnos se unan.
 
 ## Actor
@@ -16,6 +16,7 @@ Docente (rol `profesor`).
 | Crear    | `materia` |
 | Editar   | `materia` (el código no se edita) |
 | Cerrar   | `id` de la clase |
+| Reabrir  | `id` de la clase |
 | Eliminar | `id` de la clase |
 
 ## Endpoints (todos requieren token de docente)
@@ -25,6 +26,7 @@ Docente (rol `profesor`).
 | GET    | /api/clases                | Listar las clases del docente, más recientes primero |
 | PUT    | /api/clases/:id            | Editar materia |
 | PATCH  | /api/clases/:id/cerrar     | Cerrar clase (sus turnos activos pasan a `cancelado`) |
+| PATCH  | /api/clases/:id/abrir      | Reabrir clase cerrada con un código nuevo; la fila empieza vacía |
 | DELETE | /api/clases/:id            | Eliminar clase cerrada y sus turnos |
 
 ## Flujo principal
@@ -50,6 +52,11 @@ Docente (rol `profesor`).
 2. El sistema pide confirmación.
 3. La clase queda cerrada y se marca así en la lista.
 
+**Reabrir**
+1. En `Classes`, el docente presiona "Reabrir" en una clase cerrada.
+2. El sistema genera un código nuevo y la clase queda abierta.
+3. Se abre `TeacherSession` con el código nuevo y su QR. La fila empieza vacía.
+
 **Eliminar**
 1. En una clase cerrada, el docente presiona "Eliminar".
 2. El sistema pide confirmación indicando que se borrará también su historial de turnos.
@@ -60,7 +67,8 @@ Docente (rol `profesor`).
 - El botón "Guardar" está deshabilitado mientras la materia esté vacía o se esté guardando.
 - Solo el docente dueño de la clase puede editarla, cerrarla o eliminarla.
 - Solo se puede eliminar una clase cerrada.
-- Si el código generado ya existe, el backend genera otro (máximo 5 intentos).
+- Solo se puede reabrir una clase cerrada.
+- Al crear o reabrir, si el código generado ya existe, el backend genera otro (máximo 5 intentos).
 
 ## Estados de pantalla — `Classes`
 - **Cargando:** indicador mientras llega la lista.
@@ -77,6 +85,7 @@ Docente (rol `profesor`).
 | La clase no es suya               | 403                   | "No tienes permiso sobre esta clase" |
 | La clase no existe                | 404                   | "La clase ya no existe" y se recarga la lista |
 | Eliminar una clase abierta        | 409                   | "Cierra la clase antes de eliminarla" |
+| Reabrir una clase que ya está abierta | 409               | "La clase ya está abierta" |
 | Sin internet / servidor caído     | —                     | "No se pudo conectar. Intenta de nuevo" |
 
 ## Resultado esperado
@@ -90,11 +99,13 @@ de cualquier clase abierta para que los alumnos se unan.
 - [ ] `GET /api/clases` ordena por `fecha_creacion`, que no existe.
 - [ ] `GET /api/clases` devuelve a los alumnos todas las clases activas de todos los docentes.
 - [ ] `app.listen` se llama dos veces en `index.js`.
-- [ ] No existen editar, cerrar ni eliminar.
+- [ ] No existen editar, cerrar, reabrir ni eliminar.
 - [ ] No se muestra el QR.
 
-## Preguntas abiertas
-- [ ] ¿Una clase cerrada se puede volver a abrir (con el mismo código, p. ej. la siguiente semana)?
+## Decisiones tomadas
+- Una clase cerrada se puede reabrir. Al reabrirla se genera un código nuevo (y por lo tanto
+  un QR nuevo), para que un código compartido en una sesión anterior ya no sirva.
+- Todas las rutas de clases viven en un solo router bajo `/api/clases`.
 
 ## Criterios de aceptación
 - [ ] El backend arranca sin errores con `node index.js`.
@@ -103,6 +114,8 @@ de cualquier clase abierta para que los alumnos se unan.
 - [ ] El docente edita la materia y el cambio se ve en la lista sin cerrar la app.
 - [ ] `TeacherSession` muestra el código y un QR que, al escanearlo, da ese mismo código.
 - [ ] Al cerrar una clase, se marca como cerrada y nadie puede unirse con su código.
+- [ ] Al reabrir una clase cerrada, tiene un código distinto al anterior y la fila está vacía.
+- [ ] El código anterior de una clase reabierta ya no permite unirse.
 - [ ] Eliminar una clase abierta responde 409 y muestra el mensaje.
 - [ ] Al eliminar una clase cerrada, desaparece de la lista.
 - [ ] Un docente no puede editar ni eliminar la clase de otro docente (403).
