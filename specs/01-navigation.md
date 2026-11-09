@@ -24,7 +24,7 @@ RootStack
 │   └── Profile      — Perfil/salir   F02
 │   ├── ClassForm         (stack)     F03  crear / editar clase
 │   ├── TeacherSession    (stack)     F03, F06  código + QR + fila con nombres
-│   └── ProjectionModal   (modal)     F06  fila anónima para proyectar
+│   └── ProjectionModal   (modal)     F06  fila anónima + código y QR para proyectar
 │
 └── StudentTabs                       (rol: alumno)
     ├── JoinClass    — Unirse         F04
@@ -55,6 +55,8 @@ Total: 12 pantallas (requisito del curso: mínimo 5, con Stack + Tabs + Modal).
 - **Permiso de cámara negado** en `QrScanner` → cerrar el modal y volver a `JoinClass`, que permite escribir el código a mano.
 - **Clase cerrada por el docente** mientras el alumno está en `StudentQueue` → volver a `JoinClass` con mensaje.
 - **Sin conexión al abrir la app** → si hay sesión guardada, entrar a las tabs y mostrar estado de error en cada pantalla (no expulsar al usuario).
+- **Alumno sale de `StudentQueue`** (botón atrás, cambia de tab o cierra la app) → conserva
+  su turno. Al volver a la pantalla ve su posición actualizada.
 
 ## Relación con el código actual
 | Pantalla actual               | Pasa a ser                      |
@@ -64,9 +66,11 @@ Total: 12 pantallas (requisito del curso: mínimo 5, con Stack + Tabs + Modal).
 | `TeacherDashboardScreen.js`   | Se divide en `Classes` + `ClassForm` |
 | `TeacherSessionScreen.js` (en stash) | `TeacherSession`         |
 
-## Preguntas abiertas
-- [ ] ¿`ProjectionModal` muestra también el código y el QR para que los alumnos se unan?
-- [ ] Si el alumno sale de `StudentQueue` mientras está en la fila, ¿pierde su turno?
+## Decisiones tomadas
+- `ProjectionModal` muestra el código de la clase, su QR y la fila anónima, para que el
+  docente proyecte una sola pantalla.
+- El alumno solo sale de la fila al presionar "Salir de la fila" y confirmar en un diálogo.
+  Navegar a otra pantalla no le quita el turno.
 
 ## Criterios de aceptación
 - [ ] Sin sesión, la app abre en `Login`.
@@ -76,3 +80,5 @@ Total: 12 pantallas (requisito del curso: mínimo 5, con Stack + Tabs + Modal).
 - [ ] Al cerrar sesión, el botón "atrás" de Android no regresa a pantallas privadas.
 - [ ] `ProjectionModal` y `QrScanner` se abren como modal.
 - [ ] Ninguna pantalla del alumno ni la proyección muestran nombres de otros alumnos.
+- [ ] `ProjectionModal` muestra el código y el QR de la clase.
+- [ ] Si el alumno sale de `StudentQueue` sin usar "Salir de la fila", al volver conserva su posición.
