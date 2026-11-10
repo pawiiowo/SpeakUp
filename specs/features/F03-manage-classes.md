@@ -67,8 +67,20 @@ Docente (rol `profesor`).
 - El botón "Guardar" está deshabilitado mientras la materia esté vacía o se esté guardando.
 - Solo el docente dueño de la clase puede editarla, cerrarla o eliminarla.
 - Solo se puede eliminar una clase cerrada.
-- Solo se puede reabrir una clase cerrada.
+- Solo se puede cerrar una clase abierta.
+- Solo se puede reabrir una clase cerrada. Al reabrir, `fila_pausada` vuelve a `false`.
+- La materia se puede editar con la clase abierta o cerrada.
+- El `id` de la ruta debe ser un número entero positivo.
 - Al crear o reabrir, si el código generado ya existe, el backend genera otro (máximo 5 intentos).
+
+## Respuestas del backend
+| Acción                          | Éxito | Cuerpo |
+|---------------------------------|-------|--------|
+| Crear                           | 201   | `{ mensaje, clase }` |
+| Listar                          | 200   | Arreglo de clases |
+| Editar, cerrar, reabrir         | 200   | `{ mensaje, clase }` |
+| Eliminar                        | 204   | Sin cuerpo |
+| Cualquier error                 | 4xx/5xx | `{ error }` con el mensaje |
 
 ## Estados de pantalla — `Classes`
 - **Cargando:** indicador mientras llega la lista.
@@ -80,11 +92,13 @@ Docente (rol `profesor`).
 | Situación                         | Respuesta del backend | Qué ve el docente |
 |-----------------------------------|-----------------------|-------------------|
 | Materia vacía o > 100 caracteres  | 400                   | Mensaje bajo el campo |
-| Token ausente, inválido o expirado| 401 / 403             | Se cierra la sesión y vuelve a `Login` |
+| Token ausente, inválido o expirado| 401                   | Se cierra la sesión y vuelve a `Login` |
 | Un alumno llama a estos endpoints | 403                   | — |
 | La clase no es suya               | 403                   | "No tienes permiso sobre esta clase" |
+| `id` no numérico                  | 400                   | — (la app siempre envía ids válidos) |
 | La clase no existe                | 404                   | "La clase ya no existe" y se recarga la lista |
 | Eliminar una clase abierta        | 409                   | "Cierra la clase antes de eliminarla" |
+| Cerrar una clase que ya está cerrada | 409                | "La clase ya está cerrada" |
 | Reabrir una clase que ya está abierta | 409               | "La clase ya está abierta" |
 | Sin internet / servidor caído     | —                     | "No se pudo conectar. Intenta de nuevo" |
 
@@ -106,6 +120,9 @@ de cualquier clase abierta para que los alumnos se unan.
 - Una clase cerrada se puede reabrir. Al reabrirla se genera un código nuevo (y por lo tanto
   un QR nuevo), para que un código compartido en una sesión anterior ya no sirva.
 - Todas las rutas de clases viven en un solo router bajo `/api/clases`.
+- Un token ausente, inválido o expirado responde 401; 403 se usa solo para falta de permiso.
+  Así el frontend cierra la sesión únicamente con 401.
+- La tabla `turnos` se crea en esta feature porque cerrar y eliminar clases dependen de ella.
 
 ## Criterios de aceptación
 - [ ] El backend arranca sin errores con `node index.js`.
@@ -120,6 +137,8 @@ de cualquier clase abierta para que los alumnos se unan.
 - [ ] Al eliminar una clase cerrada, desaparece de la lista.
 - [ ] Un docente no puede editar ni eliminar la clase de otro docente (403).
 - [ ] Un alumno no puede listar clases (403).
+- [ ] Una petición con token expirado responde 401 y la app regresa a `Login`.
+- [ ] Cerrar una clase ya cerrada responde 409.
 - [ ] Sin clases, se ve el estado vacío con el botón "Crear mi primera clase".
 
 ## Tasks
