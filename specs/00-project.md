@@ -56,5 +56,5 @@ pasar al siguiente o pausar.
 ## Restricciones técnicas (ya decididas)
 - Frontend: React Native + Expo SDK 57, React Navigation, React Native Paper.
 - Backend: Node.js + Express 5, Socket.io.
-- Base de datos: PostgreSQL en Render.
+- Base de datos: PostgreSQL en Supabase.
 - Pruebas en dispositivo físico con Expo Go.
