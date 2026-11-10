@@ -123,4 +123,31 @@ de cualquier clase abierta para que los alumnos se unan.
 - [ ] Sin clases, se ve el estado vacío con el botón "Crear mi primera clase".
 
 ## Tasks
-Se definen después de revisar esta spec.
+Cada task es un commit en `feature/f03-gestionar-clases`.
+
+### Backend
+- [ ] T01 — Agregar las tasks a esta spec.
+- [ ] T02 — Eliminar `src/routes/classRoutes.js` y su montaje en `/api/classes`.
+- [ ] T03 — Llamar a `app.listen` una sola vez, al final de `index.js`.
+- [ ] T04 — Completar `clases` en `schema.sql`: `fecha_creacion`, `fila_pausada` y
+  `profesor_id NOT NULL`, con `ALTER TABLE ... IF NOT EXISTS` para la base existente.
+- [ ] T05 — Crear la tabla `turnos` con `CHECK` de `estado` y `ON DELETE CASCADE`.
+- [ ] T06 — Responder 401 cuando el token falta, es inválido o expiró.
+- [ ] T07 — Agregar el middleware `exigirRol('profesor')` (403 para otros roles).
+- [ ] T08 — Agregar `validarMateria()`: recorta espacios y exige de 1 a 100 caracteres.
+- [ ] T09 — Reintentar con otro código si el generado ya existe (error `23505`), máximo 5 intentos.
+- [ ] T10 — Mover crear, unirse y listar a un router en `/api/clases` sin cambiar su comportamiento.
+- [ ] T11 — Crear clase en `POST /api/clases` con validación y código único.
+- [ ] T12 — `GET /api/clases` devuelve solo las clases del docente, más recientes primero.
+- [ ] T13 — Agregar el middleware `cargarClasePropia`: id no numérico 400, no existe 404, ajena 403.
+- [ ] T14 — `PUT /api/clases/:id` edita la materia.
+- [ ] T15 — `PATCH /api/clases/:id/cerrar` cierra la clase y cancela sus turnos activos en una transacción.
+- [ ] T16 — `PATCH /api/clases/:id/abrir` reabre con código nuevo y `fila_pausada = false`.
+- [ ] T17 — `DELETE /api/clases/:id` elimina una clase cerrada (204).
+- [ ] T18 — Pruebas unitarias de `validarMateria` y del reintento de código.
+- [ ] T19 — Actualizar diferencias, criterios de aceptación y el diario de decisiones.
+
+### Frontend
+Se detallan después de revisar el stash de `TeacherSessionScreen`. Orden previsto: recuperar el
+stash, instalar dependencias, tipo `Clase` y servicio de clases, `Classes`, `ClassForm`,
+`TeacherSession` con QR, y acciones de cerrar, reabrir y eliminar.
