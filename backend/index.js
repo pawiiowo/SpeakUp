@@ -17,11 +17,6 @@ app.get('/', (req, res) => {
   res.send('Servidor de SpeakUp funcionando correctamente');
 });
 
-
-app.listen(PORT, () => {
-  console.log(`Servidor escuchando en el puerto ${PORT}`);
-});
-
 app.get('/api/test-db', async (req, res) => {
   try {
     const resultado = await pool.query('SELECT NOW()');
