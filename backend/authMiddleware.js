@@ -13,7 +13,7 @@ function verificarToken(req, res, next) {
     req.usuario = verificado;
     next();
   } catch (error) {
-    res.status(403).json({ error: 'Token inválido o expirado' });
+    res.status(401).json({ error: 'Token inválido o expirado' });
   }
 }
 
