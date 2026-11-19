@@ -121,4 +121,35 @@ router.put('/:id', verificarToken, exigirRol('profesor'), cargarClasePropia, asy
   }
 });
 
+// Cierra una clase abierta y cancela sus turnos activos.
+// Las dos actualizaciones van en una transacción: o se hacen las dos, o ninguna.
+router.patch('/:id/cerrar', verificarToken, exigirRol('profesor'), cargarClasePropia, async (req, res) => {
+  if (!req.clase.activa) {
+    return res.status(409).json({ error: 'La clase ya está cerrada.' });
+  }
+
+  let cliente;
+  try {
+    cliente = await pool.connect();
+    await cliente.query('BEGIN');
+    const resultado = await cliente.query(
+      'UPDATE clases SET activa = false WHERE id = $1 RETURNING *',
+      [req.clase.id]
+    );
+    await cliente.query(
+      `UPDATE turnos SET estado = 'cancelado', fecha_fin = NOW()
+       WHERE clase_id = $1 AND estado IN ('en_espera', 'hablando')`,
+      [req.clase.id]
+    );
+    await cliente.query('COMMIT');
+    res.json({ mensaje: 'Clase cerrada', clase: resultado.rows[0] });
+  } catch (error) {
+    if (cliente) await cliente.query('ROLLBACK').catch(() => {});
+    console.error(error);
+    res.status(500).json({ error: 'Error al cerrar la clase.' });
+  } finally {
+    cliente?.release();
+  }
+});
+
 module.exports = router;
