@@ -60,20 +60,14 @@ router.post('/unirse', verificarToken, async (req, res) => {
   }
 });
 
-router.get('/', verificarToken, async (req, res) => {
+// Lista las clases del docente, las más recientes primero.
+router.get('/', verificarToken, exigirRol('profesor'), async (req, res) => {
   try {
-    if (req.usuario.rol === 'profesor') {
-      const clases = await pool.query(
-        'SELECT * FROM clases WHERE profesor_id = $1 ORDER BY fecha_creacion DESC',
-        [req.usuario.id]
-      );
-      return res.json(clases.rows);
-    } else {
-      const clases = await pool.query(
-        'SELECT * FROM clases WHERE activa = true ORDER BY fecha_creacion DESC'
-      );
-      return res.json(clases.rows);
-    }
+    const clases = await pool.query(
+      'SELECT * FROM clases WHERE profesor_id = $1 ORDER BY fecha_creacion DESC',
+      [req.usuario.id]
+    );
+    res.json(clases.rows);
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: 'Error al obtener las clases' });
