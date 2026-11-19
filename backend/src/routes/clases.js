@@ -6,6 +6,34 @@ const { validarMateria, conCodigoUnico } = require('../../utils');
 // Todas las rutas de clases. Se monta en index.js bajo /api/clases.
 const router = express.Router();
 
+// Busca la clase de req.params.id y revisa que sea del docente que hace la petición.
+// Si todo está bien, la deja en req.clase para la siguiente función.
+// Usar después de verificarToken y exigirRol('profesor').
+async function cargarClasePropia(req, res, next) {
+  const id = Number(req.params.id);
+  if (!Number.isInteger(id) || id <= 0) {
+    return res.status(400).json({ error: 'El id de la clase no es válido.' });
+  }
+
+  try {
+    const resultado = await pool.query('SELECT * FROM clases WHERE id = $1', [id]);
+    const clase = resultado.rows[0];
+
+    if (!clase) {
+      return res.status(404).json({ error: 'La clase ya no existe.' });
+    }
+    if (clase.profesor_id !== req.usuario.id) {
+      return res.status(403).json({ error: 'No tienes permiso sobre esta clase.' });
+    }
+
+    req.clase = clase;
+    next();
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: 'Error al buscar la clase.' });
+  }
+}
+
 // Crea una clase del docente con un código único de 6 caracteres.
 router.post('/', verificarToken, exigirRol('profesor'), async (req, res) => {
   const { valor: materia, error } = validarMateria(req.body?.materia);
