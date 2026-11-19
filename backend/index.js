@@ -3,7 +3,7 @@ const cors = require('cors');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const pool = require('./db');
-const verificarToken = require('./authMiddleware');
+const { verificarToken } = require('./authMiddleware');
 require('dotenv').config();
 const { generarCodigo } = require('./utils');
 

@@ -17,4 +17,15 @@ function verificarToken(req, res, next) {
   }
 }
 
-module.exports = verificarToken;
+// Devuelve un middleware que solo deja pasar a usuarios con el rol indicado.
+// Debe usarse después de verificarToken, que es quien llena req.usuario.
+function exigirRol(rol) {
+  return (req, res, next) => {
+    if (req.usuario.rol !== rol) {
+      return res.status(403).json({ error: 'No tienes permiso para realizar esta acción.' });
+    }
+    next();
+  };
+}
+
+module.exports = { verificarToken, exigirRol };
