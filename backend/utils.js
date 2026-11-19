@@ -20,4 +20,21 @@ function validarMateria(materia) {
   return { valor };
 }
 
-module.exports = { generarCodigo, validarMateria };
+const MAX_INTENTOS_CODIGO = 5;
+
+// Ejecuta guardar(codigo) con un código nuevo. Si PostgreSQL lo rechaza porque el código
+// ya existe (error 23505 en la restricción única de clases.codigo), lo intenta con otro,
+// hasta MAX_INTENTOS_CODIGO veces. Cualquier otro error se lanza tal cual.
+async function conCodigoUnico(guardar) {
+  for (let intento = 1; intento <= MAX_INTENTOS_CODIGO; intento++) {
+    try {
+      return await guardar(generarCodigo());
+    } catch (error) {
+      const codigoRepetido = error.code === '23505' && error.constraint === 'clases_codigo_key';
+      if (!codigoRepetido) throw error;
+    }
+  }
+  throw new Error('No se pudo generar un código único para la clase.');
+}
+
+module.exports = { generarCodigo, validarMateria, conCodigoUnico };
