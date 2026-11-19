@@ -96,3 +96,26 @@ Formato de cada entrada:
   reconexiones y eventos que pueden fallar en la demo. Con polling, la fila tarda como máximo 3 segundos en
   actualizarse, que es aceptable en un salón. Socket.io queda como trabajo futuro.
 - **Verifiqué:** pendiente: probar en la demo que la posición del alumno cambia sola en pocos segundos.
+
+### 12. Tablas `clases` y `turnos` (T04 y T05)
+- **Pedí:** completar la tabla `clases` y crear la tabla `turnos` según el modelo de datos.
+- **Propuso:** `ALTER TABLE ... IF NOT EXISTS` para actualizar la base que ya existe en Supabase (un
+  `CREATE TABLE IF NOT EXISTS` no cambia una tabla existente) y, además, dos índices únicos parciales que
+  no le pedí: un alumno no puede tener dos turnos activos en la misma clase, y una clase no puede tener a
+  dos alumnos hablando a la vez.
+- **Decidí:** aceptar los índices, porque son reglas que ya estaban en `02-data-model` y así la base de
+  datos las protege aunque el backend tuviera un error.
+- **Verifiqué:** la IA probó el `schema.sql` dos veces seguidas en una base de prueba (sin errores, y un
+  turno duplicado fue rechazado). Después corrí `node setupDb.js` contra Supabase y respondió
+  "Tablas creadas exitosamente".
+
+### 13. Autenticación, validación y código de clase (T06 a T09)
+- **Pedí:** responder 401 con token inválido, un middleware que exija el rol de profesor, validar la materia
+  y reintentar el código de clase si ya existe.
+- **Propuso:** para el código, intentar guardarlo directamente y reintentar solo si PostgreSQL lo rechaza por
+  repetido (error 23505), en lugar de consultar antes si existe. Si se consulta primero, dos docentes podrían
+  obtener el mismo código entre la consulta y el guardado.
+- **Decidí:** aceptar.
+- **Verifiqué:** pruebas rápidas con casos límite: materia vacía, solo espacios, 100 y 101 letras; código
+  repetido 2 veces y luego libre (funciona al tercer intento), repetido siempre (se rinde a los 5), y otro
+  tipo de error (no reintenta). El servidor siguió arrancando.
