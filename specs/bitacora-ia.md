@@ -119,3 +119,15 @@ Formato de cada entrada:
 - **Verifiqué:** pruebas rápidas con casos límite: materia vacía, solo espacios, 100 y 101 letras; código
   repetido 2 veces y luego libre (funciona al tercer intento), repetido siempre (se rinde a los 5), y otro
   tipo de error (no reintenta). El servidor siguió arrancando.
+
+### 14. Router de clases (T10 a T13)
+- **Pedí:** mover las rutas de clases a su propio archivo, crear clase con `POST /api/clases`, listar solo las
+  clases del docente y verificar que la clase pertenezca al docente.
+- **Propuso:** primero mover las rutas sin cambiar su comportamiento (un commit de `refactor`) y después
+  corregirlas en commits separados. Al revisar su propio cambio antes del commit, detectó que en Express 5
+  `req.body` es `undefined` cuando la petición llega sin cuerpo JSON, y que `req.body.materia` habría
+  provocado un error 500. Lo cambió a `req.body?.materia` para que un formulario vacío responda 400 con
+  el mensaje "La materia es obligatoria".
+- **Decidí:** aceptar las dos cosas. Separar el `refactor` de las correcciones hace que cada commit se
+  pueda revisar por sí solo.
+- **Verifiqué:** (completar después de la prueba de punta a punta de los endpoints de clases).
