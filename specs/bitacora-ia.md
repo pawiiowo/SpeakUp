@@ -130,4 +130,9 @@ Formato de cada entrada:
   el mensaje "La materia es obligatoria".
 - **Decidí:** aceptar las dos cosas. Separar el `refactor` de las correcciones hace que cada commit se
   pueda revisar por sí solo.
-- **Verifiqué:** (completar después de la prueba de punta a punta de los endpoints de clases).
+- **Verifiqué:** la IA levantó un PostgreSQL de prueba con mi código y corrió 34 peticiones a los endpoints
+  de clases (T10 a T17): crear, listar, editar, cerrar, reabrir y eliminar, más casos límite (materia vacía,
+  sin cuerpo, 101 letras, sin token, token inválido, alumno, clase ajena, id no numérico, clase inexistente,
+  cerrar dos veces, eliminar una clase abierta). Todas respondieron lo que dice la spec. También comprobó que
+  al cerrar se cancelan los turnos activos, que el código viejo deja de servir al reabrir y que al eliminar
+  se borran los turnos.
