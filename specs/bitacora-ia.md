@@ -136,3 +136,13 @@ Formato de cada entrada:
   cerrar dos veces, eliminar una clase abierta). Todas respondieron lo que dice la spec. También comprobó que
   al cerrar se cancelan los turnos activos, que el código viejo deja de servir al reabrir y que al eliminar
   se borran los turnos.
+
+### 15. Error de la IA al cerrar una clase (T15)
+- **Pedí:** el endpoint para cerrar una clase y cancelar sus turnos en una transacción.
+- **Propuso:** una primera versión con `pool.connect()` fuera del `try`. Al revisarla antes de subirla, la
+  misma IA notó que, si la base de datos estuviera caída, ese error no se manejaría y la app no recibiría
+  el JSON de error esperado.
+- **Decidí:** aceptar la corrección: mover `pool.connect()` dentro del `try` y hacer el `ROLLBACK` solo si
+  hubo conexión. Se reescribió el commit, que aún no estaba subido.
+- **Verifiqué:** en la prueba de punta a punta, cerrar una clase respondió 200 y su turno activo quedó
+  `cancelado`. Aprendizaje: también hay que revisar qué pasa cuando el servidor o la base fallan.
