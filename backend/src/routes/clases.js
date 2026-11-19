@@ -102,4 +102,23 @@ router.get('/', verificarToken, exigirRol('profesor'), async (req, res) => {
   }
 });
 
+// Cambia la materia de una clase del docente. El código no se edita.
+router.put('/:id', verificarToken, exigirRol('profesor'), cargarClasePropia, async (req, res) => {
+  const { valor: materia, error } = validarMateria(req.body?.materia);
+  if (error) {
+    return res.status(400).json({ error });
+  }
+
+  try {
+    const resultado = await pool.query(
+      'UPDATE clases SET materia = $1 WHERE id = $2 RETURNING *',
+      [materia, req.clase.id]
+    );
+    res.json({ mensaje: 'Clase actualizada', clase: resultado.rows[0] });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: 'Error al actualizar la clase.' });
+  }
+});
+
 module.exports = router;
