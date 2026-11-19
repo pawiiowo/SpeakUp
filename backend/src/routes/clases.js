@@ -152,4 +152,26 @@ router.patch('/:id/cerrar', verificarToken, exigirRol('profesor'), cargarClasePr
   }
 });
 
+// Reabre una clase cerrada con un código nuevo, para que el código de la sesión anterior
+// ya no sirva. La fila empieza vacía porque al cerrar se cancelaron sus turnos.
+router.patch('/:id/abrir', verificarToken, exigirRol('profesor'), cargarClasePropia, async (req, res) => {
+  if (req.clase.activa) {
+    return res.status(409).json({ error: 'La clase ya está abierta.' });
+  }
+
+  try {
+    const clase = await conCodigoUnico(async (codigo) => {
+      const resultado = await pool.query(
+        'UPDATE clases SET codigo = $1, activa = true, fila_pausada = false WHERE id = $2 RETURNING *',
+        [codigo, req.clase.id]
+      );
+      return resultado.rows[0];
+    });
+    res.json({ mensaje: 'Clase reabierta', clase });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: 'Error al reabrir la clase.' });
+  }
+});
+
 module.exports = router;
