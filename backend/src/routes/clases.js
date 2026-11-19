@@ -174,4 +174,19 @@ router.patch('/:id/abrir', verificarToken, exigirRol('profesor'), cargarClasePro
   }
 });
 
+// Elimina una clase cerrada. Sus turnos se borran solos por ON DELETE CASCADE.
+router.delete('/:id', verificarToken, exigirRol('profesor'), cargarClasePropia, async (req, res) => {
+  if (req.clase.activa) {
+    return res.status(409).json({ error: 'Cierra la clase antes de eliminarla.' });
+  }
+
+  try {
+    await pool.query('DELETE FROM clases WHERE id = $1', [req.clase.id]);
+    res.status(204).end();
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: 'Error al eliminar la clase.' });
+  }
+});
+
 module.exports = router;
