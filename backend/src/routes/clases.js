@@ -1,33 +1,28 @@
 const express = require('express');
 const pool = require('../../db');
-const { verificarToken } = require('../../authMiddleware');
-const { generarCodigo } = require('../../utils');
+const { verificarToken, exigirRol } = require('../../authMiddleware');
+const { validarMateria, conCodigoUnico } = require('../../utils');
 
 // Todas las rutas de clases. Se monta en index.js bajo /api/clases.
 const router = express.Router();
 
-router.post('/crear', verificarToken, async (req, res) => {
-  const { materia } = req.body;
-
-  if (req.usuario.rol !== 'profesor') {
-    return res.status(403).json({ error: 'Solo los profesores pueden crear clases.' });
-  }
-
-  if (!materia) {
-    return res.status(400).json({ error: 'El nombre de la materia es obligatorio.' });
+// Crea una clase del docente con un código único de 6 caracteres.
+router.post('/', verificarToken, exigirRol('profesor'), async (req, res) => {
+  const { valor: materia, error } = validarMateria(req.body?.materia);
+  if (error) {
+    return res.status(400).json({ error });
   }
 
   try {
-    const codigo = generarCodigo();
-    const nuevaClase = await pool.query(
-      'INSERT INTO clases (codigo, materia, profesor_id) VALUES ($1, $2, $3) RETURNING *',
-      [codigo, materia, req.usuario.id]
-    );
-
-    res.status(201).json({
-      mensaje: 'Clase creada exitosamente',
-      clase: nuevaClase.rows[0]
+    const clase = await conCodigoUnico(async (codigo) => {
+      const resultado = await pool.query(
+        'INSERT INTO clases (codigo, materia, profesor_id) VALUES ($1, $2, $3) RETURNING *',
+        [codigo, materia, req.usuario.id]
+      );
+      return resultado.rows[0];
     });
+
+    res.status(201).json({ mensaje: 'Clase creada exitosamente', clase });
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: 'Error al crear la clase.' });
