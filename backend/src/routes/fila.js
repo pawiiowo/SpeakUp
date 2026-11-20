@@ -68,4 +68,22 @@ router.post('/turnos', soloAlumno, async (req, res) => {
   }
 });
 
+// El alumno sale de la fila. Solo se puede mientras espera, no cuando ya tiene la palabra.
+router.delete('/turnos/mio', soloAlumno, async (req, res) => {
+  try {
+    const resultado = await pool.query(
+      `UPDATE turnos SET estado = 'cancelado', fecha_fin = NOW()
+       WHERE clase_id = $1 AND alumno_id = $2 AND estado = 'en_espera'`,
+      [req.clase.id, req.usuario.id]
+    );
+    if (resultado.rowCount === 0) {
+      return res.status(409).json({ error: 'No estás esperando turno.' });
+    }
+    res.json(await estadoParaAlumno(req.clase, req.usuario.id));
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: 'Error al salir de la fila.' });
+  }
+});
+
 module.exports = router;
