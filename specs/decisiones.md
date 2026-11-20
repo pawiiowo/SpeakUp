@@ -108,3 +108,103 @@ Formato de cada entrada:
 - **Alternativas:** camelCase en el frontend (`profesorId`) con conversión en la API.
 - **Por qué:** Evita una capa de traducción de nombres que puede introducir errores, y
   coincide con lo que el backend ya devuelve.
+
+### D13 — Un solo router de clases bajo `/api/clases`
+- **Fecha:** 2026-11-09 · **Spec:** F03
+- **Decisión:** Todas las rutas de clases (crear, listar, editar, cerrar, reabrir, eliminar
+  y unirse) viven en un solo router montado en `/api/clases`. Se elimina `classRoutes.js`.
+- **Alternativas:** Mantener las rutas en `index.js` junto al router `/api/classes`.
+- **Por qué:** Había dos implementaciones distintas y el frontend llamaba a una ruta que no
+  existía. Un solo router, en español como el resto del backend, evita esa confusión y
+  deja `index.js` más limpio.
+
+### D14 — Código nuevo al reabrir una clase
+- **Fecha:** 2026-11-09 · **Spec:** F03
+- **Decisión:** Una clase cerrada se puede reabrir, y al hacerlo recibe un código nuevo.
+- **Alternativas:** Reabrir con el mismo código, o no permitir reabrir (crear una clase nueva
+  cada sesión).
+- **Por qué:** El docente reutiliza su clase cada sesión sin crearla de nuevo, y un código
+  compartido en una sesión anterior deja de servir. El QR se genera a partir del código,
+  así que también cambia sin trabajo extra.
+
+### D15 — 401 para token inválido y 403 para falta de permiso
+- **Fecha:** 2026-11-10 · **Spec:** F03
+- **Decisión:** Un token ausente, inválido o expirado responde 401. El 403 se usa solo cuando el
+  usuario está identificado pero no tiene permiso (un alumno en una ruta de docente, o la clase de
+  otro docente).
+- **Alternativas:** Responder 403 en los dos casos, como hacía el middleware.
+- **Por qué:** La app cierra la sesión cuando recibe 401. Si los dos casos fueran 403, un docente
+  que intenta editar una clase ajena perdería su sesión sin razón.
+
+### D16 — Reintentar el código de clase al recibir el error de duplicado
+- **Fecha:** 2026-11-10 · **Spec:** F03
+- **Decisión:** Para crear o reabrir una clase se intenta guardar un código aleatorio; si PostgreSQL
+  lo rechaza por repetido (error 23505), se prueba con otro, hasta 5 veces.
+- **Alternativas:** Consultar primero si el código existe y después insertarlo.
+- **Por qué:** Entre la consulta y el guardado, otro docente podría obtener el mismo código. Al dejar
+  que la restricción única de la base decida, no existe ese hueco.
+
+### D17 — Cambios de esquema idempotentes en `schema.sql`
+- **Fecha:** 2026-11-18 · **Spec:** 02-data-model
+- **Decisión:** `schema.sql` usa `CREATE TABLE IF NOT EXISTS` y `ALTER TABLE ... IF NOT EXISTS`, y se
+  aplica con `node setupDb.js`. Se puede correr varias veces sin error.
+- **Alternativas:** Una herramienta de migraciones (por ejemplo, Prisma Migrate).
+- **Por qué:** Son pocas tablas y trabajo sola; un solo archivo que se puede repetir es suficiente y
+  no agrega otra herramienta que aprender antes de la entrega.
+
+### D18 — Reglas de la fila protegidas por la base de datos
+- **Fecha:** 2026-11-18 · **Spec:** 02-data-model
+- **Decisión:** Dos índices únicos parciales en `turnos`: un alumno tiene como máximo un turno activo
+  por clase, y una clase tiene como máximo un turno `hablando`.
+- **Alternativas:** Revisar esas reglas solo en el código del backend.
+- **Por qué:** Si el backend tuviera un error (o llegaran dos peticiones al mismo tiempo), la base de
+  datos sigue impidiendo que se rompan las reglas.
+
+### D19 — Base de datos en Supabase
+- **Fecha:** 2026-11-10 · **Spec:** 00-project
+- **Decisión:** La base PostgreSQL vive en Supabase y el backend se conecta con la URL del Session
+  pooler.
+- **Alternativas:** PostgreSQL en Render, como decía el documento de la idea.
+- **Por qué:** La base ya estaba creada en Supabase. La conexión directa de Supabase solo tiene
+  dirección IPv6 y fallaba desde mi red; el Session pooler funciona con IPv4.
+
+### D20 — Consultas con `pg` sin ORM
+- **Fecha:** 2026-11-10 · **Spec:** 00-project
+- **Decisión:** El backend usa `pg` con consultas parametrizadas (`$1, $2`) y no usa Prisma.
+- **Alternativas:** Prisma (sugerido en clase como más seguro).
+- **Por qué:** La inyección SQL ocurre al concatenar texto del usuario en la consulta; las consultas
+  parametrizadas ya lo evitan porque el valor viaja aparte. Prisma no era obligatorio y migrar
+  implicaba reescribir todas las consultas y agregar configuración para un backend en CommonJS.
+
+### D21 — Arquitectura cliente-servidor con backend monolítico
+- **Fecha:** 2026-11-10 · **Spec:** 00-project
+- **Decisión:** Tres capas: la app móvil (React Native con Expo), un backend monolítico (Node.js con
+  Express, API REST) y PostgreSQL. Dentro del backend, las rutas se separan por módulo
+  (`src/routes/clases.js`).
+- **Alternativas:** Microservicios (un servicio por módulo).
+- **Por qué:** Es un proyecto de una sola desarrolladora y de tamaño de curso. Un solo backend es más
+  fácil de programar, probar y desplegar.
+
+### D22 — La fila se actualiza consultando cada 3 segundos (polling)
+- **Fecha:** 2026-11-18 · **Spec:** F05, F06
+- **Decisión:** Las pantallas de la fila piden su estado al servidor cada 3 segundos.
+- **Alternativas:** Socket.io, que avisa al instante.
+- **Por qué:** Con el tiempo que queda antes de la entrega, polling tiene menos piezas que pueden
+  fallar en la demo (servidor de sockets, reconexiones, eventos). Un retraso de hasta 3 segundos no
+  se nota en un salón. Socket.io queda como trabajo futuro.
+
+### D23 — Alcance del sprint final
+- **Fecha:** 2026-11-18 · **Spec:** 00-project
+- **Decisión:** Para la entrega se priorizan F01 a F06 (registro, sesión, clases, unirse, pedir la
+  palabra y moderar la fila). Quedan como trabajo futuro: notificaciones (F07), historial (F08), la
+  vista de proyección, el escáner de QR y pausar la fila.
+- **Alternativas:** Intentar todas las features con menos pruebas y menos dominio del código.
+- **Por qué:** En la presentación se califica que la app funcione, aguante casos límite y que yo
+  sepa explicarla y modificarla. Una app más pequeña que domino cumple mejor eso.
+
+### D24 — Desarrollo en iPhone con Expo Go y build final para Android
+- **Fecha:** 2026-11-10 · **Spec:** 00-project
+- **Decisión:** Pruebo la app en mi iPhone con Expo Go. El build de EAS para la entrega es de Android.
+- **Alternativas:** Build de iOS.
+- **Por qué:** Instalar un build propio en iPhone requiere una cuenta de pago de Apple Developer, y el
+  simulador de iPhone solo funciona en Mac. El código es el mismo para las dos plataformas.

@@ -19,7 +19,7 @@ la base de datos o crear tipos en el frontend.
 | Campo          | Tipo         | Reglas |
 |----------------|--------------|--------|
 | id             | SERIAL       | PK |
-| codigo         | VARCHAR(6)   | Único, 6 caracteres A-Z y 0-9, generado por el backend |
+| codigo         | VARCHAR(6)   | Único, 6 caracteres A-Z y 0-9, generado por el backend. Se regenera al reabrir la clase |
 | materia        | VARCHAR(100) | Obligatorio. Editable |
 | profesor_id    | INT          | FK → usuarios.id, obligatorio |
 | activa         | BOOLEAN      | `true` = abierta. `false` = cerrada (nadie puede unirse ni pedir turno) |
