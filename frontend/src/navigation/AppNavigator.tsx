@@ -1,4 +1,5 @@
 import { ActivityIndicator, StyleSheet, Text, View } from 'react-native';
+import Icono, { NombreIcono } from '../components/Icono';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { useAuth } from '../context/AuthContext';
@@ -15,8 +16,8 @@ const AuthStack = createNativeStackNavigator<AuthStackParams>();
 const AppStack = createNativeStackNavigator<AppStackParams>();
 const Tabs = createBottomTabNavigator();
 
-// Ícono sencillo para las tabs (emoji), para no agregar otra librería.
-const icono = (emoji: string) => () => <Text style={styles.icono}>{emoji}</Text>;
+// Ícono de cada tab; toma el color que le da la navegación (activo o inactivo).
+const icono = (nombre: NombreIcono) => ({ color }: { color: string }) => <Icono nombre={nombre} color={color} />;
 
 const opcionesTabs = {
   headerShown: false,
@@ -29,8 +30,8 @@ const opcionesTabs = {
 function TabsDocente() {
   return (
     <Tabs.Navigator screenOptions={opcionesTabs}>
-      <Tabs.Screen name="MisClases" component={ClassesScreen} options={{ title: 'Mis clases', tabBarIcon: icono('📚') }} />
-      <Tabs.Screen name="Perfil" component={PerfilScreen} options={{ tabBarIcon: icono('👤') }} />
+      <Tabs.Screen name="MisClases" component={ClassesScreen} options={{ title: 'Mis clases', tabBarIcon: icono('clases') }} />
+      <Tabs.Screen name="Perfil" component={PerfilScreen} options={{ tabBarIcon: icono('perfil') }} />
     </Tabs.Navigator>
   );
 }
@@ -39,8 +40,8 @@ function TabsDocente() {
 function TabsAlumno() {
   return (
     <Tabs.Navigator screenOptions={opcionesTabs}>
-      <Tabs.Screen name="Unirse" component={JoinClassScreen} options={{ tabBarIcon: icono('✋') }} />
-      <Tabs.Screen name="Perfil" component={PerfilScreen} options={{ tabBarIcon: icono('👤') }} />
+      <Tabs.Screen name="Unirse" component={JoinClassScreen} options={{ tabBarIcon: icono('unirse') }} />
+      <Tabs.Screen name="Perfil" component={PerfilScreen} options={{ tabBarIcon: icono('perfil') }} />
     </Tabs.Navigator>
   );
 }
@@ -99,5 +100,4 @@ export default function AppNavigator() {
 const styles = StyleSheet.create({
   centro: { flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: colores.fondo },
   texto: { color: colores.textoSuave, fontSize: 16 },
-  icono: { fontSize: 20 },
 });
