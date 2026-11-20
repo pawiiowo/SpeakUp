@@ -159,3 +159,52 @@ Formato de cada entrada:
 - **Alternativas:** Revisar esas reglas solo en el código del backend.
 - **Por qué:** Si el backend tuviera un error (o llegaran dos peticiones al mismo tiempo), la base de
   datos sigue impidiendo que se rompan las reglas.
+
+### D19 — Base de datos en Supabase
+- **Fecha:** 2026-11-10 · **Spec:** 00-project
+- **Decisión:** La base PostgreSQL vive en Supabase y el backend se conecta con la URL del Session
+  pooler.
+- **Alternativas:** PostgreSQL en Render, como decía el documento de la idea.
+- **Por qué:** La base ya estaba creada en Supabase. La conexión directa de Supabase solo tiene
+  dirección IPv6 y fallaba desde mi red; el Session pooler funciona con IPv4.
+
+### D20 — Consultas con `pg` sin ORM
+- **Fecha:** 2026-11-10 · **Spec:** 00-project
+- **Decisión:** El backend usa `pg` con consultas parametrizadas (`$1, $2`) y no usa Prisma.
+- **Alternativas:** Prisma (sugerido en clase como más seguro).
+- **Por qué:** La inyección SQL ocurre al concatenar texto del usuario en la consulta; las consultas
+  parametrizadas ya lo evitan porque el valor viaja aparte. Prisma no era obligatorio y migrar
+  implicaba reescribir todas las consultas y agregar configuración para un backend en CommonJS.
+
+### D21 — Arquitectura cliente-servidor con backend monolítico
+- **Fecha:** 2026-11-10 · **Spec:** 00-project
+- **Decisión:** Tres capas: la app móvil (React Native con Expo), un backend monolítico (Node.js con
+  Express, API REST) y PostgreSQL. Dentro del backend, las rutas se separan por módulo
+  (`src/routes/clases.js`).
+- **Alternativas:** Microservicios (un servicio por módulo).
+- **Por qué:** Es un proyecto de una sola desarrolladora y de tamaño de curso. Un solo backend es más
+  fácil de programar, probar y desplegar.
+
+### D22 — La fila se actualiza consultando cada 3 segundos (polling)
+- **Fecha:** 2026-11-18 · **Spec:** F05, F06
+- **Decisión:** Las pantallas de la fila piden su estado al servidor cada 3 segundos.
+- **Alternativas:** Socket.io, que avisa al instante.
+- **Por qué:** Con el tiempo que queda antes de la entrega, polling tiene menos piezas que pueden
+  fallar en la demo (servidor de sockets, reconexiones, eventos). Un retraso de hasta 3 segundos no
+  se nota en un salón. Socket.io queda como trabajo futuro.
+
+### D23 — Alcance del sprint final
+- **Fecha:** 2026-11-18 · **Spec:** 00-project
+- **Decisión:** Para la entrega se priorizan F01 a F06 (registro, sesión, clases, unirse, pedir la
+  palabra y moderar la fila). Quedan como trabajo futuro: notificaciones (F07), historial (F08), la
+  vista de proyección, el escáner de QR y pausar la fila.
+- **Alternativas:** Intentar todas las features con menos pruebas y menos dominio del código.
+- **Por qué:** En la presentación se califica que la app funcione, aguante casos límite y que yo
+  sepa explicarla y modificarla. Una app más pequeña que domino cumple mejor eso.
+
+### D24 — Desarrollo en iPhone con Expo Go y build final para Android
+- **Fecha:** 2026-11-10 · **Spec:** 00-project
+- **Decisión:** Pruebo la app en mi iPhone con Expo Go. El build de EAS para la entrega es de Android.
+- **Alternativas:** Build de iOS.
+- **Por qué:** Instalar un build propio en iPhone requiere una cuenta de pago de Apple Developer, y el
+  simulador de iPhone solo funciona en Mac. El código es el mismo para las dos plataformas.
