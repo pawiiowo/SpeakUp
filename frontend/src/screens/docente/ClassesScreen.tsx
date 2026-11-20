@@ -168,6 +168,9 @@ export default function ClassesScreen() {
     <Pantalla>
       <Text style={styles.titulo}>Mis clases</Text>
 
+      {/* Si ya hay clases en pantalla y falla la recarga, se avisa sin borrar la lista. */}
+      {error && clases.length > 0 ? <Text style={styles.aviso}>{error}</Text> : null}
+
       {error && clases.length === 0 ? (
         <View style={styles.centro}>
           <Text style={styles.mensaje}>{error}</Text>
@@ -219,4 +222,12 @@ const styles = StyleSheet.create({
   textoEstado: { color: colores.textoSuave, fontWeight: '600' },
   textoActivo: { color: colores.primario },
   nueva: { marginBottom: espacio.m },
+  aviso: {
+    backgroundColor: colores.superficie,
+    color: colores.peligro,
+    borderRadius: radio.campo,
+    padding: espacio.m,
+    marginBottom: espacio.m,
+    textAlign: 'center',
+  },
 });
