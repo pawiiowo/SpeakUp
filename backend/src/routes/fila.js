@@ -86,4 +86,35 @@ router.delete('/turnos/mio', soloAlumno, async (req, res) => {
   }
 });
 
+// Fila completa para el docente dueño de la clase, con nombres y en orden de llegada.
+async function filaParaDocente(clase) {
+  const resultado = await pool.query(
+    `SELECT t.id AS turno_id, t.estado, t.fecha_inicio, u.nombre
+     FROM turnos t JOIN usuarios u ON u.id = t.alumno_id
+     WHERE t.clase_id = $1 AND t.estado IN ('en_espera', 'hablando')
+     ORDER BY t.fecha_solicitud, t.id`,
+    [clase.id]
+  );
+  const hablando = resultado.rows.find((turno) => turno.estado === 'hablando');
+  const enEspera = resultado.rows.filter((turno) => turno.estado === 'en_espera');
+
+  return {
+    clase: { id: clase.id, materia: clase.materia, codigo: clase.codigo, activa: clase.activa },
+    hablando: hablando
+      ? { turno_id: hablando.turno_id, nombre: hablando.nombre, fecha_inicio: hablando.fecha_inicio }
+      : null,
+    en_espera: enEspera.map((turno, i) => ({ turno_id: turno.turno_id, nombre: turno.nombre, posicion: i + 1 })),
+  };
+}
+
+// El docente consulta su fila (la app la pide cada 3 segundos, D22).
+router.get('/fila', soloDocente, async (req, res) => {
+  try {
+    res.json(await filaParaDocente(req.clase));
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: 'Error al consultar la fila.' });
+  }
+});
+
 module.exports = router;
