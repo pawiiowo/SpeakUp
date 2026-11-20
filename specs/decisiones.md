@@ -222,3 +222,12 @@ Formato de cada entrada:
 - **Decisión:** El frontend usa Expo SDK 58 (React Native 0.88) en lugar de SDK 57.
 - **Alternativas:** Quedarse en SDK 57.
 - **Por qué:** La versión de Expo Go de mi iPhone solo abre proyectos de SDK 58.
+
+### D27 — Las clases se crean sin sesión abierta
+- **Fecha:** 2026-11-20 · **Spec:** F03
+- **Decisión:** Al crear una clase queda cerrada (`activa = false`). El docente abre la sesión cuando
+  empieza la clase, desde el modal de opciones; al abrirla se genera el código que comparte con el grupo.
+- **Alternativas:** Crear la clase ya abierta, como decía la versión anterior de F03.
+- **Por qué:** Al probar la app en el teléfono, no tenía sentido que una clase recién creada (por ejemplo,
+  días antes) ya tuviera una sesión activa y un código válido. Abrir la sesión es una acción del día de
+  clase.

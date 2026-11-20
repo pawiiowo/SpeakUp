@@ -34,8 +34,8 @@ Docente (rol `profesor`).
 1. En `Classes`, el docente presiona "Nueva clase".
 2. Se abre `ClassForm` vacío.
 3. Escribe la materia y presiona "Guardar".
-4. El sistema valida, genera el código y guarda la clase.
-5. Regresa a `Classes` y la nueva clase aparece primero en la lista.
+4. El sistema valida y guarda la clase **sin sesión abierta** (D27).
+5. Regresa a `Classes` y la nueva clase aparece primero en la lista, marcada "Sin sesión".
 
 **Editar**
 1. En `Classes`, el docente elige "Editar" en una clase.
@@ -71,6 +71,8 @@ Docente (rol `profesor`).
 - Solo se puede reabrir una clase cerrada. Al reabrir, `fila_pausada` vuelve a `false`.
 - La materia se puede editar con la clase abierta o cerrada.
 - El `id` de la ruta debe ser un número entero positivo.
+- Una clase nueva se crea sin sesión abierta (`activa = false`). Su código solo se muestra al abrir la
+  sesión, que genera un código nuevo (D14, D27).
 - Al crear o reabrir, si el código generado ya existe, el backend genera otro (máximo 5 intentos).
 
 ## Respuestas del backend
@@ -129,7 +131,8 @@ Los criterios sin marcar ya funcionan en el backend (probados con peticiones a u
 se marcan cuando su pantalla esté terminada.
 
 - [x] El backend arranca sin errores con `node index.js`.
-- [ ] El docente crea una clase y aparece primero en `Classes` con un código de 6 caracteres.
+- [ ] El docente crea una clase y aparece primero en `Classes`, sin sesión abierta.
+- [ ] Al abrir la sesión de una clase, se muestra un código de 6 caracteres.
 - [ ] No se puede guardar una clase sin materia: el botón está deshabilitado.
 - [ ] El docente edita la materia y el cambio se ve en la lista sin cerrar la app.
 - [ ] `TeacherSession` muestra el código y un QR que, al escanearlo, da ese mismo código.
