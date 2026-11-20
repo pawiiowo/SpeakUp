@@ -47,6 +47,7 @@ Alumno (rol `alumno`) y docente (rol `profesor`).
 | Sin internet / servidor caído | — | "No se pudo conectar. Intenta de nuevo" |
 
 ## Criterios de aceptación
+Backend verificado con 30 peticiones a una base de prueba (2026-11-20). Se marcan cuando la pantalla esté lista.
 - [ ] Un alumno se une con el código (sin importar mayúsculas) y no puede unirse a una clase cerrada.
 - [ ] Al pedir la palabra, el alumno ve su posición; si lo pide dos veces, responde 409.
 - [ ] Con tres alumnos en espera, sus posiciones son 1, 2 y 3; si sale el 1, los otros pasan a 1 y 2.
@@ -55,11 +56,11 @@ Alumno (rol `alumno`) y docente (rol `profesor`).
 - [ ] Al cerrar la clase, los turnos activos quedan cancelados y el alumno ve la clase cerrada.
 
 ## Tasks (backend)
-- [ ] T01 — Agregar esta spec.
-- [ ] T02 — Mover `cargarClasePropia` a `src/middleware/clases.js` y agregar `cargarClase` (cualquier rol).
-- [ ] T03 — `unirse`: solo alumnos, valida el código y devuelve solo datos públicos de la clase.
-- [ ] T04 — `GET /:id/fila/mia` (estado del alumno).
-- [ ] T05 — `POST /:id/turnos` (pedir la palabra).
-- [ ] T06 — `DELETE /:id/turnos/mio` (salir de la fila).
-- [ ] T07 — `GET /:id/fila` (fila del docente con nombres).
-- [ ] T08 — `POST /:id/fila/siguiente` (dar la palabra al siguiente).
+- [x] T01 — Agregar esta spec.
+- [x] T02 — Mover `cargarClasePropia` a `src/middleware/clases.js` y agregar `cargarClase` (cualquier rol).
+- [x] T03 — `unirse`: solo alumnos, valida el código y devuelve solo datos públicos de la clase.
+- [x] T04 — `GET /:id/fila/mia` (estado del alumno).
+- [x] T05 — `POST /:id/turnos` (pedir la palabra).
+- [x] T06 — `DELETE /:id/turnos/mio` (salir de la fila).
+- [x] T07 — `GET /:id/fila` (fila del docente con nombres).
+- [x] T08 — `POST /:id/fila/siguiente` (dar la palabra al siguiente).
