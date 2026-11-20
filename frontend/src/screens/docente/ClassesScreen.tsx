@@ -1,9 +1,10 @@
 import { useCallback, useState } from 'react';
-import { ActivityIndicator, Alert, FlatList, Pressable, RefreshControl, StyleSheet, Text, View } from 'react-native';
+import { ActivityIndicator, FlatList, Pressable, RefreshControl, StyleSheet, Text, View } from 'react-native';
 import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import Pantalla from '../../components/Pantalla';
 import Boton from '../../components/Boton';
+import ModalOpciones, { ContenidoModal } from '../../components/ModalOpciones';
 import api, { mensajeDeError } from '../../services/api';
 import { AppStackParams } from '../../navigation/tipos';
 import { Clase } from '../../types';
@@ -39,50 +40,102 @@ export default function ClassesScreen() {
     }, [cargar])
   );
 
-  const reabrir = async (clase: Clase) => {
+  // Contenido del modal propio (null = cerrado). Se cambia de opciones a confirmación sin cerrarlo.
+  const [dialogo, setDialogo] = useState<ContenidoModal | null>(null);
+  const cerrarDialogo = () => setDialogo(null);
+
+  const avisar = (titulo: string, error: unknown) =>
+    setDialogo({ titulo, mensaje: mensajeDeError(error), opciones: [{ texto: 'Entendido', onPress: cerrarDialogo }] });
+
+  // Abre la sesión del día: el backend genera un código nuevo (D14, D27).
+  const abrirSesion = async (clase: Clase) => {
+    cerrarDialogo();
     try {
       await api.patch(`/clases/${clase.id}/abrir`);
       navigation.navigate('TeacherSession', { claseId: clase.id, materia: clase.materia });
     } catch (e) {
-      Alert.alert('No se pudo reabrir', mensajeDeError(e));
+      avisar('No se pudo abrir la sesión', e);
     }
   };
 
-  const eliminar = (clase: Clase) => {
-    Alert.alert('Eliminar clase', `Se borrará "${clase.materia}" y su historial de turnos.`, [
-      { text: 'Cancelar', style: 'cancel' },
-      {
-        text: 'Eliminar',
-        style: 'destructive',
-        onPress: async () => {
-          try {
-            await api.delete(`/clases/${clase.id}`);
-            cargar();
-          } catch (e) {
-            Alert.alert('No se pudo eliminar', mensajeDeError(e));
-          }
+  const confirmarCierre = (clase: Clase) =>
+    setDialogo({
+      titulo: 'Cerrar sesión de la clase',
+      mensaje: 'Los alumnos que esperan turno saldrán de la fila y el código dejará de funcionar.',
+      opciones: [
+        {
+          texto: 'Cerrar sesión',
+          variante: 'peligro',
+          onPress: async () => {
+            cerrarDialogo();
+            try {
+              await api.patch(`/clases/${clase.id}/cerrar`);
+              cargar();
+            } catch (e) {
+              avisar('No se pudo cerrar la sesión', e);
+            }
+          },
         },
-      },
-    ]);
-  };
+      ],
+    });
 
-  // Al tocar una clase se muestran las acciones posibles según si está abierta o cerrada.
+  const confirmarEliminacion = (clase: Clase) =>
+    setDialogo({
+      titulo: 'Eliminar clase',
+      mensaje: `Se borrará "${clase.materia}" y su historial de turnos.`,
+      opciones: [
+        {
+          texto: 'Eliminar',
+          variante: 'peligro',
+          onPress: async () => {
+            cerrarDialogo();
+            try {
+              await api.delete(`/clases/${clase.id}`);
+              cargar();
+            } catch (e) {
+              avisar('No se pudo eliminar', e);
+            }
+          },
+        },
+      ],
+    });
+
+  // Al tocar una clase se muestran las acciones posibles según si tiene la sesión abierta o no.
   const opciones = (clase: Clase) => {
-    const editar = { text: 'Editar materia', onPress: () => navigation.navigate('ClassForm', { clase }) };
-    const cancelar = { text: 'Cancelar', style: 'cancel' as const };
+    const editar = {
+      texto: 'Editar materia',
+      variante: 'secundario' as const,
+      onPress: () => {
+        cerrarDialogo();
+        navigation.navigate('ClassForm', { clase });
+      },
+    };
     if (clase.activa) {
-      Alert.alert(clase.materia, `Código ${clase.codigo}`, [
-        { text: 'Abrir sesión', onPress: () => navigation.navigate('TeacherSession', { claseId: clase.id, materia: clase.materia }) },
-        editar,
-        cancelar,
-      ]);
+      setDialogo({
+        titulo: clase.materia,
+        mensaje: `Sesión activa · Código ${clase.codigo}`,
+        opciones: [
+          {
+            texto: 'Ir a la sesión',
+            onPress: () => {
+              cerrarDialogo();
+              navigation.navigate('TeacherSession', { claseId: clase.id, materia: clase.materia });
+            },
+          },
+          editar,
+          { texto: 'Cerrar sesión', variante: 'peligro', onPress: () => confirmarCierre(clase) },
+        ],
+      });
     } else {
-      Alert.alert(clase.materia, 'Esta clase está cerrada.', [
-        { text: 'Reabrir con código nuevo', onPress: () => reabrir(clase) },
-        editar,
-        { text: 'Eliminar', style: 'destructive', onPress: () => eliminar(clase) },
-        cancelar,
-      ]);
+      setDialogo({
+        titulo: clase.materia,
+        mensaje: 'Abre la sesión cuando empiece la clase para obtener el código.',
+        opciones: [
+          { texto: 'Abrir sesión', onPress: () => abrirSesion(clase) },
+          editar,
+          { texto: 'Eliminar clase', variante: 'peligro', onPress: () => confirmarEliminacion(clase) },
+        ],
+      });
     }
   };
 
@@ -90,7 +143,7 @@ export default function ClassesScreen() {
     <Pressable
       onPress={() => opciones(item)}
       accessibilityRole="button"
-      accessibilityLabel={`${item.materia}, ${item.activa ? 'sesión activa' : 'cerrada'}`}
+      accessibilityLabel={`${item.materia}, ${item.activa ? 'sesión activa' : 'sin sesión'}`}
       style={({ pressed }) => [styles.tarjeta, item.activa && styles.tarjetaActiva, pressed && styles.presionada]}
     >
       <Text style={styles.materia} numberOfLines={2}>{item.materia}</Text>
@@ -98,7 +151,7 @@ export default function ClassesScreen() {
       <Text style={styles.dato}>{new Date(item.fecha_creacion).toLocaleDateString('es-MX')}</Text>
       <View style={styles.estado}>
         <View style={[styles.punto, { backgroundColor: item.activa ? colores.activo : colores.textoSuave }]} />
-        <Text style={[styles.textoEstado, item.activa && styles.textoActivo]}>{item.activa ? 'Sesión activa' : 'Cerrada'}</Text>
+        <Text style={[styles.textoEstado, item.activa && styles.textoActivo]}>{item.activa ? 'Sesión activa' : 'Sin sesión'}</Text>
       </View>
     </Pressable>
   );
@@ -137,6 +190,8 @@ export default function ClassesScreen() {
       )}
 
       {clases.length > 0 ? <Boton titulo="Nueva clase" onPress={() => navigation.navigate('ClassForm')} style={styles.nueva} /> : null}
+
+      <ModalOpciones contenido={dialogo} onCerrar={cerrarDialogo} />
     </Pantalla>
   );
 }
