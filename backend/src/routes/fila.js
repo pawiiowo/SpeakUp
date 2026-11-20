@@ -1,0 +1,153 @@
+const express = require('express');
+const pool = require('../../db');
+const { verificarToken, exigirRol } = require('../../authMiddleware');
+const { cargarClase, cargarClasePropia } = require('../middleware/clases');
+
+// Rutas de la fila de una clase. Se monta en index.js bajo /api/clases/:id;
+// mergeParams hace que req.params.id llegue hasta aquí.
+const router = express.Router({ mergeParams: true });
+
+// Filtros que se repiten: quién puede usar cada ruta.
+const soloAlumno = [verificarToken, exigirRol('alumno'), cargarClase];
+const soloDocente = [verificarToken, exigirRol('profesor'), cargarClasePropia];
+
+// Estado de la fila visto por un alumno. Nunca incluye nombres ni ids de otros alumnos (D08).
+// La posición se calcula numerando los turnos en espera por orden de llegada (D07).
+async function estadoParaAlumno(clase, alumnoId) {
+  const resultado = await pool.query(
+    `WITH espera AS (
+       SELECT alumno_id, ROW_NUMBER() OVER (ORDER BY fecha_solicitud, id) AS posicion
+       FROM turnos WHERE clase_id = $1 AND estado = 'en_espera'
+     )
+     SELECT
+       (SELECT estado FROM turnos
+        WHERE clase_id = $1 AND alumno_id = $2 AND estado IN ('en_espera', 'hablando')) AS mi_estado,
+       (SELECT posicion::int FROM espera WHERE alumno_id = $2) AS posicion,
+       (SELECT COUNT(*)::int FROM espera) AS en_espera,
+       EXISTS (SELECT 1 FROM turnos WHERE clase_id = $1 AND estado = 'hablando') AS alguien_hablando`,
+    [clase.id, alumnoId]
+  );
+  const fila = resultado.rows[0];
+
+  return {
+    clase: { id: clase.id, materia: clase.materia, activa: clase.activa },
+    mi_turno: fila.mi_estado ? { estado: fila.mi_estado, posicion: fila.posicion } : null,
+    en_espera: fila.en_espera,
+    alguien_hablando: fila.alguien_hablando,
+  };
+}
+
+// El alumno consulta su lugar en la fila (la app lo pide cada 3 segundos, D22).
+router.get('/fila/mia', soloAlumno, async (req, res) => {
+  try {
+    res.json(await estadoParaAlumno(req.clase, req.usuario.id));
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: 'Error al consultar la fila.' });
+  }
+});
+
+// El alumno pide la palabra. La base impide que tenga dos turnos activos en la misma clase (D18).
+router.post('/turnos', soloAlumno, async (req, res) => {
+  if (!req.clase.activa) {
+    return res.status(409).json({ error: 'La clase está cerrada.' });
+  }
+
+  try {
+    await pool.query('INSERT INTO turnos (clase_id, alumno_id) VALUES ($1, $2)', [
+      req.clase.id,
+      req.usuario.id,
+    ]);
+    res.status(201).json(await estadoParaAlumno(req.clase, req.usuario.id));
+  } catch (error) {
+    if (error.code === '23505' && error.constraint === 'turnos_un_activo_por_alumno') {
+      return res.status(409).json({ error: 'Ya estás en la fila.' });
+    }
+    console.error(error);
+    res.status(500).json({ error: 'Error al pedir la palabra.' });
+  }
+});
+
+// El alumno sale de la fila. Solo se puede mientras espera, no cuando ya tiene la palabra.
+router.delete('/turnos/mio', soloAlumno, async (req, res) => {
+  try {
+    const resultado = await pool.query(
+      `UPDATE turnos SET estado = 'cancelado', fecha_fin = NOW()
+       WHERE clase_id = $1 AND alumno_id = $2 AND estado = 'en_espera'`,
+      [req.clase.id, req.usuario.id]
+    );
+    if (resultado.rowCount === 0) {
+      return res.status(409).json({ error: 'No estás esperando turno.' });
+    }
+    res.json(await estadoParaAlumno(req.clase, req.usuario.id));
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: 'Error al salir de la fila.' });
+  }
+});
+
+// Fila completa para el docente dueño de la clase, con nombres y en orden de llegada.
+async function filaParaDocente(clase) {
+  const resultado = await pool.query(
+    `SELECT t.id AS turno_id, t.estado, t.fecha_inicio, u.nombre
+     FROM turnos t JOIN usuarios u ON u.id = t.alumno_id
+     WHERE t.clase_id = $1 AND t.estado IN ('en_espera', 'hablando')
+     ORDER BY t.fecha_solicitud, t.id`,
+    [clase.id]
+  );
+  const hablando = resultado.rows.find((turno) => turno.estado === 'hablando');
+  const enEspera = resultado.rows.filter((turno) => turno.estado === 'en_espera');
+
+  return {
+    clase: { id: clase.id, materia: clase.materia, codigo: clase.codigo, activa: clase.activa },
+    hablando: hablando
+      ? { turno_id: hablando.turno_id, nombre: hablando.nombre, fecha_inicio: hablando.fecha_inicio }
+      : null,
+    en_espera: enEspera.map((turno, i) => ({ turno_id: turno.turno_id, nombre: turno.nombre, posicion: i + 1 })),
+  };
+}
+
+// El docente consulta su fila (la app la pide cada 3 segundos, D22).
+router.get('/fila', soloDocente, async (req, res) => {
+  try {
+    res.json(await filaParaDocente(req.clase));
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: 'Error al consultar la fila.' });
+  }
+});
+
+// El docente da la palabra al siguiente: quien hablaba pasa a 'atendido' y el primero en
+// espera pasa a 'hablando'. Van en una transacción: o se hacen los dos cambios, o ninguno.
+router.post('/fila/siguiente', soloDocente, async (req, res) => {
+  if (!req.clase.activa) {
+    return res.status(409).json({ error: 'La clase está cerrada.' });
+  }
+
+  let cliente;
+  try {
+    cliente = await pool.connect();
+    await cliente.query('BEGIN');
+    await cliente.query(
+      `UPDATE turnos SET estado = 'atendido', fecha_fin = NOW()
+       WHERE clase_id = $1 AND estado = 'hablando'`,
+      [req.clase.id]
+    );
+    await cliente.query(
+      `UPDATE turnos SET estado = 'hablando', fecha_inicio = NOW()
+       WHERE id = (SELECT id FROM turnos WHERE clase_id = $1 AND estado = 'en_espera'
+                   ORDER BY fecha_solicitud, id LIMIT 1)`,
+      [req.clase.id]
+    );
+    await cliente.query('COMMIT');
+    res.json(await filaParaDocente(req.clase));
+  } catch (error) {
+    if (cliente) await cliente.query('ROLLBACK').catch(() => {});
+    console.error(error);
+    res.status(500).json({ error: 'Error al dar la palabra.' });
+  } finally {
+    cliente?.release();
+  }
+});
+
+module.exports = router;

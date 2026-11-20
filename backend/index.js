@@ -6,6 +6,7 @@ const pool = require('./db');
 const { verificarToken } = require('./authMiddleware');
 require('dotenv').config();
 const clasesRoutes = require('./src/routes/clases');
+const filaRoutes = require('./src/routes/fila');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -14,6 +15,7 @@ app.use(cors());
 app.use(express.json());
 
 app.use('/api/clases', clasesRoutes);
+app.use('/api/clases/:id', filaRoutes);
 
 app.get('/', (req, res) => {
   res.send('Servidor de SpeakUp funcionando correctamente');
