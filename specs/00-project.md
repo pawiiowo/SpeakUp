@@ -33,14 +33,16 @@ pasar al siguiente o pausar.
 |-----|------------------------------------------------------|---------|---------------|
 | F01 | Registro de usuario (alumno/docente)                 | Ambos   | Implementado (JS, falta pasar a TS) |
 | F02 | Inicio y cierre de sesión persistente                | Ambos   | Parcial (no navega después del login, no hay logout) |
-| F03 | Gestionar clases (crear, listar, editar, cerrar) + QR | Docente | Parcial (crear y listar en backend) |
+| F03 | Gestionar clases (crear, listar, editar, cerrar, reabrir, eliminar) + QR | Docente | Backend terminado; falta frontend |
 | F04 | Unirse a clase (código manual o QR)                  | Alumno  | Solo backend |
 | F05 | Pedir / cancelar la palabra y ver mi posición        | Alumno  | Pendiente |
-| F06 | Moderar la fila (dar palabra, siguiente, pausar) + vista de proyección anónima | Docente | Pendiente |
-| F07 | Aviso de turno (vibración + notificación)            | Alumno  | Pendiente |
-| F08 | Historial de participación (lista paginada)          | Ambos   | Pendiente |
+| F06 | Moderar la fila (dar palabra, siguiente) | Docente | Pendiente |
+| F07 | Aviso de turno (vibración + notificación)            | Alumno  | Fuera del sprint final (D23) |
+| F08 | Historial de participación (lista paginada)          | Ambos   | Fuera del sprint final (D23) |
 
 ## Funcionalidades futuras
+- Vista de proyección anónima, escáner de QR y pausar la fila (D23).
+- Actualización en tiempo real con Socket.io en lugar de polling (D22).
 - Estadísticas de participación por alumno para el docente.
 - Preguntas escritas anónimas.
 - Modo oscuro y accesibilidad (bonus del curso).
@@ -55,6 +57,6 @@ pasar al siguiente o pausar.
 
 ## Restricciones técnicas (ya decididas)
 - Frontend: React Native + Expo SDK 57, React Navigation, React Native Paper.
-- Backend: Node.js + Express 5, Socket.io.
+- Backend: Node.js + Express 5 (API REST); la fila se actualiza con polling (D22).
 - Base de datos: PostgreSQL en Supabase.
-- Pruebas en dispositivo físico con Expo Go.
+- Pruebas en dispositivo físico (iPhone) con Expo Go; build final de EAS para Android (D24).
