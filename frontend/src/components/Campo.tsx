@@ -34,6 +34,11 @@ const styles = StyleSheet.create({
     paddingHorizontal: espacio.m,
     paddingVertical: 12,
     fontSize: 16,
+    // Valores fijos a propósito: iOS reusa los campos entre pantallas y, si no se indican,
+    // se quedan con el espaciado o la alineación de otro campo (por ejemplo, el del código).
+    letterSpacing: 0,
+    textAlign: 'left',
+    fontWeight: '400',
     color: colores.texto,
     borderWidth: 1,
     borderColor: 'transparent',
