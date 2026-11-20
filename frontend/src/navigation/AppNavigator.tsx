@@ -1,0 +1,103 @@
+import { ActivityIndicator, StyleSheet, Text, View } from 'react-native';
+import { createNativeStackNavigator } from '@react-navigation/native-stack';
+import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
+import { useAuth } from '../context/AuthContext';
+import { AppStackParams, AuthStackParams } from './tipos';
+import LoginScreen from '../screens/auth/LoginScreen';
+import RegisterScreen from '../screens/auth/RegisterScreen';
+import PerfilScreen from '../screens/PerfilScreen';
+import ClassesScreen from '../screens/docente/ClassesScreen';
+import ClassFormScreen from '../screens/docente/ClassFormScreen';
+import JoinClassScreen from '../screens/alumno/JoinClassScreen';
+import { colores } from '../theme';
+
+const AuthStack = createNativeStackNavigator<AuthStackParams>();
+const AppStack = createNativeStackNavigator<AppStackParams>();
+const Tabs = createBottomTabNavigator();
+
+// Ícono sencillo para las tabs (emoji), para no agregar otra librería.
+const icono = (emoji: string) => () => <Text style={styles.icono}>{emoji}</Text>;
+
+const opcionesTabs = {
+  headerShown: false,
+  tabBarActiveTintColor: colores.primario,
+  tabBarInactiveTintColor: colores.textoSuave,
+  tabBarStyle: { backgroundColor: colores.fondo, borderTopColor: colores.superficie },
+};
+
+// Tabs del docente: sus clases y su perfil.
+function TabsDocente() {
+  return (
+    <Tabs.Navigator screenOptions={opcionesTabs}>
+      <Tabs.Screen name="MisClases" component={ClassesScreen} options={{ title: 'Mis clases', tabBarIcon: icono('📚') }} />
+      <Tabs.Screen name="Perfil" component={PerfilScreen} options={{ tabBarIcon: icono('👤') }} />
+    </Tabs.Navigator>
+  );
+}
+
+// Tabs del alumno: unirse a una clase y su perfil.
+function TabsAlumno() {
+  return (
+    <Tabs.Navigator screenOptions={opcionesTabs}>
+      <Tabs.Screen name="Unirse" component={JoinClassScreen} options={{ tabBarIcon: icono('✋') }} />
+      <Tabs.Screen name="Perfil" component={PerfilScreen} options={{ tabBarIcon: icono('👤') }} />
+    </Tabs.Navigator>
+  );
+}
+
+// Pantalla temporal para las rutas que todavía no se implementan (FE10 y FE12).
+function EnConstruccion() {
+  return (
+    <View style={styles.centro}>
+      <Text style={styles.texto}>Pantalla en construcción</Text>
+    </View>
+  );
+}
+
+// Decide qué ve el usuario: el login si no hay sesión, o las pantallas de su rol si la hay.
+export default function AppNavigator() {
+  const { usuario, restaurando } = useAuth();
+
+  if (restaurando) {
+    return (
+      <View style={styles.centro}>
+        <ActivityIndicator size="large" color={colores.primario} />
+      </View>
+    );
+  }
+
+  if (!usuario) {
+    return (
+      <AuthStack.Navigator screenOptions={{ headerShown: false }}>
+        <AuthStack.Screen name="Login" component={LoginScreen} />
+        <AuthStack.Screen name="Register" component={RegisterScreen} />
+      </AuthStack.Navigator>
+    );
+  }
+
+  return (
+    <AppStack.Navigator
+      screenOptions={{
+        headerStyle: { backgroundColor: colores.fondo },
+        headerTintColor: colores.texto,
+        headerShadowVisible: false,
+        headerBackTitle: 'Atrás',
+      }}
+    >
+      <AppStack.Screen
+        name="Tabs"
+        component={usuario.rol === 'profesor' ? TabsDocente : TabsAlumno}
+        options={{ headerShown: false }}
+      />
+      <AppStack.Screen name="ClassForm" component={ClassFormScreen} options={{ presentation: 'modal', headerShown: false }} />
+      <AppStack.Screen name="TeacherSession" component={EnConstruccion} options={({ route }) => ({ title: route.params.materia })} />
+      <AppStack.Screen name="StudentQueue" component={EnConstruccion} options={({ route }) => ({ title: route.params.materia })} />
+    </AppStack.Navigator>
+  );
+}
+
+const styles = StyleSheet.create({
+  centro: { flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: colores.fondo },
+  texto: { color: colores.textoSuave, fontSize: 16 },
+  icono: { fontSize: 20 },
+});
