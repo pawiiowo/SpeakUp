@@ -146,3 +146,18 @@ Formato de cada entrada:
   hubo conexión. Se reescribió el commit, que aún no estaba subido.
 - **Verifiqué:** en la prueba de punta a punta, cerrar una clase respondió 200 y su turno activo quedó
   `cancelado`. Aprendizaje: también hay que revisar qué pasa cuando el servidor o la base fallan.
+
+## 2026-11-20
+
+### 16. Backend de la fila (F04 a F06)
+- **Pedí:** una spec corta de la fila y su backend: unirse, pedir la palabra, salir, ver mi posición, ver la
+  fila (docente) y dar la palabra al siguiente.
+- **Propuso:** juntar "dar la palabra" y "pasar al siguiente" en un solo botón ("Siguiente"), calcular la
+  posición numerando los turnos en espera por orden de llegada (`ROW_NUMBER`), separar las rutas de la fila
+  en `src/routes/fila.js` y que las respuestas para el alumno nunca incluyan nombres. También corrigió
+  `unirse`: antes un docente podía usarlo y la respuesta incluía datos del docente (`profesor_id`).
+- **Decidí:** aceptar el botón único "Siguiente" porque simplifica la pantalla del docente para la demo.
+- **Verifiqué:** la IA corrió 30 peticiones contra una base de prueba: posiciones 1, 2 y 3; al salir el
+  primero, los demás suben; pedir dos veces da 409; el docente ve los nombres en orden y el alumno nunca
+  recibe nombres; "Siguiente" da la palabra al primero y marca como atendido al que hablaba; con la clase
+  cerrada no se puede pedir la palabra.
