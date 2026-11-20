@@ -47,4 +47,25 @@ router.get('/fila/mia', soloAlumno, async (req, res) => {
   }
 });
 
+// El alumno pide la palabra. La base impide que tenga dos turnos activos en la misma clase (D18).
+router.post('/turnos', soloAlumno, async (req, res) => {
+  if (!req.clase.activa) {
+    return res.status(409).json({ error: 'La clase está cerrada.' });
+  }
+
+  try {
+    await pool.query('INSERT INTO turnos (clase_id, alumno_id) VALUES ($1, $2)', [
+      req.clase.id,
+      req.usuario.id,
+    ]);
+    res.status(201).json(await estadoParaAlumno(req.clase, req.usuario.id));
+  } catch (error) {
+    if (error.code === '23505' && error.constraint === 'turnos_un_activo_por_alumno') {
+      return res.status(409).json({ error: 'Ya estás en la fila.' });
+    }
+    console.error(error);
+    res.status(500).json({ error: 'Error al pedir la palabra.' });
+  }
+});
+
 module.exports = router;
