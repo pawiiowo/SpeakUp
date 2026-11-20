@@ -126,3 +126,36 @@ Formato de cada entrada:
 - **Por qué:** El docente reutiliza su clase cada sesión sin crearla de nuevo, y un código
   compartido en una sesión anterior deja de servir. El QR se genera a partir del código,
   así que también cambia sin trabajo extra.
+
+### D15 — 401 para token inválido y 403 para falta de permiso
+- **Fecha:** 2026-11-10 · **Spec:** F03
+- **Decisión:** Un token ausente, inválido o expirado responde 401. El 403 se usa solo cuando el
+  usuario está identificado pero no tiene permiso (un alumno en una ruta de docente, o la clase de
+  otro docente).
+- **Alternativas:** Responder 403 en los dos casos, como hacía el middleware.
+- **Por qué:** La app cierra la sesión cuando recibe 401. Si los dos casos fueran 403, un docente
+  que intenta editar una clase ajena perdería su sesión sin razón.
+
+### D16 — Reintentar el código de clase al recibir el error de duplicado
+- **Fecha:** 2026-11-10 · **Spec:** F03
+- **Decisión:** Para crear o reabrir una clase se intenta guardar un código aleatorio; si PostgreSQL
+  lo rechaza por repetido (error 23505), se prueba con otro, hasta 5 veces.
+- **Alternativas:** Consultar primero si el código existe y después insertarlo.
+- **Por qué:** Entre la consulta y el guardado, otro docente podría obtener el mismo código. Al dejar
+  que la restricción única de la base decida, no existe ese hueco.
+
+### D17 — Cambios de esquema idempotentes en `schema.sql`
+- **Fecha:** 2026-11-18 · **Spec:** 02-data-model
+- **Decisión:** `schema.sql` usa `CREATE TABLE IF NOT EXISTS` y `ALTER TABLE ... IF NOT EXISTS`, y se
+  aplica con `node setupDb.js`. Se puede correr varias veces sin error.
+- **Alternativas:** Una herramienta de migraciones (por ejemplo, Prisma Migrate).
+- **Por qué:** Son pocas tablas y trabajo sola; un solo archivo que se puede repetir es suficiente y
+  no agrega otra herramienta que aprender antes de la entrega.
+
+### D18 — Reglas de la fila protegidas por la base de datos
+- **Fecha:** 2026-11-18 · **Spec:** 02-data-model
+- **Decisión:** Dos índices únicos parciales en `turnos`: un alumno tiene como máximo un turno activo
+  por clase, y una clase tiene como máximo un turno `hablando`.
+- **Alternativas:** Revisar esas reglas solo en el código del backend.
+- **Por qué:** Si el backend tuviera un error (o llegaran dos peticiones al mismo tiempo), la base de
+  datos sigue impidiendo que se rompan las reglas.
