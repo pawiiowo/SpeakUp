@@ -1,23 +1,17 @@
-import { StyleSheet, Text, View } from 'react-native';
-import { colores } from '../theme';
+import { Image, StyleSheet } from 'react-native';
 
-// Logo de la app: la mano levantada dentro de un cuadro redondeado, como en el prototipo.
-export default function Logo({ tamano = 120 }: { tamano?: number }) {
+// Logo de SpeakUp (mano levantada), tomado del prototipo de Figma.
+export default function Logo({ tamano = 140 }: { tamano?: number }) {
   return (
-    <View style={[styles.cuadro, { width: tamano, height: tamano, borderRadius: tamano * 0.28 }]}>
-      <Text style={{ fontSize: tamano * 0.5 }} accessibilityLabel="Logo de SpeakUp">
-        ✋
-      </Text>
-    </View>
+    <Image
+      source={require('../../assets/logo.png')}
+      style={[styles.logo, { width: tamano, height: tamano }]}
+      resizeMode="contain"
+      accessibilityLabel="Logo de SpeakUp"
+    />
   );
 }
 
 const styles = StyleSheet.create({
-  cuadro: {
-    borderWidth: 6,
-    borderColor: colores.texto,
-    backgroundColor: colores.blanco,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
+  logo: { alignSelf: 'center' },
 });
