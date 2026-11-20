@@ -117,4 +117,37 @@ router.get('/fila', soloDocente, async (req, res) => {
   }
 });
 
+// El docente da la palabra al siguiente: quien hablaba pasa a 'atendido' y el primero en
+// espera pasa a 'hablando'. Van en una transacción: o se hacen los dos cambios, o ninguno.
+router.post('/fila/siguiente', soloDocente, async (req, res) => {
+  if (!req.clase.activa) {
+    return res.status(409).json({ error: 'La clase está cerrada.' });
+  }
+
+  let cliente;
+  try {
+    cliente = await pool.connect();
+    await cliente.query('BEGIN');
+    await cliente.query(
+      `UPDATE turnos SET estado = 'atendido', fecha_fin = NOW()
+       WHERE clase_id = $1 AND estado = 'hablando'`,
+      [req.clase.id]
+    );
+    await cliente.query(
+      `UPDATE turnos SET estado = 'hablando', fecha_inicio = NOW()
+       WHERE id = (SELECT id FROM turnos WHERE clase_id = $1 AND estado = 'en_espera'
+                   ORDER BY fecha_solicitud, id LIMIT 1)`,
+      [req.clase.id]
+    );
+    await cliente.query('COMMIT');
+    res.json(await filaParaDocente(req.clase));
+  } catch (error) {
+    if (cliente) await cliente.query('ROLLBACK').catch(() => {});
+    console.error(error);
+    res.status(500).json({ error: 'Error al dar la palabra.' });
+  } finally {
+    cliente?.release();
+  }
+});
+
 module.exports = router;
