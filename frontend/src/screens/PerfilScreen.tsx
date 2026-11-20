@@ -1,18 +1,15 @@
-import { Alert, StyleSheet, Text, View } from 'react-native';
+import { useState } from 'react';
+import { StyleSheet, Text, View } from 'react-native';
 import Pantalla from '../components/Pantalla';
 import Boton from '../components/Boton';
+import ModalOpciones from '../components/ModalOpciones';
 import { useAuth } from '../context/AuthContext';
 import { colores, espacio, radio } from '../theme';
 
 export default function PerfilScreen() {
   const { usuario, cerrarSesion } = useAuth();
 
-  const confirmarSalida = () => {
-    Alert.alert('Cerrar sesión', '¿Seguro que quieres salir?', [
-      { text: 'Cancelar', style: 'cancel' },
-      { text: 'Salir', style: 'destructive', onPress: () => cerrarSesion() },
-    ]);
-  };
+  const [confirmando, setConfirmando] = useState(false);
 
   return (
     <Pantalla>
@@ -23,7 +20,19 @@ export default function PerfilScreen() {
         <Text style={styles.rol}>{usuario?.rol === 'profesor' ? 'Docente' : 'Alumno'}</Text>
       </View>
       <View style={styles.espaciador} />
-      <Boton titulo="Cerrar sesión" variante="secundario" onPress={confirmarSalida} />
+      <Boton titulo="Cerrar sesión" variante="secundario" onPress={() => setConfirmando(true)} />
+      <ModalOpciones
+        contenido={
+          confirmando
+            ? {
+                titulo: 'Cerrar sesión',
+                mensaje: '¿Seguro que quieres salir?',
+                opciones: [{ texto: 'Salir', variante: 'peligro', onPress: () => { setConfirmando(false); cerrarSesion(); } }],
+              }
+            : null
+        }
+        onCerrar={() => setConfirmando(false)}
+      />
     </Pantalla>
   );
 }
