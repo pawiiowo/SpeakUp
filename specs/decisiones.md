@@ -208,3 +208,17 @@ Formato de cada entrada:
 - **Alternativas:** Build de iOS.
 - **Por qué:** Instalar un build propio en iPhone requiere una cuenta de pago de Apple Developer, y el
   simulador de iPhone solo funciona en Mac. El código es el mismo para las dos plataformas.
+
+### D25 — Componentes propios en lugar de React Native Paper
+- **Fecha:** 2026-11-20 · **Spec:** FE-frontend
+- **Decisión:** La interfaz usa unos pocos componentes propios (`Pantalla`, `Boton`, `Campo`) con los
+  colores del prototipo de Figma.
+- **Alternativas:** React Native Paper, como decía la idea original.
+- **Por qué:** Paper sigue Material Design y su apariencia no coincide con el prototipo; ajustarlo
+  costaría más que hacer tres componentes. Además es una dependencia menos que mantener.
+
+### D26 — Expo SDK 58
+- **Fecha:** 2026-11-20 · **Spec:** 00-project
+- **Decisión:** El frontend usa Expo SDK 58 (React Native 0.88) en lugar de SDK 57.
+- **Alternativas:** Quedarse en SDK 57.
+- **Por qué:** La versión de Expo Go de mi iPhone solo abre proyectos de SDK 58.
