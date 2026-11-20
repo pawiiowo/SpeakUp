@@ -7,7 +7,7 @@ const { cargarClasePropia } = require('../middleware/clases');
 // Todas las rutas de clases. Se monta en index.js bajo /api/clases.
 const router = express.Router();
 
-// Crea una clase del docente con un código único de 6 caracteres.
+// Crea una clase del docente, sin sesión abierta (D27). El código se renueva al abrir la sesión.
 router.post('/', verificarToken, exigirRol('profesor'), async (req, res) => {
   const { valor: materia, error } = validarMateria(req.body?.materia);
   if (error) {
@@ -17,7 +17,7 @@ router.post('/', verificarToken, exigirRol('profesor'), async (req, res) => {
   try {
     const clase = await conCodigoUnico(async (codigo) => {
       const resultado = await pool.query(
-        'INSERT INTO clases (codigo, materia, profesor_id) VALUES ($1, $2, $3) RETURNING *',
+        'INSERT INTO clases (codigo, materia, profesor_id, activa) VALUES ($1, $2, $3, false) RETURNING *',
         [codigo, materia, req.usuario.id]
       );
       return resultado.rows[0];
