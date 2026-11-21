@@ -145,7 +145,7 @@ export default function ClassHistoryScreen({ route, navigation }: Props) {
             contentContainerStyle={sesiones.length === 0 ? styles.centro : styles.lista}
             refreshControl={<RefreshControl refreshing={refrescando} onRefresh={() => { setRefrescando(true); cargarInicio(); }} />}
             ListEmptyComponent={<Text style={styles.mensaje}>Todavía no hay sesiones de esta clase.</Text>}
-            ListFooterComponent={cargandoMas ? <ActivityIndicator color={colores.primario} style={styles.pie} /> : null}
+            ListFooterComponent={cargandoMas ? <ActivityIndicator color={colores.primario} style={styles.pie} /> : undefined}
           />
         )}
       </View>
