@@ -6,6 +6,7 @@ import Boton from '../../components/Boton';
 import ModalOpciones, { ContenidoModal } from '../../components/ModalOpciones';
 import api, { mensajeDeError } from '../../services/api';
 import { usePolling } from '../../hooks/usePolling';
+import { avisarTurno, pedirPermisoNotificaciones } from '../../services/notificaciones';
 import { AppStackParams } from '../../navigation/tipos';
 import { FilaAlumno } from '../../types';
 import { colores, espacio, radio } from '../../theme';
@@ -15,23 +16,27 @@ type Props = NativeStackScreenProps<AppStackParams, 'StudentQueue'>;
 // Pantalla del alumno en la fila (diseño "Fila actual" del prototipo). Los turnos se muestran
 // sin nombres: el alumno solo sabe cuántos hay y cuál es el suyo (D08).
 export default function StudentQueueScreen({ route, navigation }: Props) {
-  const { claseId } = route.params;
+  const { claseId, materia } = route.params;
   const [fila, setFila] = useState<FilaAlumno | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [procesando, setProcesando] = useState(false);
   const [dialogo, setDialogo] = useState<ContenidoModal | null>(null);
   const estadoAnterior = useRef<string | null>(null);
 
-  // Guarda el estado nuevo y avisa si al alumno le acaba de tocar hablar.
-  const actualizar = useCallback((datos: FilaAlumno) => {
-    const estado = datos.mi_turno?.estado ?? null;
-    if (estado === 'hablando' && estadoAnterior.current !== 'hablando') {
-      Vibration.vibrate(500);
-    }
-    estadoAnterior.current = estado;
-    setFila(datos);
-    setError(null);
-  }, []);
+  // Guarda el estado nuevo y avisa (vibración + notificación local) si al alumno le acaba de tocar hablar.
+  const actualizar = useCallback(
+    (datos: FilaAlumno) => {
+      const estado = datos.mi_turno?.estado ?? null;
+      if (estado === 'hablando' && estadoAnterior.current !== 'hablando') {
+        Vibration.vibrate(500);
+        avisarTurno(materia);
+      }
+      estadoAnterior.current = estado;
+      setFila(datos);
+      setError(null);
+    },
+    [materia]
+  );
 
   const consultar = useCallback(async () => {
     try {
@@ -46,6 +51,8 @@ export default function StudentQueueScreen({ route, navigation }: Props) {
 
   const pedirLaPalabra = async () => {
     setProcesando(true);
+    // El permiso se pide en el momento en que sirve: al pedir la palabra. Si lo niega, sigue funcionando.
+    await pedirPermisoNotificaciones();
     try {
       const { data } = await api.post<FilaAlumno>(`/clases/${claseId}/turnos`);
       actualizar(data);
