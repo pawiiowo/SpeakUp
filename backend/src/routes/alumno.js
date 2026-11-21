@@ -13,7 +13,8 @@ router.get('/clases', async (req, res) => {
   try {
     const resultado = await pool.query(
       `SELECT c.id, c.materia, c.activa,
-              (SELECT MAX(s.fecha_inicio) FROM sesiones s WHERE s.clase_id = c.id) AS ultima_sesion
+              (SELECT MAX(s.fecha_inicio) FROM sesiones s WHERE s.clase_id = c.id) AS ultima_sesion,
+              EXISTS (SELECT 1 FROM sesiones s WHERE s.id = i.sesion_id AND s.fecha_fin IS NULL) AS entrada_hoy
        FROM inscripciones i
        JOIN clases c ON c.id = i.clase_id
        WHERE i.alumno_id = $1
