@@ -7,8 +7,29 @@ const { cargarClase, cargarClasePropia } = require('../middleware/clases');
 // mergeParams hace que req.params.id llegue hasta aquí.
 const router = express.Router({ mergeParams: true });
 
+// D32: en una clase en curso, el alumno debe haber entrado a la sesión de hoy con el QR o el código.
+// Con la clase terminada se deja pasar, para que la app pueda mostrar "La clase terminó".
+async function exigirEntradaDeHoy(req, res, next) {
+  if (!req.clase.activa) return next();
+  try {
+    const resultado = await pool.query(
+      `SELECT 1 FROM inscripciones i
+       JOIN sesiones s ON s.id = i.sesion_id
+       WHERE i.alumno_id = $1 AND i.clase_id = $2 AND s.fecha_fin IS NULL`,
+      [req.usuario.id, req.clase.id]
+    );
+    if (resultado.rowCount === 0) {
+      return res.status(403).json({ error: 'Entra con el QR o el código de hoy.', codigo: 'SIN_ENTRADA' });
+    }
+    next();
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: 'Error al revisar tu entrada a la clase.' });
+  }
+}
+
 // Filtros que se repiten: quién puede usar cada ruta.
-const soloAlumno = [verificarToken, exigirRol('alumno'), cargarClase];
+const soloAlumno = [verificarToken, exigirRol('alumno'), cargarClase, exigirEntradaDeHoy];
 const soloDocente = [verificarToken, exigirRol('profesor'), cargarClasePropia];
 
 // Estado de la fila visto por un alumno. Nunca incluye nombres ni ids de otros alumnos (D08).
