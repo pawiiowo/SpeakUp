@@ -112,14 +112,14 @@ export default function ClassHistoryScreen({ route, navigation }: Props) {
 
   if (cargando) {
     return (
-      <Pantalla style={styles.centro}>
+      <Pantalla conEncabezado style={styles.centro}>
         <ActivityIndicator size="large" color={colores.primario} />
       </Pantalla>
     );
   }
 
   return (
-    <Pantalla>
+    <Pantalla conEncabezado>
       {error && sesiones.length > 0 ? <Text style={styles.aviso}>{error}</Text> : null}
       <View style={styles.panel}>
         {error && sesiones.length === 0 ? (

@@ -86,7 +86,7 @@ export default function StudentQueueScreen({ route, navigation }: Props) {
 
   if (!fila) {
     return (
-      <Pantalla style={styles.centro}>
+      <Pantalla conEncabezado style={styles.centro}>
         {error ? (
           <>
             <Text style={styles.mensaje}>{error}</Text>
@@ -101,7 +101,7 @@ export default function StudentQueueScreen({ route, navigation }: Props) {
 
   if (!fila.clase.activa) {
     return (
-      <Pantalla style={styles.centro}>
+      <Pantalla conEncabezado style={styles.centro}>
         <Text style={styles.titulo}>La clase terminó</Text>
         <Text style={styles.mensaje}>El docente terminó la clase. Gracias por participar.</Text>
         <Boton titulo="Volver" onPress={() => navigation.goBack()} />
@@ -114,7 +114,7 @@ export default function StudentQueueScreen({ route, navigation }: Props) {
   const filas = Array.from({ length: fila.en_espera }, (_, i) => i + 1);
 
   return (
-    <Pantalla style={styles.sinPadding}>
+    <Pantalla conEncabezado style={styles.sinPadding}>
       <ScrollView contentContainerStyle={styles.contenido}>
         {error ? <Text style={styles.aviso}>{error}</Text> : null}
 

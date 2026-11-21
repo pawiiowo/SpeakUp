@@ -81,7 +81,7 @@ export default function TeacherSessionScreen({ route, navigation }: Props) {
 
   if (!fila) {
     return (
-      <Pantalla style={styles.centro}>
+      <Pantalla conEncabezado style={styles.centro}>
         {error ? (
           <>
             <Text style={styles.mensaje}>{error}</Text>
@@ -96,7 +96,7 @@ export default function TeacherSessionScreen({ route, navigation }: Props) {
 
   if (!fila.clase.activa) {
     return (
-      <Pantalla style={styles.centro}>
+      <Pantalla conEncabezado style={styles.centro}>
         <Text style={styles.mensaje}>Esta clase ya terminó.</Text>
         <Boton titulo="Volver a mis clases" onPress={() => navigation.goBack()} />
       </Pantalla>
@@ -108,7 +108,7 @@ export default function TeacherSessionScreen({ route, navigation }: Props) {
   const textoAccion = fila.hablando ? (hayEspera ? 'Siguiente' : 'Terminar participación') : 'Dar la palabra';
 
   return (
-    <Pantalla style={styles.sinPadding}>
+    <Pantalla conEncabezado style={styles.sinPadding}>
       <ScrollView contentContainerStyle={styles.contenido}>
         {error ? <Text style={styles.aviso}>{error}</Text> : null}
 
