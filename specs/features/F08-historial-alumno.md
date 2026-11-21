@@ -1,0 +1,59 @@
+# F08 (reducida) — Mis clases e historial del alumno (spec corta)
+
+## Objetivo
+El alumno ve las clases a las que se ha unido, con la clase en curso hasta arriba, y dentro de cada una
+el historial de sesiones con cuántas participaciones tuvo en cada una (prototipo de Figma, pantallas
+"Materias", "Lista de sesiones" y "Participaciones sesión").
+
+## Datos nuevos (02-data-model)
+- `sesiones`: una fila cada vez que el docente inicia la clase (`clase_id`, `codigo`, `fecha_inicio`,
+  `fecha_fin`). Solo puede haber una sesión abierta por clase.
+- `inscripciones`: qué alumno se unió a qué clase (`alumno_id`, `clase_id`, `fecha_union`).
+- `turnos.sesion_id`: la sesión en la que se pidió el turno.
+
+## Cambios a lo que ya existe
+- Iniciar clase (`PATCH /api/clases/:id/abrir`) también crea la sesión, en la misma transacción.
+- Terminar clase (`PATCH /api/clases/:id/cerrar`) también cierra la sesión.
+- Pedir la palabra guarda el turno en la sesión abierta.
+- Unirse registra la inscripción (si ya existía, no pasa nada).
+
+## Endpoints nuevos (solo alumnos)
+| Método | Ruta | Respuesta |
+|--------|------|-----------|
+| GET | /api/alumno/clases | `[{ id, materia, activa, ultima_sesion }]`, las clases en curso primero |
+| GET | /api/alumno/clases/:id/sesiones?pagina=1&limite=10 | `{ sesiones: [{ id, numero, fecha_inicio, fecha_fin, en_curso, participaciones }], hay_mas }`, las más recientes primero |
+
+`participaciones` cuenta los turnos del alumno en esa sesión que llegaron a tener la palabra
+(`hablando` o `atendido`). `numero` es el número de la sesión dentro de la clase (Sesión 1, 2, 3…).
+
+## Pantallas
+- Tab **Mis clases** del alumno (junto a Unirse y Perfil): FlatList con "● En curso" arriba. Al tocar la
+  clase en curso se entra a su fila; al tocar otra, a su historial.
+- **Historial de la clase**: FlatList **paginada** (carga 10 y pide más al llegar al final), agrupada por
+  fecha (Hoy, Ayer, fecha). Al tocar una sesión, un modal: "En esta sesión realizaste N participaciones".
+
+## Casos de error
+| Situación | Respuesta | Qué ve el alumno |
+|-----------|-----------|------------------|
+| Pide el historial de una clase a la que no se unió | 404 | "No encontramos esa clase" |
+| `pagina` o `limite` inválidos | 400 | — (la app siempre manda valores válidos) |
+| Un docente usa estas rutas | 403 | — |
+| Aún no se ha unido a ninguna clase | 200 con lista vacía | "Aún no te has unido a ninguna clase" + botón "Unirme" |
+| Sin internet | — | Aviso, sin borrar la última lista |
+
+## Criterios de aceptación
+- [ ] Después de unirse a una clase, aparece en "Mis clases" del alumno.
+- [ ] La clase en curso aparece primero, con "● En curso".
+- [ ] Cada vez que el docente inicia la clase se crea una sesión nueva en el historial.
+- [ ] El historial carga de 10 en 10 al llegar al final de la lista.
+- [ ] Una sesión muestra cuántas veces el alumno tuvo la palabra.
+- [ ] Un alumno no puede ver el historial de una clase a la que no se unió.
+
+## Tasks
+- [x] H01 — Agregar esta spec.
+- [ ] H02 — Tablas `sesiones` e `inscripciones` y `turnos.sesion_id`.
+- [ ] H03 — Iniciar y terminar clase abren y cierran la sesión.
+- [ ] H04 — Pedir la palabra guarda la sesión; unirse registra la inscripción.
+- [ ] H05 — Endpoints del alumno (mis clases e historial paginado).
+- [ ] H06 — Tab "Mis clases" del alumno.
+- [ ] H07 — Historial paginado con el modal de participaciones.
