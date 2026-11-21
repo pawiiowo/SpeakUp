@@ -117,6 +117,7 @@ export default function ClassHistoryScreen({ route, navigation }: Props) {
             <Text style={[styles.textoSesion, sinParticipar && styles.textoSinParticipar]}>Sesión {item.numero}</Text>
             {/* Punto terracota: el alumno participó al menos una vez en esa sesión. */}
             {!item.en_curso && item.participaciones > 0 ? <View style={styles.puntoParticipo} /> : null}
+            {sinParticipar ? <View style={styles.puntoSinParticipar} /> : null}
           </View>
           {sinParticipar ? <Text style={styles.leyendaSesion}>Sin participaciones</Text> : null}
         </Pressable>
@@ -137,7 +138,9 @@ export default function ClassHistoryScreen({ route, navigation }: Props) {
       {error && sesiones.length > 0 ? <Text style={styles.aviso}>{error}</Text> : null}
       <View style={styles.leyenda}>
         <View style={styles.puntoParticipo} />
-        <Text style={styles.textoLeyenda}>Participaste en esa sesión</Text>
+        <Text style={styles.textoLeyenda}>Participaste</Text>
+        <View style={styles.puntoSinParticipar} />
+        <Text style={styles.textoLeyenda}>Sin participaciones</Text>
       </View>
       <View style={styles.panel}>
         {error && sesiones.length === 0 ? (
@@ -196,6 +199,7 @@ const styles = StyleSheet.create({
   leyendaSesion: { fontSize: 13, color: colores.textoSuave, marginTop: 2 },
   pie: { marginVertical: espacio.m },
   puntoParticipo: { width: 10, height: 10, borderRadius: 5, backgroundColor: colores.primario, marginLeft: espacio.s },
+  puntoSinParticipar: { width: 10, height: 10, borderRadius: 5, backgroundColor: colores.textoSuave, marginLeft: espacio.s },
   leyenda: { flexDirection: 'row', alignItems: 'center', justifyContent: 'flex-end', marginBottom: espacio.s, gap: espacio.xs },
   textoLeyenda: { color: colores.textoSuave, fontSize: 13 },
 });
