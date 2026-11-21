@@ -3,7 +3,12 @@ import { leer } from './almacenamiento';
 
 // La URL del backend viene del archivo .env (ver .env.example). Debe ser la IP de la
 // computadora en la red Wi-Fi, no "localhost": el celular es otro dispositivo.
-const API_URL = process.env.EXPO_PUBLIC_API_URL ?? 'http://192.168.1.186:3000/api';
+// No hay URL de respaldo escrita en el código: si falta, se avisa qué configurar.
+// En desarrollo la red local usa http; en producción la URL sería https.
+const API_URL = process.env.EXPO_PUBLIC_API_URL;
+if (!API_URL) {
+  throw new Error('Falta EXPO_PUBLIC_API_URL en frontend/.env. Copia frontend/.env.example y llénalo.');
+}
 
 // Claves donde se guarda la sesión (ver almacenamiento.ts).
 export const CLAVE_TOKEN = 'speakup_token';
