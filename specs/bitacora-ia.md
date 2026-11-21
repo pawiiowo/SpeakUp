@@ -206,3 +206,36 @@ Formato de cada entrada:
   Se aceptan QR o código (D32).
 - **Verifiqué:** 9 pruebas nuevas contra la base de prueba (sin entrar → 403, entrar → puede pedir la palabra,
   sesión nueva → vuelve a pedir el código, el código viejo ya no sirve) y la prueba en mi iPhone.
+
+### 22. ¿Registrar asistencia en el historial?
+- **Pedí:** que las sesiones donde el alumno no participó se vieran en gris, y pregunté si también se podía
+  marcar a qué clases faltó.
+- **Propuso:** guardar cada entrada a la clase y marcar "Sin asistencia" en las sesiones sin entrada.
+- **Decidí:** no hacerlo. Tomar asistencia sería otra feature fuera del objetivo de la app, se siente como
+  vigilancia y la app no sabe si el alumno estuvo en el salón (D33). Pedí que la sesión gris tuviera la leyenda
+  "Sin participaciones" y que hubiera un punto de color distinto para cada caso.
+- **Verifiqué:** en mi iPhone, las sesiones sin participaciones salen en gris y no se pueden tocar.
+
+### 23. Modales que se cerraban solos
+- **Pedí:** al probar noté que el modal se cerraba al tocar fuera; quería que solo se cerrara con sus botones
+  y que la IA revisara los demás modales.
+- **Propuso:** cambiar el componente `ModalOpciones`, que usan todos los modales, en vez de cada pantalla.
+- **Decidí:** aceptar, porque un solo cambio arregla todos.
+- **Verifiqué:** toqué fuera de cada modal y ninguno se cerró.
+
+### 24. Copia local para usar la app sin internet
+- **Pedí:** cumplir el requisito de persistencia local.
+- **Propuso:** guardar las listas (mis clases y la primera página del historial) con AsyncStorage y borrar la
+  copia al cerrar sesión. Comparó con SQLite y con SecureStore (D34).
+- **Decidí:** aceptar AsyncStorage: son listas pequeñas y SQLite era más de lo necesario. Al probar, el aviso
+  rojo se sentía alarmante aunque sí había datos; acepté cambiarlo a gris y la IA ajustó el texto a "No se pudo
+  actualizar", porque la copia también sale cuando falla el servidor y no solo sin internet.
+- **Verifiqué:** con el backend apagado, cerré y abrí Expo Go y la lista guardada siguió saliendo, sin pantalla
+  roja.
+
+### 25. La materia no cambia después de la primera sesión
+- **Pedí:** que el docente no pueda renombrar una clase que ya impartió, para no confundir a los alumnos.
+- **Propuso:** esconder "Editar materia" con un dato `tiene_sesiones` y además validar en el backend con un 409
+  dentro del mismo `UPDATE` (D35).
+- **Decidí:** aceptar. La validación en el backend importa porque se puede llamar a la API sin la app.
+- **Verifiqué:** pruebas contra la base de prueba (editar antes de iniciar da 200, después da 409) y en la app.
