@@ -47,9 +47,12 @@ router.post('/unirse', verificarToken, exigirRol('alumno'), async (req, res) => 
       return res.status(404).json({ error: 'No hay una clase abierta con ese código.' });
     }
 
-    // Se recuerda que el alumno se unió, para mostrarla en "Mis clases" (F08). Si ya estaba, no pasa nada.
+    // Se recuerda que el alumno se unió (para "Mis clases", F08) y a qué sesión entró hoy (D32).
+    // Si ya estaba inscrito, solo se actualiza la sesión.
     await pool.query(
-      'INSERT INTO inscripciones (alumno_id, clase_id) VALUES ($1, $2) ON CONFLICT DO NOTHING',
+      `INSERT INTO inscripciones (alumno_id, clase_id, sesion_id)
+       VALUES ($1, $2, (SELECT id FROM sesiones WHERE clase_id = $2 AND fecha_fin IS NULL))
+       ON CONFLICT (alumno_id, clase_id) DO UPDATE SET sesion_id = EXCLUDED.sesion_id`,
       [req.usuario.id, resultado.rows[0].id]
     );
 
