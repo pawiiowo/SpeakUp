@@ -9,6 +9,14 @@ export function validarEmail(email: string): string | null {
   return null;
 }
 
+// Para el registro: además del formato, exige el correo institucional (D11).
+export function validarEmailInstitucional(email: string): string | null {
+  const error = validarEmail(email);
+  if (error) return error;
+  if (!email.trim().toLowerCase().endsWith('@uabc.edu.mx')) return 'Usa tu correo institucional @uabc.edu.mx.';
+  return null;
+}
+
 export function validarPasswordLogin(password: string): string | null {
   return password.length === 0 ? 'Escribe tu contraseña.' : null;
 }

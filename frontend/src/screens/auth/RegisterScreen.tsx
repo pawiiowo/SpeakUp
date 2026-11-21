@@ -8,7 +8,7 @@ import { useAuth } from '../../context/AuthContext';
 import { mensajeDeError } from '../../services/api';
 import {
   validarConfirmacion,
-  validarEmail,
+  validarEmailInstitucional,
   validarNombre,
   validarPasswordNueva,
 } from '../../utils/validaciones';
@@ -39,7 +39,7 @@ export default function RegisterScreen({ navigation }: Props) {
   const crearCuenta = async () => {
     const nuevos: Errores = {
       nombre: validarNombre(nombre),
-      email: validarEmail(email),
+      email: validarEmailInstitucional(email),
       password: validarPasswordNueva(password),
       confirmacion: validarConfirmacion(password, confirmacion),
     };
