@@ -206,7 +206,8 @@ const TAMANO_CIRCULO = 170;
 
 const styles = StyleSheet.create({
   sinPadding: { padding: 0 },
-  contenido: { padding: espacio.l, paddingBottom: espacio.xl },
+  // flexGrow + justifyContent: el contenido queda centrado verticalmente, y si crece (fila larga) se puede desplazar.
+  contenido: { flexGrow: 1, justifyContent: 'center', padding: espacio.l, paddingBottom: espacio.xl },
   centro: { justifyContent: 'center', alignItems: 'center', gap: espacio.m },
   mensaje: { color: colores.textoSuave, fontSize: 16, textAlign: 'center' },
   aviso: {
