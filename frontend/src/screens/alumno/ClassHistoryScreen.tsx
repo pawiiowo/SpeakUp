@@ -94,21 +94,31 @@ export default function ClassHistoryScreen({ route, navigation }: Props) {
   const renderSesion = ({ item, index }: { item: SesionHistorial; index: number }) => {
     const etiqueta = etiquetaDeFecha(item.fecha_inicio);
     const anterior = index > 0 ? etiquetaDeFecha(sesiones[index - 1].fecha_inicio) : null;
+    // Gris y sin poder tocarse: sesión terminada en la que el alumno no participó (D33).
+    const sinParticipar = !item.en_curso && item.participaciones === 0;
     return (
       <View>
         {etiqueta !== anterior ? <Text style={styles.grupo}>{etiqueta}</Text> : null}
         <Pressable
           onPress={() => abrir(item)}
+          disabled={sinParticipar}
           accessibilityRole="button"
-          accessibilityLabel={`Sesión ${item.numero}${item.en_curso ? ', en curso' : ''}`}
-          style={({ pressed }) => [styles.sesion, item.en_curso && styles.sesionEnCurso, pressed && styles.presionada]}
+          accessibilityState={{ disabled: sinParticipar }}
+          accessibilityLabel={`Sesión ${item.numero}${item.en_curso ? ', en curso' : sinParticipar ? ', sin participaciones' : ', participaste'}`}
+          style={({ pressed }) => [
+            styles.sesion,
+            item.en_curso && styles.sesionEnCurso,
+            sinParticipar && styles.sesionSinParticipar,
+            pressed && styles.presionada,
+          ]}
         >
-          {item.en_curso ? <View style={styles.punto} /> : null}
-          <Text style={[styles.textoSesion, item.en_curso && styles.textoEnCurso]}>Sesión {item.numero}</Text>
-          {/* Punto terracota: el alumno participó al menos una vez en esa sesión. */}
-          {!item.en_curso && item.participaciones > 0 ? (
-            <View style={styles.puntoParticipo} accessibilityLabel="Participaste" />
-          ) : null}
+          <View style={styles.filaSesion}>
+            {item.en_curso ? <View style={styles.punto} /> : null}
+            <Text style={[styles.textoSesion, sinParticipar && styles.textoSinParticipar]}>Sesión {item.numero}</Text>
+            {/* Punto terracota: el alumno participó al menos una vez en esa sesión. */}
+            {!item.en_curso && item.participaciones > 0 ? <View style={styles.puntoParticipo} /> : null}
+          </View>
+          {sinParticipar ? <Text style={styles.leyendaSesion}>Sin participaciones</Text> : null}
         </Pressable>
       </View>
     );
@@ -169,20 +179,21 @@ const styles = StyleSheet.create({
   lista: { paddingBottom: espacio.l },
   grupo: { color: colores.textoSuave, fontWeight: '600', marginTop: espacio.m, marginBottom: espacio.s, marginLeft: espacio.s },
   sesion: {
-    backgroundColor: '#D9D3C9',
+    backgroundColor: colores.blanco,
     borderRadius: radio.boton,
-    paddingVertical: 14,
+    paddingVertical: 12,
     marginHorizontal: espacio.l,
     marginBottom: espacio.s,
-    flexDirection: 'row',
-    justifyContent: 'center',
     alignItems: 'center',
   },
   sesionEnCurso: { backgroundColor: colores.fondo },
+  sesionSinParticipar: { backgroundColor: '#D9D3C9' },
+  filaSesion: { flexDirection: 'row', alignItems: 'center' },
   presionada: { opacity: 0.8 },
   punto: { width: 10, height: 10, borderRadius: 5, backgroundColor: colores.activo, marginRight: espacio.s },
-  textoSesion: { fontSize: 17, fontWeight: '700', color: colores.textoSuave },
-  textoEnCurso: { color: colores.texto },
+  textoSesion: { fontSize: 17, fontWeight: '700', color: colores.texto },
+  textoSinParticipar: { color: colores.textoSuave },
+  leyendaSesion: { fontSize: 13, color: colores.textoSuave, marginTop: 2 },
   pie: { marginVertical: espacio.m },
   puntoParticipo: { width: 10, height: 10, borderRadius: 5, backgroundColor: colores.primario, marginLeft: espacio.s },
   leyenda: { flexDirection: 'row', alignItems: 'center', justifyContent: 'flex-end', marginBottom: espacio.s, gap: espacio.xs },
