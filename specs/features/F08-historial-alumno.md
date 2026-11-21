@@ -48,24 +48,24 @@ el historial de sesiones con cuántas participaciones tuvo en cada una (prototip
 | Sin internet | — | Aviso, sin borrar la última lista |
 
 ## Criterios de aceptación
-- [ ] Después de unirse a una clase, aparece en "Mis clases" del alumno.
-- [ ] La clase en curso aparece primero, con "● En curso".
-- [ ] Cada vez que el docente inicia la clase se crea una sesión nueva en el historial.
-- [ ] El historial carga de 10 en 10 al llegar al final de la lista.
-- [ ] Una sesión muestra cuántas veces el alumno tuvo la palabra.
-- [ ] Una sesión sin participaciones aparece en gris, con punto gris, y no se puede tocar.
-- [ ] Un alumno no puede ver el historial de una clase a la que no se unió.
-- [ ] Un alumno inscrito no puede pedir la palabra en una clase nueva sin entrar con el QR o el código de hoy.
-- [ ] Después de entrar hoy, puede volver a la fila desde "Mis clases" sin escribir el código otra vez.
+- [x] Después de unirse a una clase, aparece en "Mis clases" del alumno.
+- [x] La clase en curso aparece primero, con "● En curso".
+- [x] Cada vez que el docente inicia la clase se crea una sesión nueva en el historial.
+- [x] El historial carga de 10 en 10 al llegar al final de la lista.
+- [x] Una sesión muestra cuántas veces el alumno tuvo la palabra.
+- [x] Una sesión sin participaciones aparece en gris, con punto gris, y no se puede tocar.
+- [x] Un alumno no puede ver el historial de una clase a la que no se unió.
+- [x] Un alumno inscrito no puede pedir la palabra en una clase nueva sin entrar con el QR o el código de hoy.
+- [x] Después de entrar hoy, puede volver a la fila desde "Mis clases" sin escribir el código otra vez.
 
 ## Tasks
 - [x] H01 — Agregar esta spec.
-- [ ] H02 — Tablas `sesiones` e `inscripciones` y `turnos.sesion_id`.
-- [ ] H03 — Iniciar y terminar clase abren y cierran la sesión.
-- [ ] H04 — Pedir la palabra guarda la sesión; unirse registra la inscripción.
-- [ ] H05 — Endpoints del alumno (mis clases e historial paginado).
-- [ ] H06 — Tab "Mis clases" del alumno.
-- [ ] H07 — Historial paginado con el modal de participaciones.
+- [x] H02 — Tablas `sesiones` e `inscripciones` y `turnos.sesion_id`.
+- [x] H03 — Iniciar y terminar clase abren y cierran la sesión.
+- [x] H04 — Pedir la palabra guarda la sesión; unirse registra la inscripción.
+- [x] H05 — Endpoints del alumno (mis clases e historial paginado).
+- [x] H06 — Tab "Mis clases" del alumno.
+- [x] H07 — Historial paginado con el modal de participaciones.
 
 ## Fuera de alcance
 - Asistencia: el historial muestra participación, no si el alumno asistió (D33).

@@ -39,17 +39,17 @@ clase cerrada mientras el alumno espera (mensaje y regreso a Unirse).
 
 ## Tasks
 - [x] FE01 — Agregar esta spec.
-- [ ] FE02 — Tema y componentes base (`Pantalla`, `Boton`, `Campo`).
-- [ ] FE03 — Servicio `api` (URL por variable de entorno, token desde SecureStore, mensajes de error).
-- [ ] FE04 — `AuthContext`: iniciar sesión, cerrar sesión, restaurar al abrir y salir si llega un 401.
-- [ ] FE05 — Navegación por rol.
-- [ ] FE06 — Login y Registro con validación.
-- [ ] FE07 — Perfil con cerrar sesión.
-- [ ] FE08 — Mis clases (lista con estados).
-- [ ] FE09 — Crear y editar clase (modal).
-- [ ] FE10 — Sesión del docente: código, QR, fila cada 3 s, "Siguiente", cerrar y reabrir.
-- [ ] FE11 — Unirse con código.
-- [ ] FE12 — Mi lugar en la fila: posición cada 3 s, pedir la palabra y salir.
+- [x] FE02 — Tema y componentes base (`Pantalla`, `Boton`, `Campo`).
+- [x] FE03 — Servicio `api` (URL por variable de entorno, token desde SecureStore, mensajes de error).
+- [x] FE04 — `AuthContext`: iniciar sesión, cerrar sesión, restaurar al abrir y salir si llega un 401.
+- [x] FE05 — Navegación por rol.
+- [x] FE06 — Login y Registro con validación.
+- [x] FE07 — Perfil con cerrar sesión.
+- [x] FE08 — Mis clases (lista con estados).
+- [x] FE09 — Crear y editar clase (modal).
+- [x] FE10 — Sesión del docente: código, QR, fila cada 3 s, "Siguiente", cerrar y reabrir.
+- [x] FE11 — Unirse con código.
+- [x] FE12 — Mi lugar en la fila: posición cada 3 s, pedir la palabra y salir.
 
 ## Sin internet (persistencia local, D34)
 - Cada vez que "Mis clases" (docente y alumno) y la primera página del historial cargan bien, se guarda una
