@@ -239,3 +239,14 @@ Formato de cada entrada:
   dentro del mismo `UPDATE` (D35).
 - **Decidí:** aceptar. La validación en el backend importa porque se puede llamar a la API sin la app.
 - **Verifiqué:** pruebas contra la base de prueba (editar antes de iniciar da 200, después da 409) y en la app.
+
+### 26. Documentación que encontró diferencias con la spec
+- **Pedí:** adelantar la documentación de la API y de la arquitectura.
+- **Propuso:** documentar los endpoints leyendo el código en vez de las specs. Al hacerlo encontró tres
+  problemas: el backend no exigía el correo institucional (D11), firmaba los tokens con una clave por defecto
+  si faltaba `JWT_SECRET`, y `backend/node_modules` estaba subido al repositorio.
+- **Decidí:** corregirlos de inmediato, cada uno en su propio commit. El registro ahora valida en el backend
+  (con Postman se podía saltar la validación de la app), el servidor no arranca sin `JWT_SECRET` y
+  `node_modules` salió del repositorio sin borrarse de mi computadora.
+- **Verifiqué:** 4 pruebas unitarias nuevas de `validarRegistro` (11 en total), 8 pruebas contra la base de
+  prueba (correo de Gmail rechazado, mayúsculas guardadas en minúsculas, login con mayúsculas) y en la app.
