@@ -20,6 +20,37 @@ function validarMateria(materia) {
   return { valor };
 }
 
+const DOMINIO_INSTITUCIONAL = '@uabc.edu.mx';
+const PATRON_EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+const ROLES = ['alumno', 'profesor'];
+
+// Valida los datos del registro (D11): correo institucional guardado en minúsculas,
+// nombre de 2 a 100 caracteres, contraseña de al menos 6 y rol alumno o profesor.
+// Son las mismas reglas que revisa la app, pero aquí no se pueden saltar.
+// Devuelve { valor } con los datos ya limpios, o { error } con el mensaje para el usuario.
+function validarRegistro(datos) {
+  const { nombre, email, password, rol } = datos ?? {};
+  const campos = [nombre, email, password, rol];
+  if (campos.some((campo) => typeof campo !== 'string' || campo.trim().length === 0)) {
+    return { error: 'Todos los campos son obligatorios.' };
+  }
+  const nombreLimpio = nombre.trim();
+  if (nombreLimpio.length < 2 || nombreLimpio.length > 100) {
+    return { error: 'El nombre debe tener de 2 a 100 caracteres.' };
+  }
+  const emailLimpio = email.trim().toLowerCase();
+  if (!PATRON_EMAIL.test(emailLimpio) || !emailLimpio.endsWith(DOMINIO_INSTITUCIONAL) || emailLimpio.length > 100) {
+    return { error: 'Usa tu correo institucional @uabc.edu.mx.' };
+  }
+  if (password.length < 6) {
+    return { error: 'La contraseña debe tener al menos 6 caracteres.' };
+  }
+  if (!ROLES.includes(rol)) {
+    return { error: 'El rol no es válido.' };
+  }
+  return { valor: { nombre: nombreLimpio, email: emailLimpio, password, rol } };
+}
+
 const MAX_INTENTOS_CODIGO = 5;
 
 // Ejecuta guardar(codigo) con un código nuevo. Si PostgreSQL lo rechaza porque el código
@@ -37,4 +68,4 @@ async function conCodigoUnico(guardar) {
   throw new Error('No se pudo generar un código único para la clase.');
 }
 
-module.exports = { generarCodigo, validarMateria, conCodigoUnico };
+module.exports = { generarCodigo, validarMateria, validarRegistro, conCodigoUnico };

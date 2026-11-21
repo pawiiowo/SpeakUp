@@ -4,6 +4,7 @@ const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const pool = require('./db');
 const { verificarToken } = require('./authMiddleware');
+const { validarRegistro } = require('./utils');
 require('dotenv').config();
 const clasesRoutes = require('./src/routes/clases');
 const filaRoutes = require('./src/routes/fila');
@@ -34,14 +35,16 @@ app.get('/api/test-db', async (req, res) => {
 });
 
 app.post('/api/auth/register', async (req, res) => {
-  const { nombre, email, password, rol } = req.body;
-
-  if (!nombre || !email || !password || !rol) {
-    return res.status(400).json({ error: 'Todos los campos son obligatorios' });
+  // D11: correo institucional en minúsculas y demás reglas del registro.
+  const { valor, error } = validarRegistro(req.body);
+  if (error) {
+    return res.status(400).json({ error });
   }
+  const { nombre, email, password, rol } = valor;
 
   try {
-    const existeUsuario = await pool.query('SELECT * FROM usuarios WHERE email = $1', [email]);
+    // LOWER también encuentra cuentas viejas guardadas con mayúsculas.
+    const existeUsuario = await pool.query('SELECT 1 FROM usuarios WHERE LOWER(email) = $1', [email]);
     if (existeUsuario.rows.length > 0) {
       return res.status(400).json({ error: 'El correo electrónico ya está registrado' });
     }
@@ -65,14 +68,17 @@ app.post('/api/auth/register', async (req, res) => {
 });
 
 app.post('/api/auth/login', async (req, res) => {
-  const { email, password } = req.body;
+  const { email, password } = req.body ?? {};
 
-  if (!email || !password) {
+  if (typeof email !== 'string' || typeof password !== 'string' || !email.trim() || !password) {
     return res.status(400).json({ error: 'Por favor ingresa correo y contraseña' });
   }
 
   try {
-    const resultado = await pool.query('SELECT * FROM usuarios WHERE email = $1', [email]);
+    // El correo se compara en minúsculas (D11), así "Pau@uabc.edu.mx" y "pau@uabc.edu.mx" son la misma cuenta.
+    const resultado = await pool.query('SELECT * FROM usuarios WHERE LOWER(email) = $1', [
+      email.trim().toLowerCase(),
+    ]);
     if (resultado.rows.length === 0) {
       return res.status(400).json({ error: 'Credenciales inválidas' });
     }
