@@ -94,7 +94,8 @@ export default function ClassHistoryScreen({ route, navigation }: Props) {
   const renderSesion = ({ item, index }: { item: SesionHistorial; index: number }) => {
     const etiqueta = etiquetaDeFecha(item.fecha_inicio);
     const anterior = index > 0 ? etiquetaDeFecha(sesiones[index - 1].fecha_inicio) : null;
-    // Gris y sin poder tocarse: sesión terminada en la que el alumno no participó (D33).
+    // Sesión terminada sin participaciones (D33): gris, punto gris y sin poder tocarse.
+    // Cada sesión lleva un solo punto de color; la leyenda de arriba explica qué significa.
     const sinParticipar = !item.en_curso && item.participaciones === 0;
     return (
       <View>
@@ -119,7 +120,6 @@ export default function ClassHistoryScreen({ route, navigation }: Props) {
             {!item.en_curso && item.participaciones > 0 ? <View style={styles.puntoParticipo} /> : null}
             {sinParticipar ? <View style={styles.puntoSinParticipar} /> : null}
           </View>
-          {sinParticipar ? <Text style={styles.leyendaSesion}>Sin participaciones</Text> : null}
         </Pressable>
       </View>
     );
@@ -196,7 +196,6 @@ const styles = StyleSheet.create({
   punto: { width: 10, height: 10, borderRadius: 5, backgroundColor: colores.activo, marginRight: espacio.s },
   textoSesion: { fontSize: 17, fontWeight: '700', color: colores.texto },
   textoSinParticipar: { color: colores.textoSuave },
-  leyendaSesion: { fontSize: 13, color: colores.textoSuave, marginTop: 2 },
   pie: { marginVertical: espacio.m },
   puntoParticipo: { width: 10, height: 10, borderRadius: 5, backgroundColor: colores.primario, marginLeft: espacio.s },
   puntoSinParticipar: { width: 10, height: 10, borderRadius: 5, backgroundColor: colores.textoSuave, marginLeft: espacio.s },
