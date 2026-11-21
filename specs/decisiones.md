@@ -231,3 +231,28 @@ Formato de cada entrada:
 - **Por qué:** Al probar la app en el teléfono, no tenía sentido que una clase recién creada (por ejemplo,
   días antes) ya tuviera una sesión activa y un código válido. Abrir la sesión es una acción del día de
   clase.
+
+### D28 — Historial del alumno después del flujo principal
+- **Fecha:** 2026-11-20 · **Spec:** F08 (reducida)
+- **Decisión:** Se agrega "Mis clases" del alumno con el historial de sesiones paginado, pero después de
+  terminar la sesión del docente y la fila del alumno.
+- **Alternativas:** Dejarlo como trabajo futuro (D23), o hacerlo antes que la fila.
+- **Por qué:** Es una parte importante del prototipo y cubre el requisito de FlatList con paginación. Va
+  después porque la demo depende primero de la fila.
+
+### D29 — Funciones nativas: compartir, notificación local y cámara
+- **Fecha:** 2026-11-20 · **Spec:** FE-frontend
+- **Decisión:** Las tres funciones nativas son: compartir el código de la clase, una notificación local
+  con vibración cuando al alumno le toca hablar, y la cámara para escanear el QR de la clase.
+- **Alternativas:** Geolocalización o sensores; notificaciones push remotas.
+- **Por qué:** Las tres son parte natural del flujo de la clase. Las push remotas no funcionan en Expo Go
+  desde SDK 53 (requieren un development build); las notificaciones locales sí. Si la notificación local
+  no cuenta como "push", el plan B es usar un sensor.
+
+### D30 — Textos: "clase" para la sesión del salón y "sesión" solo para la cuenta
+- **Fecha:** 2026-11-20 · **Spec:** FE-frontend
+- **Decisión:** "Iniciar clase", "Ver fila", "Terminar clase" y el indicador "● En curso". "Cerrar sesión"
+  queda solo para salir de la cuenta.
+- **Alternativas:** "Abrir/Cerrar sesión" de la clase (confuso con la cuenta), "Abrir/Cerrar fila".
+- **Por qué:** Al probar la app noté que "Cerrar sesión" en una clase se confunde con salir de la cuenta.
+  "Iniciar/terminar clase" son las palabras que un docente ya usa.
