@@ -161,3 +161,22 @@ Formato de cada entrada:
   primero, los demás suben; pedir dos veces da 409; el docente ve los nombres en orden y el alumno nunca
   recibe nombres; "Siguiente" da la palabra al primero y marca como atendido al que hablaba; con la clase
   cerrada no se puede pedir la palabra.
+
+### 17. Frontend base y pruebas en mi iPhone
+- **Pedí:** el frontend con la UX de mi prototipo de Figma.
+- **Propuso:** leer el prototipo (colores y pantallas), componentes propios en lugar de React Native Paper
+  (D25), subir a SDK 58 (D26) y usar el `SafeAreaView` de `react-native-safe-area-context` porque el de
+  React Native está obsoleto.
+- **Decidí:** aceptar, y al probar en el iPhone le pedí cambios: quitar los emojis (logo e íconos), un modal
+  propio en lugar del menú de iOS, que la clase no nazca con la sesión abierta (D27) y cambiar textos que
+  confundían "sesión" de la clase con la de la cuenta (D30).
+- **Verifiqué:** probé en el iPhone. Encontré que el placeholder del correo salía con letras separadas
+  (iOS reusaba el estilo del campo del código) y que sin backend la lista no avisaba nada; la IA corrigió
+  las dos cosas. La conexión fallaba porque a mi `.env` le faltaba el puerto `:3000`.
+
+### 18. Estimación de tiempos
+- **Pedí:** cuánto tardaría agregar "Mis clases" del alumno con su historial.
+- **Propuso:** primero estimó ~4.5–5 horas.
+- **Decidí:** le señalé que sus tiempos eran de una persona escribiendo el código, y que cosas que estimó en
+  45 minutos las hacía en 10. Corrigió a ~1–1.5 horas, la mayor parte en mis pruebas, y con eso decidí
+  hacerlo (D28).
