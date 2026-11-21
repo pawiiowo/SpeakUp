@@ -35,7 +35,8 @@ Docente (rol `profesor`).
 2. Se abre `ClassForm` vacío.
 3. Escribe la materia y presiona "Guardar".
 4. El sistema valida y guarda la clase **sin sesión abierta** (D27).
-5. Regresa a `Classes` y la nueva clase aparece primero en la lista, marcada "Sin sesión".
+5. Regresa a `Classes` y la nueva clase aparece primero en la lista. Solo las clases en curso llevan
+   etiqueta ("● En curso"); las demás no llevan ninguna, porque "Sin iniciar" confundía en clases ya impartidas.
 
 **Editar**
 1. En `Classes`, el docente elige "Editar materia" en una clase que nunca ha iniciado (D35).
