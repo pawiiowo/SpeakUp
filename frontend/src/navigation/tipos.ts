@@ -14,6 +14,7 @@ export type AppStackParams = {
   TeacherSession: { claseId: number; materia: string };
   StudentQueue: { claseId: number; materia: string };
   ClassHistory: { claseId: number; materia: string };
+  QrScanner: undefined;
 };
 
 // Tabs del alumno (se usan para ir de "Mis clases" a "Unirse").

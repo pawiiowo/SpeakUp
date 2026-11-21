@@ -73,6 +73,8 @@ export default function JoinClassScreen() {
           onSubmitEditing={alEnviarDesdeTeclado}
         />
         <Boton titulo="Unirme" onPress={unirse} cargando={enviando} deshabilitado={codigo.trim().length === 0} />
+        <Text style={styles.separador}>o</Text>
+        <Boton titulo="Escanear QR" variante="secundario" onPress={() => navigation.navigate('QrScanner')} />
       </KeyboardAvoidingView>
       </Pressable>
     </Pantalla>
@@ -85,4 +87,5 @@ const styles = StyleSheet.create({
   titulo: { fontSize: 32, fontWeight: '800', color: colores.texto, textAlign: 'center' },
   instruccion: { color: colores.textoSuave, textAlign: 'center', marginTop: espacio.s, marginBottom: espacio.xl },
   codigo: { fontSize: 28, letterSpacing: 6, textAlign: 'center', fontWeight: '700' },
+  separador: { color: colores.textoSuave, textAlign: 'center', marginVertical: espacio.m },
 });

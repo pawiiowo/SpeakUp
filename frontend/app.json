@@ -24,7 +24,13 @@
     "plugins": [
       "expo-status-bar",
       "expo-secure-store",
-      "expo-notifications"
+      "expo-notifications",
+      [
+        "expo-camera",
+        {
+          "cameraPermission": "SpeakUp usa la cámara para leer el código QR de tu clase."
+        }
+      ]
     ]
   }
 }

@@ -14,6 +14,7 @@ import TeacherSessionScreen from '../screens/docente/TeacherSessionScreen';
 import StudentQueueScreen from '../screens/alumno/StudentQueueScreen';
 import StudentClassesScreen from '../screens/alumno/StudentClassesScreen';
 import ClassHistoryScreen from '../screens/alumno/ClassHistoryScreen';
+import QrScannerScreen from '../screens/alumno/QrScannerScreen';
 import { colores } from '../theme';
 
 const AuthStack = createNativeStackNavigator<AuthStackParams>();
@@ -94,6 +95,7 @@ export default function AppNavigator() {
       <AppStack.Screen name="ClassForm" component={ClassFormScreen} options={{ presentation: 'modal', headerShown: false }} />
       <AppStack.Screen name="TeacherSession" component={TeacherSessionScreen} options={({ route }) => ({ title: route.params.materia })} />
       <AppStack.Screen name="StudentQueue" component={StudentQueueScreen} options={({ route }) => ({ title: route.params.materia })} />
+      <AppStack.Screen name="QrScanner" component={QrScannerScreen} options={{ presentation: 'fullScreenModal', headerShown: false }} />
       <AppStack.Screen name="ClassHistory" component={ClassHistoryScreen} options={({ route }) => ({ title: route.params.materia })} />
     </AppStack.Navigator>
   );
