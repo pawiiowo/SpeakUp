@@ -1,4 +1,4 @@
-import { ActivityIndicator, StyleSheet, Text, View } from 'react-native';
+import { ActivityIndicator, StyleSheet, View } from 'react-native';
 import Icono, { NombreIcono } from '../components/Icono';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
@@ -11,6 +11,7 @@ import ClassesScreen from '../screens/docente/ClassesScreen';
 import ClassFormScreen from '../screens/docente/ClassFormScreen';
 import JoinClassScreen from '../screens/alumno/JoinClassScreen';
 import TeacherSessionScreen from '../screens/docente/TeacherSessionScreen';
+import StudentQueueScreen from '../screens/alumno/StudentQueueScreen';
 import { colores } from '../theme';
 
 const AuthStack = createNativeStackNavigator<AuthStackParams>();
@@ -44,15 +45,6 @@ function TabsAlumno() {
       <Tabs.Screen name="Unirse" component={JoinClassScreen} options={{ tabBarIcon: icono('unirse') }} />
       <Tabs.Screen name="Perfil" component={PerfilScreen} options={{ tabBarIcon: icono('perfil') }} />
     </Tabs.Navigator>
-  );
-}
-
-// Pantalla temporal para las rutas que todavía no se implementan (FE12).
-function EnConstruccion() {
-  return (
-    <View style={styles.centro}>
-      <Text style={styles.texto}>Pantalla en construcción</Text>
-    </View>
   );
 }
 
@@ -93,12 +85,11 @@ export default function AppNavigator() {
       />
       <AppStack.Screen name="ClassForm" component={ClassFormScreen} options={{ presentation: 'modal', headerShown: false }} />
       <AppStack.Screen name="TeacherSession" component={TeacherSessionScreen} options={({ route }) => ({ title: route.params.materia })} />
-      <AppStack.Screen name="StudentQueue" component={EnConstruccion} options={({ route }) => ({ title: route.params.materia })} />
+      <AppStack.Screen name="StudentQueue" component={StudentQueueScreen} options={({ route }) => ({ title: route.params.materia })} />
     </AppStack.Navigator>
   );
 }
 
 const styles = StyleSheet.create({
   centro: { flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: colores.fondo },
-  texto: { color: colores.textoSuave, fontSize: 16 },
 });
