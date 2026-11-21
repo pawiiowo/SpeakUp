@@ -296,3 +296,13 @@ Formato de cada entrada:
 - **Por qué:** Son listas pequeñas que se guardan y leen completas, así que AsyncStorage (clave-valor) basta y
   SQLite sería más complejo de lo necesario. SecureStore está pensado para secretos pequeños como el token, no
   para datos de pantalla. La copia se borra al cerrar sesión por privacidad.
+
+### D35 — La materia no se edita después de la primera sesión
+- **Fecha:** 2026-11-20 · **Spec:** F03
+- **Decisión:** El docente solo puede cambiar la materia de una clase que nunca ha iniciado una sesión.
+  Después, "Editar materia" desaparece y `PUT /api/clases/:id` responde 409.
+- **Alternativas:** Permitir editar siempre; guardar el nombre de la materia en cada sesión.
+- **Por qué:** El historial de los alumnos muestra la materia de la clase. Si cambia después de impartirla,
+  las sesiones pasadas aparecerían con otro nombre y el alumno no reconocería su clase. Antes de la primera
+  sesión nadie la ha visto, así que corregir un error de dedo sigue siendo posible. La validación va en el
+  backend en la misma consulta del `UPDATE`, para que no se pueda saltar desde otra app.
