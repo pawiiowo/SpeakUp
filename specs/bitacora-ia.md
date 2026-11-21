@@ -180,3 +180,29 @@ Formato de cada entrada:
 - **Decidí:** le señalé que sus tiempos eran de una persona escribiendo el código, y que cosas que estimó en
   45 minutos las hacía en 10. Corrigió a ~1–1.5 horas, la mayor parte en mis pruebas, y con eso decidí
   hacerlo (D28).
+
+### 19. Historial del alumno: un error encontrado por las pruebas
+- **Pedí:** el backend del historial (sesiones, inscripciones y participaciones).
+- **Propuso:** tablas `sesiones` e `inscripciones`, y que iniciar y terminar clase abrieran y cerraran la sesión.
+- **Decidí:** aceptar.
+- **Verifiqué:** la IA probó todo contra una base de prueba, y una de sus pruebas falló: al terminar la clase, el
+  turno de quien tenía la palabra quedaba `cancelado`, así que esa participación no contaba en el historial.
+  Se corrigió primero la spec y luego el código: quien hablaba queda `atendido` y solo los que esperan se
+  cancelan.
+
+### 20. Error de tipos que encontré yo
+- **Pedí:** la pantalla del historial con FlatList paginada.
+- **Propuso:** un pie de lista que valía `null` mientras no cargaba más.
+- **Decidí:** al correr `npx tsc --noEmit` en mi computadora salió un error: en React Native 0.88,
+  `ListFooterComponent` no acepta `null`. La IA no había podido correr `tsc` en su entorno. Se corrigió a `undefined`.
+- **Verifiqué:** volví a correr `tsc` sin errores.
+
+### 21. ¿Cómo entra un alumno inscrito a una clase nueva?
+- **Pedí:** al probar, noté que un alumno que ya se había unido una vez entraba a la fila de cualquier clase
+  nueva sin código, y no entendía si eso estaba bien.
+- **Propuso:** dos lógicas: entrar directo por estar inscrito, o pedir el QR o el código en cada clase.
+  Recomendó la segunda porque la app es para clases presenciales y es coherente con D14.
+- **Decidí:** la segunda, pero le pedí que no fuera solo con QR, porque alguien podría no poder usar la cámara.
+  Se aceptan QR o código (D32).
+- **Verifiqué:** 9 pruebas nuevas contra la base de prueba (sin entrar → 403, entrar → puede pedir la palabra,
+  sesión nueva → vuelve a pedir el código, el código viejo ya no sirve) y la prueba en mi iPhone.
