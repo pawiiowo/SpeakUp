@@ -1,3 +1,4 @@
+import { NavigatorScreenParams } from '@react-navigation/native';
 import { Clase } from '../types';
 
 // Qué parámetros recibe cada pantalla. TypeScript avisa si una navegación manda datos incorrectos.
@@ -7,7 +8,8 @@ export type AuthStackParams = {
 };
 
 export type AppStackParams = {
-  Tabs: undefined;
+  // Las tabs pueden recibir a cuál ir (por ejemplo, "Mis clases" del alumno al terminar la clase).
+  Tabs: NavigatorScreenParams<TabsAlumnoParams> | undefined;
   ClassForm: { clase?: Clase } | undefined;
   TeacherSession: { claseId: number; materia: string };
   StudentQueue: { claseId: number; materia: string };

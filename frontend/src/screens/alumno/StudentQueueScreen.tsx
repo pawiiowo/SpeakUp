@@ -104,7 +104,7 @@ export default function StudentQueueScreen({ route, navigation }: Props) {
       <Pantalla conEncabezado style={styles.centro}>
         <Text style={styles.titulo}>La clase terminó</Text>
         <Text style={styles.mensaje}>El docente terminó la clase. Gracias por participar.</Text>
-        <Boton titulo="Volver" onPress={() => navigation.goBack()} />
+        <Boton titulo="Ir a mis clases" onPress={() => navigation.navigate('Tabs', { screen: 'MisClasesAlumno' })} />
       </Pantalla>
     );
   }
