@@ -2,6 +2,7 @@ import { createContext, ReactNode, useCallback, useContext, useEffect, useRef, u
 import { Alert } from 'react-native';
 import api, { CLAVE_TOKEN, CLAVE_USUARIO, registrarAlExpirarSesion } from '../services/api';
 import { borrar, guardar, leer } from '../services/almacenamiento';
+import { borrarCache } from '../services/cache';
 import { Rol, Usuario } from '../types';
 
 type AuthValor = {
@@ -24,6 +25,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const cerrarSesion = useCallback(async () => {
     await borrar(CLAVE_TOKEN);
     await borrar(CLAVE_USUARIO);
+    await borrarCache();
     setUsuario(null);
   }, []);
 
