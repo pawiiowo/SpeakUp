@@ -287,3 +287,12 @@ Formato de cada entrada:
   agrega presión. Además, la app solo sabe si el alumno entró en la app, no si estuvo en el salón, así que
   como lista de asistencia no sería confiable. Y sería otra feature fuera del objetivo principal. Mostrar
   solo la participación cumple la necesidad (ver en qué clases habló) sin juzgar por qué no participó.
+
+### D34 — Copia local de las listas con AsyncStorage
+- **Fecha:** 2026-11-20 · **Spec:** FE-frontend
+- **Decisión:** Las listas (mis clases y la primera página del historial) se guardan en AsyncStorage para
+  verlas sin internet. El token sigue en SecureStore.
+- **Alternativas:** SQLite; guardar todo en SecureStore; no guardar nada.
+- **Por qué:** Son listas pequeñas que se guardan y leen completas, así que AsyncStorage (clave-valor) basta y
+  SQLite sería más complejo de lo necesario. SecureStore está pensado para secretos pequeños como el token, no
+  para datos de pantalla. La copia se borra al cerrar sesión por privacidad.
