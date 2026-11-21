@@ -21,7 +21,8 @@ function validarMateria(materia) {
 }
 
 const DOMINIO_INSTITUCIONAL = '@uabc.edu.mx';
-const PATRON_EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+// Sin partes que se traslapen (el dominio no repite el punto), así la revisión es lineal y no se atora con textos largos.
+const PATRON_EMAIL = /^[^\s@]+@[^\s@.]+(?:\.[^\s@.]+)+$/;
 const ROLES = ['alumno', 'profesor'];
 
 // Valida los datos del registro (D11): correo institucional guardado en minúsculas,
