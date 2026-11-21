@@ -28,7 +28,7 @@ export default function JoinClassScreen() {
   // Si presiona "Ir" con el campo vacío, solo se cierra el teclado (no es un error todavía).
   const alEnviarDesdeTeclado = () => {
     if (codigo.trim().length === 0) Keyboard.dismiss();
-    else unirse();
+    else void unirse();
   };
 
   const unirse = async () => {

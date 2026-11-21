@@ -27,7 +27,7 @@ export default function PerfilScreen() {
             ? {
                 titulo: 'Cerrar sesión',
                 mensaje: '¿Seguro que quieres salir?',
-                opciones: [{ texto: 'Salir', variante: 'peligro', onPress: () => { setConfirmando(false); cerrarSesion(); } }],
+                opciones: [{ texto: 'Salir', variante: 'peligro', onPress: () => { setConfirmando(false); void cerrarSesion(); } }],
               }
             : null
         }

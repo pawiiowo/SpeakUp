@@ -37,7 +37,7 @@ export default function StudentClassesScreen() {
       setClases(data);
       setError(null);
       setDesdeCache(false);
-      guardarEnCache(claveCache, data);
+      void guardarEnCache(claveCache, data);
     } catch (e) {
       setError(mensajeDeError(e));
       // Sin conexión: si no hay nada en pantalla, se muestra la última copia guardada.
@@ -54,7 +54,7 @@ export default function StudentClassesScreen() {
 
   useFocusEffect(
     useCallback(() => {
-      cargar();
+      void cargar();
     }, [cargar])
   );
 
@@ -109,7 +109,7 @@ export default function StudentClassesScreen() {
       {error && clases.length === 0 ? (
         <View style={styles.centro}>
           <Text style={styles.mensaje}>{error}</Text>
-          <Boton titulo="Reintentar" onPress={() => { setCargando(true); cargar(); }} />
+          <Boton titulo="Reintentar" onPress={() => { setCargando(true); void cargar(); }} />
         </View>
       ) : (
         <FlatList
@@ -117,7 +117,7 @@ export default function StudentClassesScreen() {
           keyExtractor={(clase) => String(clase.id)}
           renderItem={renderClase}
           contentContainerStyle={clases.length === 0 ? styles.centro : styles.lista}
-          refreshControl={<RefreshControl refreshing={refrescando} onRefresh={() => { setRefrescando(true); cargar(); }} />}
+          refreshControl={<RefreshControl refreshing={refrescando} onRefresh={() => { setRefrescando(true); void cargar(); }} />}
           ListEmptyComponent={
             <View style={styles.vacio}>
               <Text style={styles.mensaje}>Aún no te has unido a ninguna clase</Text>

@@ -32,7 +32,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   // Al abrir la app, recupera la sesión guardada para no pedir el login cada vez.
   useEffect(() => {
-    (async () => {
+    void (async () => {
       try {
         const token = await leer(CLAVE_TOKEN);
         const guardado = await leer(CLAVE_USUARIO);
@@ -51,7 +51,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     registrarAlExpirarSesion(() => {
       if (avisoMostrado.current) return;
       avisoMostrado.current = true;
-      cerrarSesion().finally(() => setSesionExpirada(true));
+      void cerrarSesion().finally(() => setSesionExpirada(true));
     });
     return () => registrarAlExpirarSesion(null);
   }, [cerrarSesion]);

@@ -54,7 +54,7 @@ export default function ClassHistoryScreen({ route, navigation }: Props) {
       setPagina(1);
       setError(null);
       setDesdeCache(false);
-      guardarEnCache(claveCache, data);
+      void guardarEnCache(claveCache, data);
     } catch (e) {
       setError(mensajeDeError(e));
       // Sin conexión: se muestra la primera página guardada. No se piden más páginas sin internet.
@@ -72,7 +72,7 @@ export default function ClassHistoryScreen({ route, navigation }: Props) {
 
   useFocusEffect(
     useCallback(() => {
-      cargarInicio();
+      void cargarInicio();
     }, [cargarInicio])
   );
 
@@ -166,7 +166,7 @@ export default function ClassHistoryScreen({ route, navigation }: Props) {
         {error && sesiones.length === 0 ? (
           <View style={styles.centro}>
             <Text style={styles.mensaje}>{error}</Text>
-            <Boton titulo="Reintentar" onPress={() => { setCargando(true); cargarInicio(); }} />
+            <Boton titulo="Reintentar" onPress={() => { setCargando(true); void cargarInicio(); }} />
           </View>
         ) : (
           <FlatList
@@ -176,7 +176,7 @@ export default function ClassHistoryScreen({ route, navigation }: Props) {
             onEndReached={cargarMas}
             onEndReachedThreshold={0.3}
             contentContainerStyle={sesiones.length === 0 ? styles.centro : styles.lista}
-            refreshControl={<RefreshControl refreshing={refrescando} onRefresh={() => { setRefrescando(true); cargarInicio(); }} />}
+            refreshControl={<RefreshControl refreshing={refrescando} onRefresh={() => { setRefrescando(true); void cargarInicio(); }} />}
             ListEmptyComponent={<Text style={styles.mensaje}>Todavía no hay sesiones de esta clase.</Text>}
             ListFooterComponent={cargandoMas ? <ActivityIndicator color={colores.primario} style={styles.pie} /> : undefined}
           />

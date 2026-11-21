@@ -24,7 +24,7 @@ export function usePolling(tarea: () => Promise<void>, intervaloMs = 3000) {
         }
       };
 
-      ejecutar();
+      void ejecutar();
       const id = setInterval(ejecutar, intervaloMs);
       return () => {
         activo = false;

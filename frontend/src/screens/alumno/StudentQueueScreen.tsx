@@ -32,7 +32,7 @@ export default function StudentQueueScreen({ route, navigation }: Props) {
       const estado = datos.mi_turno?.estado ?? null;
       if (estado === 'hablando' && estadoAnterior.current !== 'hablando') {
         Vibration.vibrate(500);
-        avisarTurno(materia);
+        void avisarTurno(materia);
       }
       estadoAnterior.current = estado;
       setFila(datos);
