@@ -11,7 +11,13 @@ export type Opcion = {
 export type ContenidoModal = {
   titulo: string;
   mensaje?: string;
+  // Número grande dentro de un círculo verde (por ejemplo, participaciones en una sesión).
+  destacado?: string;
+  // Texto debajo del número destacado.
+  pie?: string;
   opciones: Opcion[];
+  // Oculta "Cancelar" cuando una de las opciones ya sirve para cerrar.
+  sinCancelar?: boolean;
 };
 
 type Props = {
@@ -33,6 +39,12 @@ export default function ModalOpciones({ contenido, onCerrar }: Props) {
             <View>
               <Text style={styles.titulo}>{contenido.titulo}</Text>
               {contenido.mensaje ? <Text style={styles.mensaje}>{contenido.mensaje}</Text> : null}
+              {contenido.destacado ? (
+                <View style={styles.destacado}>
+                  <Text style={styles.textoDestacado}>{contenido.destacado}</Text>
+                </View>
+              ) : null}
+              {contenido.pie ? <Text style={styles.pie}>{contenido.pie}</Text> : null}
               {contenido.opciones.map((opcion) => (
                 <Boton
                   key={opcion.texto}
@@ -42,9 +54,11 @@ export default function ModalOpciones({ contenido, onCerrar }: Props) {
                   style={styles.opcion}
                 />
               ))}
-              <Pressable onPress={onCerrar} style={styles.cancelar} accessibilityRole="button">
-                <Text style={styles.textoCancelar}>Cancelar</Text>
-              </Pressable>
+              {contenido.sinCancelar ? null : (
+                <Pressable onPress={onCerrar} style={styles.cancelar} accessibilityRole="button">
+                  <Text style={styles.textoCancelar}>Cancelar</Text>
+                </Pressable>
+              )}
             </View>
           ) : null}
         </Pressable>
@@ -71,6 +85,18 @@ const styles = StyleSheet.create({
   titulo: { fontSize: 22, fontWeight: '800', color: colores.texto, textAlign: 'center' },
   mensaje: { color: colores.textoSuave, textAlign: 'center', marginTop: espacio.s, fontSize: 15 },
   opcion: { marginTop: espacio.m },
+  destacado: {
+    width: 72,
+    height: 72,
+    borderRadius: 36,
+    backgroundColor: colores.activo,
+    alignSelf: 'center',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginTop: espacio.l,
+  },
+  textoDestacado: { color: colores.blanco, fontSize: 30, fontWeight: '800' },
+  pie: { fontSize: 18, fontWeight: '700', color: colores.texto, textAlign: 'center', marginTop: espacio.m },
   cancelar: { marginTop: espacio.m, paddingVertical: espacio.s, alignItems: 'center' },
   textoCancelar: { color: colores.textoSuave, fontSize: 16, fontWeight: '600' },
 });
