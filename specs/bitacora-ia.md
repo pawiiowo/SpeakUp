@@ -262,3 +262,13 @@ Formato de cada entrada:
   porque con `Alert` no se veía en la versión web.
 - **Verifiqué:** repetí los pasos de cada corrección en el iPhone y en la laptop; los demás casos salieron bien
   sin pantalla roja.
+
+### 28. SonarQube Cloud reprobó el PR a main
+- **Pedí:** entender por qué el análisis de SonarQube Cloud falló (confiabilidad C y seguridad B) y corregirlo.
+- **Propuso:** tres tipos de corrección: marcar con `void` las promesas que no se esperan a propósito (como
+  recargar la lista), cambiar el patrón del correo por uno sin partes que se traslapen para que no se atore con
+  textos largos, y quitar la URL `http` escrita en el código como respaldo, para que la URL venga solo del `.env`.
+- **Decidí:** aceptar las tres. La URL sigue siendo `http` en la red local de desarrollo porque el backend corre
+  en mi laptop; en producción sería `https`.
+- **Verifiqué:** 11 pruebas unitarias, el patrón con correos válidos e inválidos y con un texto de 50,000
+  caracteres, `tsc` sin errores, la app en el iPhone y el nuevo análisis de SonarQube en el PR.
