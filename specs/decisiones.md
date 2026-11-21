@@ -277,3 +277,13 @@ Formato de cada entrada:
   salón, y es coherente con D14 (código nuevo en cada sesión). Se acepta también el código escrito para no
   dejar fuera a quien no puede usar la cámara (accesibilidad); el riesgo de que alguien comparta el código se
   limita a ese día porque cambia en cada sesión.
+
+### D33 — El historial muestra participación, no asistencia
+- **Fecha:** 2026-11-20 · **Spec:** F08
+- **Decisión:** En el historial, las sesiones sin participaciones se ven en gris con la leyenda "Sin
+  participaciones" y no se pueden tocar. No se registra ni se muestra asistencia.
+- **Alternativas:** Guardar cada entrada a clase y marcar "Sin asistencia" en las sesiones sin entrada.
+- **Por qué:** SpeakUp busca reducir la ansiedad de participar; marcar faltas se siente como vigilancia y
+  agrega presión. Además, la app solo sabe si el alumno entró en la app, no si estuvo en el salón, así que
+  como lista de asistencia no sería confiable. Y sería otra feature fuera del objetivo principal. Mostrar
+  solo la participación cumple la necesidad (ver en qué clases habló) sin juzgar por qué no participó.
