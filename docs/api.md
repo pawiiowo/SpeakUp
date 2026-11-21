@@ -46,12 +46,14 @@ API REST del backend (Express 5 + PostgreSQL). Todas las rutas empiezan con `/ap
 
 ### POST `/auth/register`
 Cuerpo: `{ "nombre", "email", "password", "rol" }`, donde `rol` es `"alumno"` o `"profesor"`.
+El correo debe terminar en `@uabc.edu.mx` y se guarda en minúsculas (D11). El nombre va de 2 a 100
+caracteres y la contraseña tiene al menos 6.
 
 - **201** `{ mensaje, usuario: { id, nombre, email, rol } }`
-- **400** si falta un campo o el correo ya está registrado.
+- **400** si falta un campo, no cumple las reglas de arriba o el correo ya está registrado.
 
 ### POST `/auth/login`
-Cuerpo: `{ "email", "password" }`.
+Cuerpo: `{ "email", "password" }`. El correo se compara sin importar mayúsculas.
 
 - **200** `{ mensaje, token, usuario: { id, nombre, email, rol } }`
 - **400** si falta un campo o las credenciales no son válidas.
