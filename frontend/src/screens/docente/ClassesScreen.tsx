@@ -158,16 +158,19 @@ export default function ClassesScreen() {
     <Pressable
       onPress={() => opciones(item)}
       accessibilityRole="button"
-      accessibilityLabel={`${item.materia}, ${item.activa ? 'en curso' : 'sin iniciar'}`}
+      accessibilityLabel={item.activa ? `${item.materia}, en curso` : item.materia}
       style={({ pressed }) => [styles.tarjeta, item.activa && styles.tarjetaActiva, pressed && styles.presionada]}
     >
       <Text style={styles.materia} numberOfLines={2}>{item.materia}</Text>
       <Text style={styles.dato}>Código: {item.activa ? item.codigo : '—'}</Text>
       <Text style={styles.dato}>{new Date(item.fecha_creacion).toLocaleDateString('es-MX')}</Text>
-      <View style={styles.estado}>
-        <View style={[styles.punto, { backgroundColor: item.activa ? colores.activo : colores.textoSuave }]} />
-        <Text style={[styles.textoEstado, item.activa && styles.textoActivo]}>{item.activa ? 'En curso' : 'Sin iniciar'}</Text>
-      </View>
+      {/* Solo la clase en curso lleva etiqueta; las demás van sin ella para no confundir. */}
+      {item.activa ? (
+        <View style={styles.estado}>
+          <View style={[styles.punto, { backgroundColor: colores.activo }]} />
+          <Text style={[styles.textoEstado, styles.textoActivo]}>En curso</Text>
+        </View>
+      ) : null}
     </Pressable>
   );
 
