@@ -266,3 +266,14 @@ Formato de cada entrada:
 - **Por qué:** Al probarla había demasiados colores y formas. Con un solo elemento llamativo por estado
   (tu turno mientras esperas, el círculo verde cuando te toca) se entiende de un vistazo y se conserva el
   estilo del prototipo.
+
+### D32 — Para entrar a cada clase se usa el QR o el código del día
+- **Fecha:** 2026-11-20 · **Spec:** F08, F05
+- **Decisión:** Estar inscrito no basta para pedir la palabra. En cada sesión el alumno entra escaneando el QR
+  o escribiendo el código de ese día; después puede volver a la fila desde "Mis clases" sin repetirlo.
+- **Alternativas:** Que un alumno inscrito entre directo a cualquier sesión (así funcionaba al principio), o
+  aceptar solo el QR.
+- **Por qué:** SpeakUp es para clases presenciales: el código proyectado comprueba que el alumno está en el
+  salón, y es coherente con D14 (código nuevo en cada sesión). Se acepta también el código escrito para no
+  dejar fuera a quien no puede usar la cámara (accesibilidad); el riesgo de que alguien comparta el código se
+  limita a ese día porque cambia en cada sesión.
