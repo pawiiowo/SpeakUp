@@ -256,3 +256,13 @@ Formato de cada entrada:
 - **Alternativas:** "Abrir/Cerrar sesión" de la clase (confuso con la cuenta), "Abrir/Cerrar fila".
 - **Por qué:** Al probar la app noté que "Cerrar sesión" en una clase se confunde con salir de la cuenta.
   "Iniciar/terminar clase" son las palabras que un docente ya usa.
+
+### D31 — Pantalla de la fila con un solo acento visual
+- **Fecha:** 2026-11-20 · **Spec:** FE-frontend
+- **Decisión:** La fila del alumno quita el panel de fondo y las barras grises. Cada turno muestra solo su
+  número; el del alumno es terracota sólido ("#3 · Tú") y "Salir de la fila" es un enlace de texto.
+- **Alternativas:** Mostrar solo un número grande (pierde la idea de fila del prototipo) o una línea de
+  puntos (menos clara con mucha gente).
+- **Por qué:** Al probarla había demasiados colores y formas. Con un solo elemento llamativo por estado
+  (tu turno mientras esperas, el círculo verde cuando te toca) se entiende de un vistazo y se conserva el
+  estilo del prototipo.
