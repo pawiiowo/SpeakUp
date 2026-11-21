@@ -1,8 +1,8 @@
 import { createContext, ReactNode, useCallback, useContext, useEffect, useRef, useState } from 'react';
-import { Alert } from 'react-native';
 import api, { CLAVE_TOKEN, CLAVE_USUARIO, registrarAlExpirarSesion } from '../services/api';
 import { borrar, guardar, leer } from '../services/almacenamiento';
 import { borrarCache } from '../services/cache';
+import ModalOpciones from '../components/ModalOpciones';
 import { Rol, Usuario } from '../types';
 
 type AuthValor = {
@@ -21,6 +21,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [usuario, setUsuario] = useState<Usuario | null>(null);
   const [restaurando, setRestaurando] = useState(true);
   const avisoMostrado = useRef(false);
+  const [sesionExpirada, setSesionExpirada] = useState(false);
 
   const cerrarSesion = useCallback(async () => {
     await borrar(CLAVE_TOKEN);
@@ -45,18 +46,20 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, [cerrarSesion]);
 
   // Si el backend responde 401, la sesión expiró: se avisa una sola vez y se vuelve al Login.
+  // El aviso es el modal propio de la app (Alert no se ve en la versión web).
   useEffect(() => {
     registrarAlExpirarSesion(() => {
       if (avisoMostrado.current) return;
       avisoMostrado.current = true;
-      cerrarSesion().finally(() => {
-        Alert.alert('Tu sesión expiró', 'Vuelve a iniciar sesión.', [
-          { text: 'Entendido', onPress: () => (avisoMostrado.current = false) },
-        ]);
-      });
+      cerrarSesion().finally(() => setSesionExpirada(true));
     });
     return () => registrarAlExpirarSesion(null);
   }, [cerrarSesion]);
+
+  const cerrarAvisoDeSesion = useCallback(() => {
+    setSesionExpirada(false);
+    avisoMostrado.current = false;
+  }, []);
 
   const iniciarSesion = useCallback(async (email: string, password: string) => {
     const { data } = await api.post<{ token: string; usuario: Usuario }>('/auth/login', { email, password });
@@ -77,6 +80,19 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   return (
     <AuthContext.Provider value={{ usuario, restaurando, iniciarSesion, registrarse, cerrarSesion }}>
       {children}
+      <ModalOpciones
+        contenido={
+          sesionExpirada
+            ? {
+                titulo: 'Tu sesión expiró',
+                mensaje: 'Por seguridad, vuelve a iniciar sesión.',
+                opciones: [{ texto: 'Entendido', onPress: cerrarAvisoDeSesion }],
+                sinCancelar: true,
+              }
+            : null
+        }
+        onCerrar={cerrarAvisoDeSesion}
+      />
     </AuthContext.Provider>
   );
 }
