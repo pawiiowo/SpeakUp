@@ -119,7 +119,8 @@ export default function StudentQueueScreen({ route, navigation }: Props) {
     return (
       <Pantalla conEncabezado style={styles.centro}>
         <Text style={styles.titulo}>La clase terminó</Text>
-        <Text style={styles.mensaje}>El docente terminó la clase. Gracias por participar.</Text>
+        {/* Texto neutral: no todos los alumnos participaron en la sesión. */}
+        <Text style={styles.mensaje}>El docente terminó la clase. Tus participaciones quedan en Mis clases.</Text>
         <Boton titulo="Ir a mis clases" onPress={() => navigation.navigate('Tabs', { screen: 'MisClasesAlumno' })} />
       </Pantalla>
     );
