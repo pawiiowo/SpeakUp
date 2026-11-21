@@ -37,7 +37,7 @@ export default function ModalOpciones({ contenido, onCerrar }: Props) {
         <View style={styles.hoja}>
           {contenido ? (
             <View>
-              <Text style={styles.titulo}>{contenido.titulo}</Text>
+              <Text style={styles.titulo} numberOfLines={2}>{contenido.titulo}</Text>
               {contenido.mensaje ? <Text style={styles.mensaje}>{contenido.mensaje}</Text> : null}
               {contenido.destacado ? (
                 <View style={styles.destacado}>
