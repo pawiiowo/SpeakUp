@@ -1,7 +1,8 @@
 // Validaciones de los formularios. Son funciones puras (sin pantallas ni red), así que se pueden
 // probar con pruebas unitarias. Cada una devuelve un mensaje de error o null si todo está bien.
 
-const PATRON_EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+// Sin partes que se traslapen (el dominio no repite el punto), así la revisión es lineal y no se atora con textos largos.
+const PATRON_EMAIL = /^[^\s@]+@[^\s@.]+(?:\.[^\s@.]+)+$/;
 
 export function validarEmail(email: string): string | null {
   if (email.trim().length === 0) return 'Escribe tu correo.';
