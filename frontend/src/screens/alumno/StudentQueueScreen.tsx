@@ -139,8 +139,14 @@ export default function StudentQueueScreen({ route, navigation }: Props) {
                     style={[styles.turno, esMio && styles.turnoMio]}
                     accessibilityLabel={esMio ? `Tu turno, número ${posicion}` : `Turno ${posicion}`}
                   >
-                    <Text style={styles.posicion}>#{posicion}</Text>
-                    {esMio ? <Text style={styles.tu}>Tú</Text> : <View style={styles.barra} />}
+                    <Text style={[styles.posicion, esMio && styles.posicionMia]}>#{posicion}</Text>
+                    {esMio ? (
+                      <View style={styles.etiquetaTu}>
+                        <Text style={styles.textoTu}>Tú</Text>
+                      </View>
+                    ) : (
+                      <View style={styles.barra} />
+                    )}
                   </View>
                 );
               })}
@@ -219,10 +225,17 @@ const styles = StyleSheet.create({
     borderWidth: 2,
     borderColor: 'transparent',
   },
-  turnoMio: { borderColor: colores.primario, backgroundColor: colores.blanco },
+  turnoMio: { borderColor: colores.primario, borderWidth: 3, backgroundColor: colores.blanco, paddingVertical: espacio.l },
   posicion: { fontWeight: '800', color: colores.texto, width: 44 },
   barra: { flex: 1, height: 6, borderRadius: 3, backgroundColor: colores.textoSuave, opacity: 0.5, marginRight: espacio.l },
-  tu: { flex: 1, fontWeight: '700', color: colores.primario },
+  posicionMia: { fontSize: 20, color: colores.primario },
+  etiquetaTu: {
+    backgroundColor: colores.primario,
+    borderRadius: radio.boton,
+    paddingHorizontal: espacio.l,
+    paddingVertical: espacio.xs,
+  },
+  textoTu: { color: colores.blanco, fontSize: 18, fontWeight: '800' },
   circulo: {
     width: TAMANO_CIRCULO,
     height: TAMANO_CIRCULO,
