@@ -19,7 +19,7 @@ type Props = {
   onCerrar: () => void;
 };
 
-// Modal con el estilo de la app (en lugar del menú del sistema). Aparece desde abajo, con un título,
+// Modal con el estilo de la app (en lugar del menú del sistema). Flota en medio de la pantalla, con un título,
 // un mensaje opcional, botones de opciones y "Cancelar". Si contenido es null, no se muestra.
 // Cada pantalla decide qué hace cada opción: cerrar el modal o cambiar su contenido (por ejemplo,
 // pasar de las opciones a una confirmación sin cerrar y volver a abrir).
@@ -54,13 +54,19 @@ export default function ModalOpciones({ contenido, onCerrar }: Props) {
 }
 
 const styles = StyleSheet.create({
-  fondo: { flex: 1, backgroundColor: 'rgba(58, 50, 45, 0.55)', justifyContent: 'flex-end' },
+  fondo: {
+    flex: 1,
+    backgroundColor: 'rgba(58, 50, 45, 0.55)',
+    justifyContent: 'center',
+    padding: espacio.l,
+  },
   hoja: {
     backgroundColor: colores.fondo,
-    borderTopLeftRadius: radio.tarjeta,
-    borderTopRightRadius: radio.tarjeta,
+    borderRadius: radio.tarjeta,
     padding: espacio.l,
-    paddingBottom: espacio.xl,
+    width: '100%',
+    maxWidth: 420,
+    alignSelf: 'center',
   },
   titulo: { fontSize: 22, fontWeight: '800', color: colores.texto, textAlign: 'center' },
   mensaje: { color: colores.textoSuave, textAlign: 'center', marginTop: espacio.s, fontSize: 15 },
