@@ -10,6 +10,7 @@ import PerfilScreen from '../screens/PerfilScreen';
 import ClassesScreen from '../screens/docente/ClassesScreen';
 import ClassFormScreen from '../screens/docente/ClassFormScreen';
 import JoinClassScreen from '../screens/alumno/JoinClassScreen';
+import TeacherSessionScreen from '../screens/docente/TeacherSessionScreen';
 import { colores } from '../theme';
 
 const AuthStack = createNativeStackNavigator<AuthStackParams>();
@@ -46,7 +47,7 @@ function TabsAlumno() {
   );
 }
 
-// Pantalla temporal para las rutas que todavía no se implementan (FE10 y FE12).
+// Pantalla temporal para las rutas que todavía no se implementan (FE12).
 function EnConstruccion() {
   return (
     <View style={styles.centro}>
@@ -91,7 +92,7 @@ export default function AppNavigator() {
         options={{ headerShown: false }}
       />
       <AppStack.Screen name="ClassForm" component={ClassFormScreen} options={{ presentation: 'modal', headerShown: false }} />
-      <AppStack.Screen name="TeacherSession" component={EnConstruccion} options={({ route }) => ({ title: route.params.materia })} />
+      <AppStack.Screen name="TeacherSession" component={TeacherSessionScreen} options={({ route }) => ({ title: route.params.materia })} />
       <AppStack.Screen name="StudentQueue" component={EnConstruccion} options={({ route }) => ({ title: route.params.materia })} />
     </AppStack.Navigator>
   );
