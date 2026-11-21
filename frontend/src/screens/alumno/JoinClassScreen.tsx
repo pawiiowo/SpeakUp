@@ -64,6 +64,10 @@ export default function JoinClassScreen() {
           maxLength={6}
           autoCapitalize="characters"
           autoCorrect={false}
+          // Teclado más simple: sin emojis ni barra de sugerencias (iOS no tiene uno solo de letras y números).
+          keyboardType="ascii-capable"
+          spellCheck={false}
+          autoComplete="off"
           style={styles.codigo}
           returnKeyType="go"
           onSubmitEditing={alEnviarDesdeTeclado}
