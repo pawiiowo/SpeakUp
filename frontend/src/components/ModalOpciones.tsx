@@ -32,9 +32,9 @@ type Props = {
 export default function ModalOpciones({ contenido, onCerrar }: Props) {
   return (
     <Modal visible={contenido !== null} transparent animationType="fade" onRequestClose={onCerrar}>
-      <Pressable style={styles.fondo} onPress={onCerrar} accessibilityLabel="Cerrar">
-        {/* Este Pressable vacío evita que tocar la hoja la cierre. */}
-        <Pressable style={styles.hoja} onPress={() => {}}>
+      {/* Tocar fuera del modal no lo cierra: solo se cierra con sus botones, para no perder una acción por accidente. */}
+      <View style={styles.fondo}>
+        <View style={styles.hoja}>
           {contenido ? (
             <View>
               <Text style={styles.titulo}>{contenido.titulo}</Text>
@@ -61,8 +61,8 @@ export default function ModalOpciones({ contenido, onCerrar }: Props) {
               )}
             </View>
           ) : null}
-        </Pressable>
-      </Pressable>
+        </View>
+      </View>
     </Modal>
   );
 }
