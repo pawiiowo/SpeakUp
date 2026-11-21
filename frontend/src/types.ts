@@ -32,3 +32,26 @@ export type FilaDocente = {
   hablando: { turno_id: number; nombre: string; fecha_inicio: string } | null;
   en_espera: { turno_id: number; nombre: string; posicion: number }[];
 };
+
+// "Mis clases" del alumno (F08).
+export type ClaseAlumno = {
+  id: number;
+  materia: string;
+  activa: boolean;
+  ultima_sesion: string | null;
+};
+
+// Una sesión del historial del alumno (F08).
+export type SesionHistorial = {
+  id: number;
+  numero: number;
+  fecha_inicio: string;
+  fecha_fin: string | null;
+  en_curso: boolean;
+  participaciones: number;
+};
+
+export type PaginaSesiones = {
+  sesiones: SesionHistorial[];
+  hay_mas: boolean;
+};
