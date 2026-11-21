@@ -250,3 +250,15 @@ Formato de cada entrada:
   `node_modules` salió del repositorio sin borrarse de mi computadora.
 - **Verifiqué:** 4 pruebas unitarias nuevas de `validarRegistro` (11 en total), 8 pruebas contra la base de
   prueba (correo de Gmail rechazado, mayúsculas guardadas en minúsculas, login con mayúsculas) y en la app.
+
+### 27. Pasada de casos límite
+- **Pedí:** probar los casos límite que puede pedir el profesor: sin internet, servidor caído, campos vacíos,
+  texto largo, doble toque, clase cerrada, listas vacías, permiso de cámara denegado, salir y volver, y token
+  expirado.
+- **Propuso:** pasos exactos por bloques y simular el token expirado cambiando `JWT_SECRET` en el `.env`,
+  porque así ningún token viejo sirve, igual que si hubieran pasado las 24 horas.
+- **Decidí:** corregir lo que encontré: el mensaje del código ahora dice "debe tener 6 letras o números", el
+  título de los modales se corta a 2 líneas con nombres largos, y el aviso de sesión expirada usa el modal propio,
+  porque con `Alert` no se veía en la versión web.
+- **Verifiqué:** repetí los pasos de cada corrección en el iPhone y en la laptop; los demás casos salieron bien
+  sin pantalla roja.
