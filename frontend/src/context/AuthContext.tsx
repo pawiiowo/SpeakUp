@@ -1,7 +1,7 @@
 import { createContext, ReactNode, useCallback, useContext, useEffect, useRef, useState } from 'react';
 import { Alert } from 'react-native';
-import * as SecureStore from 'expo-secure-store';
 import api, { CLAVE_TOKEN, CLAVE_USUARIO, registrarAlExpirarSesion } from '../services/api';
+import { borrar, guardar, leer } from '../services/almacenamiento';
 import { Rol, Usuario } from '../types';
 
 type AuthValor = {
@@ -22,8 +22,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const avisoMostrado = useRef(false);
 
   const cerrarSesion = useCallback(async () => {
-    await SecureStore.deleteItemAsync(CLAVE_TOKEN);
-    await SecureStore.deleteItemAsync(CLAVE_USUARIO);
+    await borrar(CLAVE_TOKEN);
+    await borrar(CLAVE_USUARIO);
     setUsuario(null);
   }, []);
 
@@ -31,8 +31,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     (async () => {
       try {
-        const token = await SecureStore.getItemAsync(CLAVE_TOKEN);
-        const guardado = await SecureStore.getItemAsync(CLAVE_USUARIO);
+        const token = await leer(CLAVE_TOKEN);
+        const guardado = await leer(CLAVE_USUARIO);
         if (token && guardado) setUsuario(JSON.parse(guardado) as Usuario);
       } catch {
         await cerrarSesion();
@@ -58,8 +58,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const iniciarSesion = useCallback(async (email: string, password: string) => {
     const { data } = await api.post<{ token: string; usuario: Usuario }>('/auth/login', { email, password });
-    await SecureStore.setItemAsync(CLAVE_TOKEN, data.token);
-    await SecureStore.setItemAsync(CLAVE_USUARIO, JSON.stringify(data.usuario));
+    await guardar(CLAVE_TOKEN, data.token);
+    await guardar(CLAVE_USUARIO, JSON.stringify(data.usuario));
     setUsuario(data.usuario);
   }, []);
 

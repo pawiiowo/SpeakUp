@@ -1,11 +1,11 @@
 import axios, { isAxiosError } from 'axios';
-import * as SecureStore from 'expo-secure-store';
+import { leer } from './almacenamiento';
 
 // La URL del backend viene del archivo .env (ver .env.example). Debe ser la IP de la
 // computadora en la red Wi-Fi, no "localhost": el celular es otro dispositivo.
 const API_URL = process.env.EXPO_PUBLIC_API_URL ?? 'http://192.168.1.186:3000/api';
 
-// Claves donde se guarda la sesión en SecureStore (almacenamiento cifrado del teléfono).
+// Claves donde se guarda la sesión (ver almacenamiento.ts).
 export const CLAVE_TOKEN = 'speakup_token';
 export const CLAVE_USUARIO = 'speakup_usuario';
 
@@ -13,7 +13,7 @@ const api = axios.create({ baseURL: API_URL, timeout: 10000 });
 
 // Antes de cada petición, agrega el token guardado (si hay sesión).
 api.interceptors.request.use(async (config) => {
-  const token = await SecureStore.getItemAsync(CLAVE_TOKEN);
+  const token = await leer(CLAVE_TOKEN);
   if (token) {
     config.headers.Authorization = `Bearer ${token}`;
   }

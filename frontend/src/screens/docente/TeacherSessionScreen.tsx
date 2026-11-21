@@ -53,6 +53,8 @@ export default function TeacherSessionScreen({ route, navigation }: Props) {
     if (!fila) return;
     Share.share({
       message: `Únete a la clase "${fila.clase.materia}" en SpeakUp con el código ${fila.clase.codigo}`,
+    }).catch(() => {
+      // Si el dispositivo no puede compartir (por ejemplo, algunos navegadores), no pasa nada.
     });
   };
 
