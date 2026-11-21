@@ -3,7 +3,7 @@ import Icono, { NombreIcono } from '../components/Icono';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { useAuth } from '../context/AuthContext';
-import { AppStackParams, AuthStackParams } from './tipos';
+import { AppStackParams, AuthStackParams, TabsAlumnoParams } from './tipos';
 import LoginScreen from '../screens/auth/LoginScreen';
 import RegisterScreen from '../screens/auth/RegisterScreen';
 import PerfilScreen from '../screens/PerfilScreen';
@@ -12,11 +12,13 @@ import ClassFormScreen from '../screens/docente/ClassFormScreen';
 import JoinClassScreen from '../screens/alumno/JoinClassScreen';
 import TeacherSessionScreen from '../screens/docente/TeacherSessionScreen';
 import StudentQueueScreen from '../screens/alumno/StudentQueueScreen';
+import StudentClassesScreen from '../screens/alumno/StudentClassesScreen';
 import { colores } from '../theme';
 
 const AuthStack = createNativeStackNavigator<AuthStackParams>();
 const AppStack = createNativeStackNavigator<AppStackParams>();
 const Tabs = createBottomTabNavigator();
+const TabsDelAlumno = createBottomTabNavigator<TabsAlumnoParams>();
 
 // Ícono de cada tab; toma el color que le da la navegación (activo o inactivo).
 const icono = (nombre: NombreIcono) => ({ color }: { color: string }) => <Icono nombre={nombre} color={color} />;
@@ -38,13 +40,18 @@ function TabsDocente() {
   );
 }
 
-// Tabs del alumno: unirse a una clase y su perfil.
+// Tabs del alumno: sus clases (con historial), unirse a una clase y su perfil.
 function TabsAlumno() {
   return (
-    <Tabs.Navigator screenOptions={opcionesTabs}>
-      <Tabs.Screen name="Unirse" component={JoinClassScreen} options={{ tabBarIcon: icono('unirse') }} />
-      <Tabs.Screen name="Perfil" component={PerfilScreen} options={{ tabBarIcon: icono('perfil') }} />
-    </Tabs.Navigator>
+    <TabsDelAlumno.Navigator screenOptions={opcionesTabs}>
+      <TabsDelAlumno.Screen
+        name="MisClasesAlumno"
+        component={StudentClassesScreen}
+        options={{ title: 'Mis clases', tabBarIcon: icono('clases') }}
+      />
+      <TabsDelAlumno.Screen name="Unirse" component={JoinClassScreen} options={{ tabBarIcon: icono('unirse') }} />
+      <TabsDelAlumno.Screen name="Perfil" component={PerfilScreen} options={{ tabBarIcon: icono('perfil') }} />
+    </TabsDelAlumno.Navigator>
   );
 }
 
