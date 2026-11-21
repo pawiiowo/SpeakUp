@@ -47,24 +47,24 @@ export default function ClassesScreen() {
   const avisar = (titulo: string, error: unknown) =>
     setDialogo({ titulo, mensaje: mensajeDeError(error), opciones: [{ texto: 'Entendido', onPress: cerrarDialogo }] });
 
-  // Abre la sesión del día: el backend genera un código nuevo (D14, D27).
-  const abrirSesion = async (clase: Clase) => {
+  // Inicia la clase del día: el backend genera un código nuevo (D14, D27).
+  const iniciarClase = async (clase: Clase) => {
     cerrarDialogo();
     try {
       await api.patch(`/clases/${clase.id}/abrir`);
       navigation.navigate('TeacherSession', { claseId: clase.id, materia: clase.materia });
     } catch (e) {
-      avisar('No se pudo abrir la sesión', e);
+      avisar('No se pudo iniciar la clase', e);
     }
   };
 
-  const confirmarCierre = (clase: Clase) =>
+  const confirmarTermino = (clase: Clase) =>
     setDialogo({
-      titulo: 'Cerrar sesión de la clase',
-      mensaje: 'Los alumnos que esperan turno saldrán de la fila y el código dejará de funcionar.',
+      titulo: '¿Terminar la clase?',
+      mensaje: 'Los alumnos en espera saldrán de la fila y el código dejará de funcionar.',
       opciones: [
         {
-          texto: 'Cerrar sesión',
+          texto: 'Terminar clase',
           variante: 'peligro',
           onPress: async () => {
             cerrarDialogo();
@@ -72,7 +72,7 @@ export default function ClassesScreen() {
               await api.patch(`/clases/${clase.id}/cerrar`);
               cargar();
             } catch (e) {
-              avisar('No se pudo cerrar la sesión', e);
+              avisar('No se pudo terminar la clase', e);
             }
           },
         },
@@ -100,7 +100,7 @@ export default function ClassesScreen() {
       ],
     });
 
-  // Al tocar una clase se muestran las acciones posibles según si tiene la sesión abierta o no.
+  // Al tocar una clase se muestran las acciones posibles según si está en curso o no.
   const opciones = (clase: Clase) => {
     const editar = {
       texto: 'Editar materia',
@@ -113,25 +113,25 @@ export default function ClassesScreen() {
     if (clase.activa) {
       setDialogo({
         titulo: clase.materia,
-        mensaje: `Sesión activa · Código ${clase.codigo}`,
+        mensaje: `En curso · Código ${clase.codigo}`,
         opciones: [
           {
-            texto: 'Ir a la sesión',
+            texto: 'Ver fila',
             onPress: () => {
               cerrarDialogo();
               navigation.navigate('TeacherSession', { claseId: clase.id, materia: clase.materia });
             },
           },
           editar,
-          { texto: 'Cerrar sesión', variante: 'peligro', onPress: () => confirmarCierre(clase) },
+          { texto: 'Terminar clase', variante: 'peligro', onPress: () => confirmarTermino(clase) },
         ],
       });
     } else {
       setDialogo({
         titulo: clase.materia,
-        mensaje: 'Abre la sesión cuando empiece la clase para obtener el código.',
+        mensaje: 'Inicia la clase cuando estés en el salón para obtener el código.',
         opciones: [
-          { texto: 'Abrir sesión', onPress: () => abrirSesion(clase) },
+          { texto: 'Iniciar clase', onPress: () => iniciarClase(clase) },
           editar,
           { texto: 'Eliminar clase', variante: 'peligro', onPress: () => confirmarEliminacion(clase) },
         ],
@@ -143,7 +143,7 @@ export default function ClassesScreen() {
     <Pressable
       onPress={() => opciones(item)}
       accessibilityRole="button"
-      accessibilityLabel={`${item.materia}, ${item.activa ? 'sesión activa' : 'sin sesión'}`}
+      accessibilityLabel={`${item.materia}, ${item.activa ? 'en curso' : 'sin iniciar'}`}
       style={({ pressed }) => [styles.tarjeta, item.activa && styles.tarjetaActiva, pressed && styles.presionada]}
     >
       <Text style={styles.materia} numberOfLines={2}>{item.materia}</Text>
@@ -151,7 +151,7 @@ export default function ClassesScreen() {
       <Text style={styles.dato}>{new Date(item.fecha_creacion).toLocaleDateString('es-MX')}</Text>
       <View style={styles.estado}>
         <View style={[styles.punto, { backgroundColor: item.activa ? colores.activo : colores.textoSuave }]} />
-        <Text style={[styles.textoEstado, item.activa && styles.textoActivo]}>{item.activa ? 'Sesión activa' : 'Sin sesión'}</Text>
+        <Text style={[styles.textoEstado, item.activa && styles.textoActivo]}>{item.activa ? 'En curso' : 'Sin iniciar'}</Text>
       </View>
     </Pressable>
   );
