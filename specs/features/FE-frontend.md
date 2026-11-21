@@ -54,8 +54,8 @@ clase cerrada mientras el alumno espera (mensaje y regreso a Unirse).
 ## Sin internet (persistencia local, D34)
 - Cada vez que "Mis clases" (docente y alumno) y la primera página del historial cargan bien, se guarda una
   copia en el teléfono con AsyncStorage.
-- Si después no hay conexión, la pantalla muestra esa última copia con el aviso "No se pudo conectar.
-  Se muestra lo último guardado." Las acciones (crear, iniciar clase, pedir la palabra) siguen pidiendo
+- Si después no hay conexión, la pantalla muestra esa última copia con un aviso neutro (gris): "No se pudo
+  actualizar. Se muestra lo último guardado." El rojo queda solo para errores sin nada que mostrar. Las acciones (crear, iniciar clase, pedir la palabra) siguen pidiendo
   internet y muestran su error.
 - La copia es por usuario y se borra al cerrar sesión, para que otra persona en el mismo teléfono no la vea.
 
