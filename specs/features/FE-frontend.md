@@ -50,3 +50,15 @@ clase cerrada mientras el alumno espera (mensaje y regreso a Unirse).
 - [ ] FE10 — Sesión del docente: código, QR, fila cada 3 s, "Siguiente", cerrar y reabrir.
 - [ ] FE11 — Unirse con código.
 - [ ] FE12 — Mi lugar en la fila: posición cada 3 s, pedir la palabra y salir.
+
+## Sin internet (persistencia local, D34)
+- Cada vez que "Mis clases" (docente y alumno) y la primera página del historial cargan bien, se guarda una
+  copia en el teléfono con AsyncStorage.
+- Si después no hay conexión, la pantalla muestra esa última copia con el aviso "No se pudo conectar.
+  Se muestra lo último guardado." Las acciones (crear, iniciar clase, pedir la palabra) siguen pidiendo
+  internet y muestran su error.
+- La copia es por usuario y se borra al cerrar sesión, para que otra persona en el mismo teléfono no la vea.
+
+### Criterios
+- [ ] Con modo avión, "Mis clases" muestra la última lista guardada y el aviso, sin pantalla roja.
+- [ ] Al cerrar sesión e iniciar con otra cuenta, no se ven las clases guardadas de la cuenta anterior.
