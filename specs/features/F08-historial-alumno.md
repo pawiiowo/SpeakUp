@@ -15,12 +15,14 @@ el historial de sesiones con cuántas participaciones tuvo en cada una (prototip
 - Iniciar clase (`PATCH /api/clases/:id/abrir`) también crea la sesión, en la misma transacción.
 - Terminar clase (`PATCH /api/clases/:id/cerrar`) también cierra la sesión.
 - Pedir la palabra guarda el turno en la sesión abierta.
-- Unirse registra la inscripción (si ya existía, no pasa nada).
+- Unirse registra la inscripción y **la sesión de hoy a la que entró** (`inscripciones.sesion_id`).
+- **Entrada de cada clase (D32):** para ver la fila o pedir la palabra en una clase en curso, el alumno debe
+  haber entrado a la sesión de hoy con el QR o el código. Si no, responde 403 con `codigo: 'SIN_ENTRADA'`.
 
 ## Endpoints nuevos (solo alumnos)
 | Método | Ruta | Respuesta |
 |--------|------|-----------|
-| GET | /api/alumno/clases | `[{ id, materia, activa, ultima_sesion }]`, las clases en curso primero |
+| GET | /api/alumno/clases | `[{ id, materia, activa, ultima_sesion, entrada_hoy }]`, las clases en curso primero |
 | GET | /api/alumno/clases/:id/sesiones?pagina=1&limite=10 | `{ sesiones: [{ id, numero, fecha_inicio, fecha_fin, en_curso, participaciones }], hay_mas }`, las más recientes primero |
 
 `participaciones` cuenta los turnos del alumno en esa sesión que llegaron a tener la palabra
@@ -28,7 +30,8 @@ el historial de sesiones con cuántas participaciones tuvo en cada una (prototip
 
 ## Pantallas
 - Tab **Mis clases** del alumno (junto a Unirse y Perfil): FlatList con "● En curso" arriba. Al tocar la
-  clase en curso se entra a su fila; al tocar otra, a su historial.
+  clase en curso: si ya entró hoy, va a su fila; si no, va a Unirse con el aviso "Para entrar a <materia>
+  escanea el QR o escribe el código de hoy". Al tocar otra, a su historial.
 - **Historial de la clase**: FlatList **paginada** (carga 10 y pide más al llegar al final), agrupada por
   fecha (Hoy, Ayer, fecha). Al tocar una sesión, un modal: "En esta sesión realizaste N participaciones".
 
@@ -48,6 +51,8 @@ el historial de sesiones con cuántas participaciones tuvo en cada una (prototip
 - [ ] El historial carga de 10 en 10 al llegar al final de la lista.
 - [ ] Una sesión muestra cuántas veces el alumno tuvo la palabra.
 - [ ] Un alumno no puede ver el historial de una clase a la que no se unió.
+- [ ] Un alumno inscrito no puede pedir la palabra en una clase nueva sin entrar con el QR o el código de hoy.
+- [ ] Después de entrar hoy, puede volver a la fila desde "Mis clases" sin escribir el código otra vez.
 
 ## Tasks
 - [x] H01 — Agregar esta spec.
