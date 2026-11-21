@@ -6,6 +6,8 @@ import Pantalla from '../../components/Pantalla';
 import Boton from '../../components/Boton';
 import ModalOpciones, { ContenidoModal } from '../../components/ModalOpciones';
 import api, { mensajeDeError } from '../../services/api';
+import { guardarEnCache, leerDeCache } from '../../services/cache';
+import { useAuth } from '../../context/AuthContext';
 import { AppStackParams } from '../../navigation/tipos';
 import { Clase } from '../../types';
 import { colores, espacio, radio } from '../../theme';
@@ -20,18 +22,31 @@ export default function ClassesScreen() {
   const [refrescando, setRefrescando] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  const { usuario } = useAuth();
+  const claveCache = `clases-docente-${usuario?.id}`;
+  // true cuando lo que se ve es la última copia guardada porque no hubo conexión (D34).
+  const [desdeCache, setDesdeCache] = useState(false);
+
   const cargar = useCallback(async () => {
     try {
       const { data } = await api.get<Clase[]>('/clases');
       setClases(data);
       setError(null);
+      setDesdeCache(false);
+      guardarEnCache(claveCache, data);
     } catch (e) {
       setError(mensajeDeError(e));
+      // Sin conexión: si no hay nada en pantalla, se muestra la última copia guardada.
+      const copia = await leerDeCache<Clase[]>(claveCache);
+      if (copia) {
+        setClases((actuales) => (actuales.length > 0 ? actuales : copia.datos));
+        setDesdeCache(true);
+      }
     } finally {
       setCargando(false);
       setRefrescando(false);
     }
-  }, []);
+  }, [claveCache]);
 
   // Se recarga cada vez que la pantalla vuelve a verse (por ejemplo, al regresar de crear una clase).
   useFocusEffect(
@@ -169,7 +184,9 @@ export default function ClassesScreen() {
       <Text style={styles.titulo}>Mis clases</Text>
 
       {/* Si ya hay clases en pantalla y falla la recarga, se avisa sin borrar la lista. */}
-      {error && clases.length > 0 ? <Text style={styles.aviso}>{error}</Text> : null}
+      {error && clases.length > 0 ? (
+        <Text style={styles.aviso}>{desdeCache ? `${error} Se muestra lo último guardado.` : error}</Text>
+      ) : null}
 
       {error && clases.length === 0 ? (
         <View style={styles.centro}>
