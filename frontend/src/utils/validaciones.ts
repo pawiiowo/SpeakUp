@@ -47,6 +47,6 @@ export function validarMateria(materia: string): string | null {
 export function validarCodigoClase(codigo: string): string | null {
   const limpio = codigo.trim();
   if (limpio.length === 0) return 'Escribe el código de la clase.';
-  if (!/^[A-Za-z0-9]{6}$/.test(limpio)) return 'El código tiene 6 letras o números.';
+  if (!/^[A-Za-z0-9]{6}$/.test(limpio)) return 'El código debe tener 6 letras o números.';
   return null;
 }
