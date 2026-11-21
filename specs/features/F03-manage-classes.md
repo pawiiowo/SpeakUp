@@ -25,7 +25,7 @@ Docente (rol `profesor`).
 | POST   | /api/clases                | Crear clase (genera código único) |
 | GET    | /api/clases                | Listar las clases del docente, más recientes primero |
 | PUT    | /api/clases/:id            | Editar materia |
-| PATCH  | /api/clases/:id/cerrar     | Cerrar clase (sus turnos activos pasan a `cancelado`) |
+| PATCH  | /api/clases/:id/cerrar     | Cerrar clase (los turnos en espera pasan a `cancelado`; quien tenía la palabra queda `atendido`) |
 | PATCH  | /api/clases/:id/abrir      | Reabrir clase cerrada con un código nuevo; la fila empieza vacía |
 | DELETE | /api/clases/:id            | Eliminar clase cerrada y sus turnos |
 
@@ -34,11 +34,12 @@ Docente (rol `profesor`).
 1. En `Classes`, el docente presiona "Nueva clase".
 2. Se abre `ClassForm` vacío.
 3. Escribe la materia y presiona "Guardar".
-4. El sistema valida, genera el código y guarda la clase.
-5. Regresa a `Classes` y la nueva clase aparece primero en la lista.
+4. El sistema valida y guarda la clase **sin sesión abierta** (D27).
+5. Regresa a `Classes` y la nueva clase aparece primero en la lista. Solo las clases en curso llevan
+   etiqueta ("● En curso"); las demás no llevan ninguna, porque "Sin iniciar" confundía en clases ya impartidas.
 
 **Editar**
-1. En `Classes`, el docente elige "Editar" en una clase.
+1. En `Classes`, el docente elige "Editar materia" en una clase que nunca ha iniciado (D35).
 2. Se abre `ClassForm` con la materia actual.
 3. Cambia la materia y presiona "Guardar".
 4. Regresa a `Classes` con el nombre actualizado.
@@ -69,15 +70,18 @@ Docente (rol `profesor`).
 - Solo se puede eliminar una clase cerrada.
 - Solo se puede cerrar una clase abierta.
 - Solo se puede reabrir una clase cerrada. Al reabrir, `fila_pausada` vuelve a `false`.
-- La materia se puede editar con la clase abierta o cerrada.
+- La materia solo se puede editar si la clase nunca ha iniciado una sesión (D35). Si ya inició alguna
+  vez, la app no muestra "Editar materia" y el backend responde 409.
 - El `id` de la ruta debe ser un número entero positivo.
+- Una clase nueva se crea sin sesión abierta (`activa = false`). Su código solo se muestra al abrir la
+  sesión, que genera un código nuevo (D14, D27).
 - Al crear o reabrir, si el código generado ya existe, el backend genera otro (máximo 5 intentos).
 
 ## Respuestas del backend
 | Acción                          | Éxito | Cuerpo |
 |---------------------------------|-------|--------|
 | Crear                           | 201   | `{ mensaje, clase }` |
-| Listar                          | 200   | Arreglo de clases |
+| Listar                          | 200   | Arreglo de clases, cada una con `tiene_sesiones` |
 | Editar, cerrar, reabrir         | 200   | `{ mensaje, clase }` |
 | Eliminar                        | 204   | Sin cuerpo |
 | Cualquier error                 | 4xx/5xx | `{ error }` con el mensaje |
@@ -96,6 +100,7 @@ Docente (rol `profesor`).
 | Un alumno llama a estos endpoints | 403                   | — |
 | La clase no es suya               | 403                   | "No tienes permiso sobre esta clase" |
 | `id` no numérico                  | 400                   | — (la app siempre envía ids válidos) |
+| Editar una clase que ya inició    | 409                   | "No puedes cambiar el nombre de una clase que ya iniciaste." |
 | La clase no existe                | 404                   | "La clase ya no existe" y se recarga la lista |
 | Eliminar una clase abierta        | 409                   | "Cierra la clase antes de eliminarla" |
 | Cerrar una clase que ya está cerrada | 409                | "La clase ya está cerrada" |
@@ -129,9 +134,11 @@ Los criterios sin marcar ya funcionan en el backend (probados con peticiones a u
 se marcan cuando su pantalla esté terminada.
 
 - [x] El backend arranca sin errores con `node index.js`.
-- [ ] El docente crea una clase y aparece primero en `Classes` con un código de 6 caracteres.
+- [ ] El docente crea una clase y aparece primero en `Classes`, sin sesión abierta.
+- [ ] Al abrir la sesión de una clase, se muestra un código de 6 caracteres.
 - [ ] No se puede guardar una clase sin materia: el botón está deshabilitado.
 - [ ] El docente edita la materia y el cambio se ve en la lista sin cerrar la app.
+- [ ] Una clase que ya inició alguna vez no muestra "Editar materia" y `PUT` responde 409.
 - [ ] `TeacherSession` muestra el código y un QR que, al escanearlo, da ese mismo código.
 - [ ] Al cerrar una clase, se marca como cerrada y nadie puede unirse con su código.
 - [ ] Al reabrir una clase cerrada, tiene un código distinto al anterior y la fila está vacía.

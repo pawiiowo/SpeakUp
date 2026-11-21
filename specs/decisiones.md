@@ -208,3 +208,101 @@ Formato de cada entrada:
 - **Alternativas:** Build de iOS.
 - **Por qué:** Instalar un build propio en iPhone requiere una cuenta de pago de Apple Developer, y el
   simulador de iPhone solo funciona en Mac. El código es el mismo para las dos plataformas.
+
+### D25 — Componentes propios en lugar de React Native Paper
+- **Fecha:** 2026-11-20 · **Spec:** FE-frontend
+- **Decisión:** La interfaz usa unos pocos componentes propios (`Pantalla`, `Boton`, `Campo`) con los
+  colores del prototipo de Figma.
+- **Alternativas:** React Native Paper, como decía la idea original.
+- **Por qué:** Paper sigue Material Design y su apariencia no coincide con el prototipo; ajustarlo
+  costaría más que hacer tres componentes. Además es una dependencia menos que mantener.
+
+### D26 — Expo SDK 58
+- **Fecha:** 2026-11-20 · **Spec:** 00-project
+- **Decisión:** El frontend usa Expo SDK 58 (React Native 0.88) en lugar de SDK 57.
+- **Alternativas:** Quedarse en SDK 57.
+- **Por qué:** La versión de Expo Go de mi iPhone solo abre proyectos de SDK 58.
+
+### D27 — Las clases se crean sin sesión abierta
+- **Fecha:** 2026-11-20 · **Spec:** F03
+- **Decisión:** Al crear una clase queda cerrada (`activa = false`). El docente abre la sesión cuando
+  empieza la clase, desde el modal de opciones; al abrirla se genera el código que comparte con el grupo.
+- **Alternativas:** Crear la clase ya abierta, como decía la versión anterior de F03.
+- **Por qué:** Al probar la app en el teléfono, no tenía sentido que una clase recién creada (por ejemplo,
+  días antes) ya tuviera una sesión activa y un código válido. Abrir la sesión es una acción del día de
+  clase.
+
+### D28 — Historial del alumno después del flujo principal
+- **Fecha:** 2026-11-20 · **Spec:** F08 (reducida)
+- **Decisión:** Se agrega "Mis clases" del alumno con el historial de sesiones paginado, pero después de
+  terminar la sesión del docente y la fila del alumno.
+- **Alternativas:** Dejarlo como trabajo futuro (D23), o hacerlo antes que la fila.
+- **Por qué:** Es una parte importante del prototipo y cubre el requisito de FlatList con paginación. Va
+  después porque la demo depende primero de la fila.
+
+### D29 — Funciones nativas: compartir, notificación local y cámara
+- **Fecha:** 2026-11-20 · **Spec:** FE-frontend
+- **Decisión:** Las tres funciones nativas son: compartir el código de la clase, una notificación local
+  con vibración cuando al alumno le toca hablar, y la cámara para escanear el QR de la clase.
+- **Alternativas:** Geolocalización o sensores; notificaciones push remotas.
+- **Por qué:** Las tres son parte natural del flujo de la clase. Las push remotas no funcionan en Expo Go
+  desde SDK 53 (requieren un development build); las notificaciones locales sí. Si la notificación local
+  no cuenta como "push", el plan B es usar un sensor.
+
+### D30 — Textos: "clase" para la sesión del salón y "sesión" solo para la cuenta
+- **Fecha:** 2026-11-20 · **Spec:** FE-frontend
+- **Decisión:** "Iniciar clase", "Ver fila", "Terminar clase" y el indicador "● En curso". "Cerrar sesión"
+  queda solo para salir de la cuenta.
+- **Alternativas:** "Abrir/Cerrar sesión" de la clase (confuso con la cuenta), "Abrir/Cerrar fila".
+- **Por qué:** Al probar la app noté que "Cerrar sesión" en una clase se confunde con salir de la cuenta.
+  "Iniciar/terminar clase" son las palabras que un docente ya usa.
+
+### D31 — Pantalla de la fila con un solo acento visual
+- **Fecha:** 2026-11-20 · **Spec:** FE-frontend
+- **Decisión:** La fila del alumno quita el panel de fondo y las barras grises. Cada turno muestra solo su
+  número; el del alumno es terracota sólido ("#3 · Tú") y "Salir de la fila" es un enlace de texto.
+- **Alternativas:** Mostrar solo un número grande (pierde la idea de fila del prototipo) o una línea de
+  puntos (menos clara con mucha gente).
+- **Por qué:** Al probarla había demasiados colores y formas. Con un solo elemento llamativo por estado
+  (tu turno mientras esperas, el círculo verde cuando te toca) se entiende de un vistazo y se conserva el
+  estilo del prototipo.
+
+### D32 — Para entrar a cada clase se usa el QR o el código del día
+- **Fecha:** 2026-11-20 · **Spec:** F08, F05
+- **Decisión:** Estar inscrito no basta para pedir la palabra. En cada sesión el alumno entra escaneando el QR
+  o escribiendo el código de ese día; después puede volver a la fila desde "Mis clases" sin repetirlo.
+- **Alternativas:** Que un alumno inscrito entre directo a cualquier sesión (así funcionaba al principio), o
+  aceptar solo el QR.
+- **Por qué:** SpeakUp es para clases presenciales: el código proyectado comprueba que el alumno está en el
+  salón, y es coherente con D14 (código nuevo en cada sesión). Se acepta también el código escrito para no
+  dejar fuera a quien no puede usar la cámara (accesibilidad); el riesgo de que alguien comparta el código se
+  limita a ese día porque cambia en cada sesión.
+
+### D33 — El historial muestra participación, no asistencia
+- **Fecha:** 2026-11-20 · **Spec:** F08
+- **Decisión:** En el historial, las sesiones sin participaciones se ven en gris con la leyenda "Sin
+  participaciones" y no se pueden tocar. No se registra ni se muestra asistencia.
+- **Alternativas:** Guardar cada entrada a clase y marcar "Sin asistencia" en las sesiones sin entrada.
+- **Por qué:** SpeakUp busca reducir la ansiedad de participar; marcar faltas se siente como vigilancia y
+  agrega presión. Además, la app solo sabe si el alumno entró en la app, no si estuvo en el salón, así que
+  como lista de asistencia no sería confiable. Y sería otra feature fuera del objetivo principal. Mostrar
+  solo la participación cumple la necesidad (ver en qué clases habló) sin juzgar por qué no participó.
+
+### D34 — Copia local de las listas con AsyncStorage
+- **Fecha:** 2026-11-20 · **Spec:** FE-frontend
+- **Decisión:** Las listas (mis clases y la primera página del historial) se guardan en AsyncStorage para
+  verlas sin internet. El token sigue en SecureStore.
+- **Alternativas:** SQLite; guardar todo en SecureStore; no guardar nada.
+- **Por qué:** Son listas pequeñas que se guardan y leen completas, así que AsyncStorage (clave-valor) basta y
+  SQLite sería más complejo de lo necesario. SecureStore está pensado para secretos pequeños como el token, no
+  para datos de pantalla. La copia se borra al cerrar sesión por privacidad.
+
+### D35 — La materia no se edita después de la primera sesión
+- **Fecha:** 2026-11-20 · **Spec:** F03
+- **Decisión:** El docente solo puede cambiar la materia de una clase que nunca ha iniciado una sesión.
+  Después, "Editar materia" desaparece y `PUT /api/clases/:id` responde 409.
+- **Alternativas:** Permitir editar siempre; guardar el nombre de la materia en cada sesión.
+- **Por qué:** El historial de los alumnos muestra la materia de la clase. Si cambia después de impartirla,
+  las sesiones pasadas aparecerían con otro nombre y el alumno no reconocería su clase. Antes de la primera
+  sesión nadie la ha visto, así que corregir un error de dedo sigue siendo posible. La validación va en el
+  backend en la misma consulta del `UPDATE`, para que no se pueda saltar desde otra app.

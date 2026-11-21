@@ -161,3 +161,114 @@ Formato de cada entrada:
   primero, los demás suben; pedir dos veces da 409; el docente ve los nombres en orden y el alumno nunca
   recibe nombres; "Siguiente" da la palabra al primero y marca como atendido al que hablaba; con la clase
   cerrada no se puede pedir la palabra.
+
+### 17. Frontend base y pruebas en mi iPhone
+- **Pedí:** el frontend con la UX de mi prototipo de Figma.
+- **Propuso:** leer el prototipo (colores y pantallas), componentes propios en lugar de React Native Paper
+  (D25), subir a SDK 58 (D26) y usar el `SafeAreaView` de `react-native-safe-area-context` porque el de
+  React Native está obsoleto.
+- **Decidí:** aceptar, y al probar en el iPhone le pedí cambios: quitar los emojis (logo e íconos), un modal
+  propio en lugar del menú de iOS, que la clase no nazca con la sesión abierta (D27) y cambiar textos que
+  confundían "sesión" de la clase con la de la cuenta (D30).
+- **Verifiqué:** probé en el iPhone. Encontré que el placeholder del correo salía con letras separadas
+  (iOS reusaba el estilo del campo del código) y que sin backend la lista no avisaba nada; la IA corrigió
+  las dos cosas. La conexión fallaba porque a mi `.env` le faltaba el puerto `:3000`.
+
+### 18. Estimación de tiempos
+- **Pedí:** cuánto tardaría agregar "Mis clases" del alumno con su historial.
+- **Propuso:** primero estimó ~4.5–5 horas.
+- **Decidí:** le señalé que sus tiempos eran de una persona escribiendo el código, y que cosas que estimó en
+  45 minutos las hacía en 10. Corrigió a ~1–1.5 horas, la mayor parte en mis pruebas, y con eso decidí
+  hacerlo (D28).
+
+### 19. Historial del alumno: un error encontrado por las pruebas
+- **Pedí:** el backend del historial (sesiones, inscripciones y participaciones).
+- **Propuso:** tablas `sesiones` e `inscripciones`, y que iniciar y terminar clase abrieran y cerraran la sesión.
+- **Decidí:** aceptar.
+- **Verifiqué:** la IA probó todo contra una base de prueba, y una de sus pruebas falló: al terminar la clase, el
+  turno de quien tenía la palabra quedaba `cancelado`, así que esa participación no contaba en el historial.
+  Se corrigió primero la spec y luego el código: quien hablaba queda `atendido` y solo los que esperan se
+  cancelan.
+
+### 20. Error de tipos que encontré yo
+- **Pedí:** la pantalla del historial con FlatList paginada.
+- **Propuso:** un pie de lista que valía `null` mientras no cargaba más.
+- **Decidí:** al correr `npx tsc --noEmit` en mi computadora salió un error: en React Native 0.88,
+  `ListFooterComponent` no acepta `null`. La IA no había podido correr `tsc` en su entorno. Se corrigió a `undefined`.
+- **Verifiqué:** volví a correr `tsc` sin errores.
+
+### 21. ¿Cómo entra un alumno inscrito a una clase nueva?
+- **Pedí:** al probar, noté que un alumno que ya se había unido una vez entraba a la fila de cualquier clase
+  nueva sin código, y no entendía si eso estaba bien.
+- **Propuso:** dos lógicas: entrar directo por estar inscrito, o pedir el QR o el código en cada clase.
+  Recomendó la segunda porque la app es para clases presenciales y es coherente con D14.
+- **Decidí:** la segunda, pero le pedí que no fuera solo con QR, porque alguien podría no poder usar la cámara.
+  Se aceptan QR o código (D32).
+- **Verifiqué:** 9 pruebas nuevas contra la base de prueba (sin entrar → 403, entrar → puede pedir la palabra,
+  sesión nueva → vuelve a pedir el código, el código viejo ya no sirve) y la prueba en mi iPhone.
+
+### 22. ¿Registrar asistencia en el historial?
+- **Pedí:** que las sesiones donde el alumno no participó se vieran en gris, y pregunté si también se podía
+  marcar a qué clases faltó.
+- **Propuso:** guardar cada entrada a la clase y marcar "Sin asistencia" en las sesiones sin entrada.
+- **Decidí:** no hacerlo. Tomar asistencia sería otra feature fuera del objetivo de la app, se siente como
+  vigilancia y la app no sabe si el alumno estuvo en el salón (D33). Pedí que la sesión gris tuviera la leyenda
+  "Sin participaciones" y que hubiera un punto de color distinto para cada caso.
+- **Verifiqué:** en mi iPhone, las sesiones sin participaciones salen en gris y no se pueden tocar.
+
+### 23. Modales que se cerraban solos
+- **Pedí:** al probar noté que el modal se cerraba al tocar fuera; quería que solo se cerrara con sus botones
+  y que la IA revisara los demás modales.
+- **Propuso:** cambiar el componente `ModalOpciones`, que usan todos los modales, en vez de cada pantalla.
+- **Decidí:** aceptar, porque un solo cambio arregla todos.
+- **Verifiqué:** toqué fuera de cada modal y ninguno se cerró.
+
+### 24. Copia local para usar la app sin internet
+- **Pedí:** cumplir el requisito de persistencia local.
+- **Propuso:** guardar las listas (mis clases y la primera página del historial) con AsyncStorage y borrar la
+  copia al cerrar sesión. Comparó con SQLite y con SecureStore (D34).
+- **Decidí:** aceptar AsyncStorage: son listas pequeñas y SQLite era más de lo necesario. Al probar, el aviso
+  rojo se sentía alarmante aunque sí había datos; acepté cambiarlo a gris y la IA ajustó el texto a "No se pudo
+  actualizar", porque la copia también sale cuando falla el servidor y no solo sin internet.
+- **Verifiqué:** con el backend apagado, cerré y abrí Expo Go y la lista guardada siguió saliendo, sin pantalla
+  roja.
+
+### 25. La materia no cambia después de la primera sesión
+- **Pedí:** que el docente no pueda renombrar una clase que ya impartió, para no confundir a los alumnos.
+- **Propuso:** esconder "Editar materia" con un dato `tiene_sesiones` y además validar en el backend con un 409
+  dentro del mismo `UPDATE` (D35).
+- **Decidí:** aceptar. La validación en el backend importa porque se puede llamar a la API sin la app.
+- **Verifiqué:** pruebas contra la base de prueba (editar antes de iniciar da 200, después da 409) y en la app.
+
+### 26. Documentación que encontró diferencias con la spec
+- **Pedí:** adelantar la documentación de la API y de la arquitectura.
+- **Propuso:** documentar los endpoints leyendo el código en vez de las specs. Al hacerlo encontró tres
+  problemas: el backend no exigía el correo institucional (D11), firmaba los tokens con una clave por defecto
+  si faltaba `JWT_SECRET`, y `backend/node_modules` estaba subido al repositorio.
+- **Decidí:** corregirlos de inmediato, cada uno en su propio commit. El registro ahora valida en el backend
+  (con Postman se podía saltar la validación de la app), el servidor no arranca sin `JWT_SECRET` y
+  `node_modules` salió del repositorio sin borrarse de mi computadora.
+- **Verifiqué:** 4 pruebas unitarias nuevas de `validarRegistro` (11 en total), 8 pruebas contra la base de
+  prueba (correo de Gmail rechazado, mayúsculas guardadas en minúsculas, login con mayúsculas) y en la app.
+
+### 27. Pasada de casos límite
+- **Pedí:** probar los casos límite que puede pedir el profesor: sin internet, servidor caído, campos vacíos,
+  texto largo, doble toque, clase cerrada, listas vacías, permiso de cámara denegado, salir y volver, y token
+  expirado.
+- **Propuso:** pasos exactos por bloques y simular el token expirado cambiando `JWT_SECRET` en el `.env`,
+  porque así ningún token viejo sirve, igual que si hubieran pasado las 24 horas.
+- **Decidí:** corregir lo que encontré: el mensaje del código ahora dice "debe tener 6 letras o números", el
+  título de los modales se corta a 2 líneas con nombres largos, y el aviso de sesión expirada usa el modal propio,
+  porque con `Alert` no se veía en la versión web.
+- **Verifiqué:** repetí los pasos de cada corrección en el iPhone y en la laptop; los demás casos salieron bien
+  sin pantalla roja.
+
+### 28. SonarQube Cloud reprobó el PR a main
+- **Pedí:** entender por qué el análisis de SonarQube Cloud falló (confiabilidad C y seguridad B) y corregirlo.
+- **Propuso:** tres tipos de corrección: marcar con `void` las promesas que no se esperan a propósito (como
+  recargar la lista), cambiar el patrón del correo por uno sin partes que se traslapen para que no se atore con
+  textos largos, y quitar la URL `http` escrita en el código como respaldo, para que la URL venga solo del `.env`.
+- **Decidí:** aceptar las tres. La URL sigue siendo `http` en la red local de desarrollo porque el backend corre
+  en mi laptop; en producción sería `https`.
+- **Verifiqué:** 11 pruebas unitarias, el patrón con correos válidos e inválidos y con un texto de 50,000
+  caracteres, `tsc` sin errores, la app en el iPhone y el nuevo análisis de SonarQube en el PR.

@@ -79,14 +79,14 @@ Los campos se llaman igual en la base de datos, en las respuestas de la API y en
 de TypeScript (snake_case, en español), para no tener que traducir nombres entre capas.
 
 ## Diferencias con el código actual
-- [ ] `clases.fecha_creacion` no existe en `schema.sql`, pero `GET /api/clases` ordena por ella.
-- [ ] Falta `clases.fila_pausada`.
-- [ ] Falta la tabla `turnos`.
-- [ ] `clases.profesor_id` permite NULL.
-- [ ] `generarCodigo()` no reintenta si el código ya existe.
-- [ ] El token se guarda en AsyncStorage (pasar a expo-secure-store).
-- [ ] El registro acepta correos de cualquier dominio y no los convierte a minúsculas.
-- [ ] No existe endpoint para editar ni eliminar una clase.
+- [x] `clases.fecha_creacion` no existe en `schema.sql`, pero `GET /api/clases` ordena por ella.
+- [x] Falta `clases.fila_pausada`.
+- [x] Falta la tabla `turnos`.
+- [x] `clases.profesor_id` permite NULL.
+- [x] `generarCodigo()` no reintenta si el código ya existe.
+- [x] El token se guarda en AsyncStorage (pasar a expo-secure-store).
+- [x] El registro acepta correos de cualquier dominio y no los convierte a minúsculas.
+- [x] No existe endpoint para editar ni eliminar una clase.
 
 ## Decisiones tomadas
 - Eliminar clase es un borrado real, permitido solo con la clase cerrada, para evitar

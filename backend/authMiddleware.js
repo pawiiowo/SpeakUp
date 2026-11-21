@@ -9,7 +9,7 @@ function verificarToken(req, res, next) {
   }
 
   try {
-    const verificado = jwt.verify(token, process.env.JWT_SECRET || 'secreto_por_defecto');
+    const verificado = jwt.verify(token, process.env.JWT_SECRET);
     req.usuario = verificado;
     next();
   } catch (error) {

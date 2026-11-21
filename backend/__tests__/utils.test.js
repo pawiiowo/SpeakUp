@@ -2,7 +2,7 @@
 // Ejecutar desde la carpeta backend con: npm test
 const test = require('node:test');
 const assert = require('node:assert');
-const { generarCodigo, validarMateria, conCodigoUnico } = require('../utils');
+const { generarCodigo, validarMateria, validarRegistro, conCodigoUnico } = require('../utils');
 
 // Simula el error que lanza PostgreSQL cuando el código de clase ya existe.
 const errorCodigoRepetido = () =>
@@ -54,4 +54,31 @@ test('conCodigoUnico no reintenta otros errores', async () => {
     throw new Error('servidor caído');
   }), /servidor caído/);
   assert.strictEqual(intentos, 1);
+});
+
+// Datos válidos de registro; cada prueba cambia solo el campo que revisa.
+const registro = (cambios = {}) => ({
+  nombre: 'Paulina', email: 'pau@uabc.edu.mx', password: '123456', rol: 'alumno', ...cambios,
+});
+
+test('validarRegistro guarda el correo en minúsculas y recorta los espacios (D11)', () => {
+  const { valor } = validarRegistro(registro({ nombre: '  Paulina ', email: ' Pau@UABC.edu.mx ' }));
+  assert.strictEqual(valor.email, 'pau@uabc.edu.mx');
+  assert.strictEqual(valor.nombre, 'Paulina');
+});
+
+test('validarRegistro rechaza correos que no son @uabc.edu.mx (D11)', () => {
+  assert.ok(validarRegistro(registro({ email: 'pau@gmail.com' })).error);
+  assert.ok(validarRegistro(registro({ email: 'pau@uabc.edu.mx.com' })).error);
+});
+
+test('validarRegistro rechaza campos vacíos o faltantes', () => {
+  assert.ok(validarRegistro(registro({ nombre: '   ' })).error);
+  assert.ok(validarRegistro({}).error);
+  assert.ok(validarRegistro(undefined).error);
+});
+
+test('validarRegistro rechaza contraseñas de menos de 6 caracteres y roles desconocidos', () => {
+  assert.ok(validarRegistro(registro({ password: '12345' })).error);
+  assert.ok(validarRegistro(registro({ rol: 'admin' })).error);
 });

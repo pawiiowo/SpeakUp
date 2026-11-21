@@ -7,7 +7,7 @@ const { cargarClasePropia } = require('../middleware/clases');
 // Todas las rutas de clases. Se monta en index.js bajo /api/clases.
 const router = express.Router();
 
-// Crea una clase del docente con un código único de 6 caracteres.
+// Crea una clase del docente, sin sesión abierta (D27). El código se renueva al abrir la sesión.
 router.post('/', verificarToken, exigirRol('profesor'), async (req, res) => {
   const { valor: materia, error } = validarMateria(req.body?.materia);
   if (error) {
@@ -17,7 +17,7 @@ router.post('/', verificarToken, exigirRol('profesor'), async (req, res) => {
   try {
     const clase = await conCodigoUnico(async (codigo) => {
       const resultado = await pool.query(
-        'INSERT INTO clases (codigo, materia, profesor_id) VALUES ($1, $2, $3) RETURNING *',
+        'INSERT INTO clases (codigo, materia, profesor_id, activa) VALUES ($1, $2, $3, false) RETURNING *',
         [codigo, materia, req.usuario.id]
       );
       return resultado.rows[0];
@@ -47,6 +47,15 @@ router.post('/unirse', verificarToken, exigirRol('alumno'), async (req, res) => 
       return res.status(404).json({ error: 'No hay una clase abierta con ese código.' });
     }
 
+    // Se recuerda que el alumno se unió (para "Mis clases", F08) y a qué sesión entró hoy (D32).
+    // Si ya estaba inscrito, solo se actualiza la sesión.
+    await pool.query(
+      `INSERT INTO inscripciones (alumno_id, clase_id, sesion_id)
+       VALUES ($1, $2, (SELECT id FROM sesiones WHERE clase_id = $2 AND fecha_fin IS NULL))
+       ON CONFLICT (alumno_id, clase_id) DO UPDATE SET sesion_id = EXCLUDED.sesion_id`,
+      [req.usuario.id, resultado.rows[0].id]
+    );
+
     res.json({ mensaje: 'Te uniste a la clase', clase: resultado.rows[0] });
   } catch (error) {
     console.error(error);
@@ -57,8 +66,12 @@ router.post('/unirse', verificarToken, exigirRol('alumno'), async (req, res) => 
 // Lista las clases del docente, las más recientes primero.
 router.get('/', verificarToken, exigirRol('profesor'), async (req, res) => {
   try {
+    // tiene_sesiones indica si la clase ya se impartió alguna vez (D35).
     const clases = await pool.query(
-      'SELECT * FROM clases WHERE profesor_id = $1 ORDER BY fecha_creacion DESC',
+      `SELECT c.*, EXISTS (SELECT 1 FROM sesiones s WHERE s.clase_id = c.id) AS tiene_sesiones
+         FROM clases c
+        WHERE c.profesor_id = $1
+        ORDER BY c.fecha_creacion DESC`,
       [req.usuario.id]
     );
     res.json(clases.rows);
@@ -69,6 +82,8 @@ router.get('/', verificarToken, exigirRol('profesor'), async (req, res) => {
 });
 
 // Cambia la materia de una clase del docente. El código no se edita.
+// Solo si la clase nunca ha iniciado una sesión (D35): la condición va en el mismo UPDATE,
+// así no hay hueco entre revisar y guardar.
 router.put('/:id', verificarToken, exigirRol('profesor'), cargarClasePropia, async (req, res) => {
   const { valor: materia, error } = validarMateria(req.body?.materia);
   if (error) {
@@ -77,9 +92,15 @@ router.put('/:id', verificarToken, exigirRol('profesor'), cargarClasePropia, asy
 
   try {
     const resultado = await pool.query(
-      'UPDATE clases SET materia = $1 WHERE id = $2 RETURNING *',
+      `UPDATE clases SET materia = $1
+        WHERE id = $2
+          AND NOT EXISTS (SELECT 1 FROM sesiones WHERE clase_id = $2)
+        RETURNING *`,
       [materia, req.clase.id]
     );
+    if (resultado.rowCount === 0) {
+      return res.status(409).json({ error: 'No puedes cambiar el nombre de una clase que ya iniciaste.' });
+    }
     res.json({ mensaje: 'Clase actualizada', clase: resultado.rows[0] });
   } catch (error) {
     console.error(error);
@@ -87,8 +108,8 @@ router.put('/:id', verificarToken, exigirRol('profesor'), cargarClasePropia, asy
   }
 });
 
-// Cierra una clase abierta y cancela sus turnos activos.
-// Las dos actualizaciones van en una transacción: o se hacen las dos, o ninguna.
+// Termina una clase en curso: la marca como cerrada, cierra los turnos activos y cierra su sesión.
+// Todo va en una transacción: o se hacen todos los cambios, o ninguno.
 router.patch('/:id/cerrar', verificarToken, exigirRol('profesor'), cargarClasePropia, async (req, res) => {
   if (!req.clase.activa) {
     return res.status(409).json({ error: 'La clase ya está cerrada.' });
@@ -102,13 +123,23 @@ router.patch('/:id/cerrar', verificarToken, exigirRol('profesor'), cargarClasePr
       'UPDATE clases SET activa = false WHERE id = $1 RETURNING *',
       [req.clase.id]
     );
+    // Quien tenía la palabra sí participó: queda 'atendido' (cuenta en su historial, F08).
     await cliente.query(
-      `UPDATE turnos SET estado = 'cancelado', fecha_fin = NOW()
-       WHERE clase_id = $1 AND estado IN ('en_espera', 'hablando')`,
+      `UPDATE turnos SET estado = 'atendido', fecha_fin = NOW()
+       WHERE clase_id = $1 AND estado = 'hablando'`,
       [req.clase.id]
     );
+    // Quienes seguían esperando no llegaron a hablar: su turno se cancela.
+    await cliente.query(
+      `UPDATE turnos SET estado = 'cancelado', fecha_fin = NOW()
+       WHERE clase_id = $1 AND estado = 'en_espera'`,
+      [req.clase.id]
+    );
+    await cliente.query('UPDATE sesiones SET fecha_fin = NOW() WHERE clase_id = $1 AND fecha_fin IS NULL', [
+      req.clase.id,
+    ]);
     await cliente.query('COMMIT');
-    res.json({ mensaje: 'Clase cerrada', clase: resultado.rows[0] });
+    res.json({ mensaje: 'Clase terminada', clase: resultado.rows[0] });
   } catch (error) {
     if (cliente) await cliente.query('ROLLBACK').catch(() => {});
     console.error(error);
@@ -118,22 +149,34 @@ router.patch('/:id/cerrar', verificarToken, exigirRol('profesor'), cargarClasePr
   }
 });
 
-// Reabre una clase cerrada con un código nuevo, para que el código de la sesión anterior
-// ya no sirva. La fila empieza vacía porque al cerrar se cancelaron sus turnos.
+// Inicia la clase con un código nuevo, para que el código de la sesión anterior ya no sirva,
+// y crea su sesión en el historial (F08). La fila empieza vacía porque al terminar se cancelaron sus turnos.
 router.patch('/:id/abrir', verificarToken, exigirRol('profesor'), cargarClasePropia, async (req, res) => {
   if (req.clase.activa) {
     return res.status(409).json({ error: 'La clase ya está abierta.' });
   }
 
   try {
+    // Cambiar el código de la clase y crear su sesión van en una transacción (F08).
     const clase = await conCodigoUnico(async (codigo) => {
-      const resultado = await pool.query(
-        'UPDATE clases SET codigo = $1, activa = true, fila_pausada = false WHERE id = $2 RETURNING *',
-        [codigo, req.clase.id]
-      );
-      return resultado.rows[0];
+      const cliente = await pool.connect();
+      try {
+        await cliente.query('BEGIN');
+        const resultado = await cliente.query(
+          'UPDATE clases SET codigo = $1, activa = true, fila_pausada = false WHERE id = $2 RETURNING *',
+          [codigo, req.clase.id]
+        );
+        await cliente.query('INSERT INTO sesiones (clase_id, codigo) VALUES ($1, $2)', [req.clase.id, codigo]);
+        await cliente.query('COMMIT');
+        return resultado.rows[0];
+      } catch (error) {
+        await cliente.query('ROLLBACK').catch(() => {});
+        throw error;
+      } finally {
+        cliente.release();
+      }
     });
-    res.json({ mensaje: 'Clase reabierta', clase });
+    res.json({ mensaje: 'Clase iniciada', clase });
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: 'Error al reabrir la clase.' });
