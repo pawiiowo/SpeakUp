@@ -33,7 +33,9 @@ el historial de sesiones con cuántas participaciones tuvo en cada una (prototip
   clase en curso: si ya entró hoy, va a su fila; si no, va a Unirse con el aviso "Para entrar a <materia>
   escanea el QR o escribe el código de hoy". Al tocar otra, a su historial.
 - **Historial de la clase**: FlatList **paginada** (carga 10 y pide más al llegar al final), agrupada por
-  fecha (Hoy, Ayer, fecha). Al tocar una sesión, un modal: "En esta sesión realizaste N participaciones".
+  fecha (Hoy, Ayer, fecha). Las sesiones en las que el alumno participó llevan un punto terracota y, al
+  tocarlas, abren un modal: "En esta sesión realizaste N participaciones". Las sesiones sin participaciones
+  se ven en gris, con la leyenda "Sin participaciones", y no se pueden tocar (D33).
 
 ## Casos de error
 | Situación | Respuesta | Qué ve el alumno |
@@ -50,6 +52,7 @@ el historial de sesiones con cuántas participaciones tuvo en cada una (prototip
 - [ ] Cada vez que el docente inicia la clase se crea una sesión nueva en el historial.
 - [ ] El historial carga de 10 en 10 al llegar al final de la lista.
 - [ ] Una sesión muestra cuántas veces el alumno tuvo la palabra.
+- [ ] Una sesión sin participaciones aparece en gris con "Sin participaciones" y no se puede tocar.
 - [ ] Un alumno no puede ver el historial de una clase a la que no se unió.
 - [ ] Un alumno inscrito no puede pedir la palabra en una clase nueva sin entrar con el QR o el código de hoy.
 - [ ] Después de entrar hoy, puede volver a la fila desde "Mis clases" sin escribir el código otra vez.
@@ -62,3 +65,6 @@ el historial de sesiones con cuántas participaciones tuvo en cada una (prototip
 - [ ] H05 — Endpoints del alumno (mis clases e historial paginado).
 - [ ] H06 — Tab "Mis clases" del alumno.
 - [ ] H07 — Historial paginado con el modal de participaciones.
+
+## Fuera de alcance
+- Asistencia: el historial muestra participación, no si el alumno asistió (D33).
