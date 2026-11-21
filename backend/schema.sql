@@ -72,3 +72,6 @@ ALTER TABLE turnos ADD COLUMN IF NOT EXISTS sesion_id INT REFERENCES sesiones(id
 INSERT INTO sesiones (clase_id, codigo)
 SELECT c.id, c.codigo FROM clases c
 WHERE c.activa AND NOT EXISTS (SELECT 1 FROM sesiones s WHERE s.clase_id = c.id AND s.fecha_fin IS NULL);
+
+-- D32: la última sesión a la que el alumno entró con el QR o el código.
+ALTER TABLE inscripciones ADD COLUMN IF NOT EXISTS sesion_id INT REFERENCES sesiones(id) ON DELETE SET NULL;
