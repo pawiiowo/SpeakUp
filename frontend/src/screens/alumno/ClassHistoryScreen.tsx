@@ -105,6 +105,10 @@ export default function ClassHistoryScreen({ route, navigation }: Props) {
         >
           {item.en_curso ? <View style={styles.punto} /> : null}
           <Text style={[styles.textoSesion, item.en_curso && styles.textoEnCurso]}>Sesión {item.numero}</Text>
+          {/* Punto terracota: el alumno participó al menos una vez en esa sesión. */}
+          {!item.en_curso && item.participaciones > 0 ? (
+            <View style={styles.puntoParticipo} accessibilityLabel="Participaste" />
+          ) : null}
         </Pressable>
       </View>
     );
@@ -121,6 +125,10 @@ export default function ClassHistoryScreen({ route, navigation }: Props) {
   return (
     <Pantalla conEncabezado>
       {error && sesiones.length > 0 ? <Text style={styles.aviso}>{error}</Text> : null}
+      <View style={styles.leyenda}>
+        <View style={styles.puntoParticipo} />
+        <Text style={styles.textoLeyenda}>Participaste en esa sesión</Text>
+      </View>
       <View style={styles.panel}>
         {error && sesiones.length === 0 ? (
           <View style={styles.centro}>
@@ -176,4 +184,7 @@ const styles = StyleSheet.create({
   textoSesion: { fontSize: 17, fontWeight: '700', color: colores.textoSuave },
   textoEnCurso: { color: colores.texto },
   pie: { marginVertical: espacio.m },
+  puntoParticipo: { width: 10, height: 10, borderRadius: 5, backgroundColor: colores.primario, marginLeft: espacio.s },
+  leyenda: { flexDirection: 'row', alignItems: 'center', justifyContent: 'flex-end', marginBottom: espacio.s, gap: espacio.xs },
+  textoLeyenda: { color: colores.textoSuave, fontSize: 13 },
 });
