@@ -87,8 +87,8 @@ router.put('/:id', verificarToken, exigirRol('profesor'), cargarClasePropia, asy
   }
 });
 
-// Cierra una clase abierta y cancela sus turnos activos.
-// Las dos actualizaciones van en una transacción: o se hacen las dos, o ninguna.
+// Termina una clase en curso: la marca como cerrada, cancela sus turnos activos y cierra su sesión.
+// Todo va en una transacción: o se hacen todos los cambios, o ninguno.
 router.patch('/:id/cerrar', verificarToken, exigirRol('profesor'), cargarClasePropia, async (req, res) => {
   if (!req.clase.activa) {
     return res.status(409).json({ error: 'La clase ya está cerrada.' });
@@ -107,8 +107,11 @@ router.patch('/:id/cerrar', verificarToken, exigirRol('profesor'), cargarClasePr
        WHERE clase_id = $1 AND estado IN ('en_espera', 'hablando')`,
       [req.clase.id]
     );
+    await cliente.query('UPDATE sesiones SET fecha_fin = NOW() WHERE clase_id = $1 AND fecha_fin IS NULL', [
+      req.clase.id,
+    ]);
     await cliente.query('COMMIT');
-    res.json({ mensaje: 'Clase cerrada', clase: resultado.rows[0] });
+    res.json({ mensaje: 'Clase terminada', clase: resultado.rows[0] });
   } catch (error) {
     if (cliente) await cliente.query('ROLLBACK').catch(() => {});
     console.error(error);
@@ -118,22 +121,34 @@ router.patch('/:id/cerrar', verificarToken, exigirRol('profesor'), cargarClasePr
   }
 });
 
-// Reabre una clase cerrada con un código nuevo, para que el código de la sesión anterior
-// ya no sirva. La fila empieza vacía porque al cerrar se cancelaron sus turnos.
+// Inicia la clase con un código nuevo, para que el código de la sesión anterior ya no sirva,
+// y crea su sesión en el historial (F08). La fila empieza vacía porque al terminar se cancelaron sus turnos.
 router.patch('/:id/abrir', verificarToken, exigirRol('profesor'), cargarClasePropia, async (req, res) => {
   if (req.clase.activa) {
     return res.status(409).json({ error: 'La clase ya está abierta.' });
   }
 
   try {
+    // Cambiar el código de la clase y crear su sesión van en una transacción (F08).
     const clase = await conCodigoUnico(async (codigo) => {
-      const resultado = await pool.query(
-        'UPDATE clases SET codigo = $1, activa = true, fila_pausada = false WHERE id = $2 RETURNING *',
-        [codigo, req.clase.id]
-      );
-      return resultado.rows[0];
+      const cliente = await pool.connect();
+      try {
+        await cliente.query('BEGIN');
+        const resultado = await cliente.query(
+          'UPDATE clases SET codigo = $1, activa = true, fila_pausada = false WHERE id = $2 RETURNING *',
+          [codigo, req.clase.id]
+        );
+        await cliente.query('INSERT INTO sesiones (clase_id, codigo) VALUES ($1, $2)', [req.clase.id, codigo]);
+        await cliente.query('COMMIT');
+        return resultado.rows[0];
+      } catch (error) {
+        await cliente.query('ROLLBACK').catch(() => {});
+        throw error;
+      } finally {
+        cliente.release();
+      }
     });
-    res.json({ mensaje: 'Clase reabierta', clase });
+    res.json({ mensaje: 'Clase iniciada', clase });
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: 'Error al reabrir la clase.' });
