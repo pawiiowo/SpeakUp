@@ -6,6 +6,8 @@ import { BottomTabNavigationProp } from '@react-navigation/bottom-tabs';
 import Pantalla from '../../components/Pantalla';
 import Boton from '../../components/Boton';
 import api, { mensajeDeError } from '../../services/api';
+import { guardarEnCache, leerDeCache } from '../../services/cache';
+import { useAuth } from '../../context/AuthContext';
 import { AppStackParams, TabsAlumnoParams } from '../../navigation/tipos';
 import { ClaseAlumno } from '../../types';
 import { colores, espacio, radio } from '../../theme';
@@ -24,18 +26,31 @@ export default function StudentClassesScreen() {
   const [refrescando, setRefrescando] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  const { usuario } = useAuth();
+  const claveCache = `clases-alumno-${usuario?.id}`;
+  // true cuando lo que se ve es la última copia guardada porque no hubo conexión (D34).
+  const [desdeCache, setDesdeCache] = useState(false);
+
   const cargar = useCallback(async () => {
     try {
       const { data } = await api.get<ClaseAlumno[]>('/alumno/clases');
       setClases(data);
       setError(null);
+      setDesdeCache(false);
+      guardarEnCache(claveCache, data);
     } catch (e) {
       setError(mensajeDeError(e));
+      // Sin conexión: si no hay nada en pantalla, se muestra la última copia guardada.
+      const copia = await leerDeCache<ClaseAlumno[]>(claveCache);
+      if (copia) {
+        setClases((actuales) => (actuales.length > 0 ? actuales : copia.datos));
+        setDesdeCache(true);
+      }
     } finally {
       setCargando(false);
       setRefrescando(false);
     }
-  }, []);
+  }, [claveCache]);
 
   useFocusEffect(
     useCallback(() => {
@@ -85,7 +100,9 @@ export default function StudentClassesScreen() {
   return (
     <Pantalla>
       <Text style={styles.titulo}>Mis clases</Text>
-      {error && clases.length > 0 ? <Text style={styles.aviso}>{error}</Text> : null}
+      {error && clases.length > 0 ? (
+        <Text style={styles.aviso}>{desdeCache ? `${error} Se muestra lo último guardado.` : error}</Text>
+      ) : null}
 
       {error && clases.length === 0 ? (
         <View style={styles.centro}>
