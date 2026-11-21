@@ -101,7 +101,9 @@ export default function StudentClassesScreen() {
     <Pantalla>
       <Text style={styles.titulo}>Mis clases</Text>
       {error && clases.length > 0 ? (
-        <Text style={styles.aviso}>{desdeCache ? `${error} Se muestra lo último guardado.` : error}</Text>
+        <Text style={desdeCache ? [styles.aviso, styles.avisoCopia] : styles.aviso}>
+          {desdeCache ? 'No se pudo actualizar. Se muestra lo último guardado.' : error}
+        </Text>
       ) : null}
 
       {error && clases.length === 0 ? (
@@ -141,6 +143,9 @@ const styles = StyleSheet.create({
     padding: espacio.m,
     marginBottom: espacio.m,
     textAlign: 'center',
+  },
+  avisoCopia: {
+    color: colores.textoSuave,
   },
   tarjeta: {
     backgroundColor: colores.superficie,

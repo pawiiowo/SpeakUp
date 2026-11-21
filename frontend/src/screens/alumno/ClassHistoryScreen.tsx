@@ -152,7 +152,9 @@ export default function ClassHistoryScreen({ route, navigation }: Props) {
   return (
     <Pantalla conEncabezado>
       {error && sesiones.length > 0 ? (
-        <Text style={styles.aviso}>{desdeCache ? `${error} Se muestra lo último guardado.` : error}</Text>
+        <Text style={desdeCache ? [styles.aviso, styles.avisoCopia] : styles.aviso}>
+          {desdeCache ? 'No se pudo actualizar. Se muestra lo último guardado.' : error}
+        </Text>
       ) : null}
       <View style={styles.leyenda}>
         <View style={styles.puntoParticipo} />
@@ -195,6 +197,9 @@ const styles = StyleSheet.create({
     padding: espacio.m,
     marginBottom: espacio.m,
     textAlign: 'center',
+  },
+  avisoCopia: {
+    color: colores.textoSuave,
   },
   panel: { flex: 1, backgroundColor: colores.superficie, borderRadius: radio.tarjeta, padding: espacio.m },
   lista: { paddingBottom: espacio.l },
