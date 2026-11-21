@@ -139,14 +139,9 @@ export default function StudentQueueScreen({ route, navigation }: Props) {
                     style={[styles.turno, esMio && styles.turnoMio]}
                     accessibilityLabel={esMio ? `Tu turno, número ${posicion}` : `Turno ${posicion}`}
                   >
-                    <Text style={[styles.posicion, esMio && styles.posicionMia]}>#{posicion}</Text>
-                    {esMio ? (
-                      <View style={styles.etiquetaTu}>
-                        <Text style={styles.textoTu}>Tú</Text>
-                      </View>
-                    ) : (
-                      <View style={styles.barra} />
-                    )}
+                    <Text style={[styles.posicion, esMio && styles.posicionMia]}>
+                      {esMio ? `#${posicion} · Tú` : `#${posicion}`}
+                    </Text>
                   </View>
                 );
               })}
@@ -179,7 +174,9 @@ export default function StudentQueueScreen({ route, navigation }: Props) {
           )}
 
           {miEstado === 'en_espera' ? (
-            <Boton titulo="Salir de la fila" variante="peligro" onPress={confirmarSalida} style={styles.salir} />
+            <Pressable onPress={confirmarSalida} accessibilityRole="button" style={styles.salir}>
+              <Text style={styles.textoSalir}>Salir de la fila</Text>
+            </Pressable>
           ) : null}
         </View>
       </ScrollView>
@@ -204,7 +201,8 @@ const styles = StyleSheet.create({
     marginBottom: espacio.m,
     textAlign: 'center',
   },
-  panel: { backgroundColor: colores.superficie, borderRadius: radio.tarjeta, padding: espacio.l, alignItems: 'center' },
+  // Una sola capa (D31): sin panel de fondo; el único acento es tu turno o el círculo de acción.
+  panel: { alignItems: 'center' },
   titulo: { fontSize: 32, fontWeight: '800', color: colores.texto, textAlign: 'center' },
   subtitulo: { fontSize: 16, fontWeight: '700', color: colores.texto, marginTop: espacio.s },
   hablandoOtro: { color: colores.primario, fontWeight: '700', marginTop: espacio.s },
@@ -216,26 +214,10 @@ const styles = StyleSheet.create({
     gap: espacio.s,
     marginTop: espacio.l,
   },
-  turno: {
-    backgroundColor: colores.superficie,
-    borderRadius: radio.campo,
-    padding: espacio.m,
-    flexDirection: 'row',
-    alignItems: 'center',
-    borderWidth: 2,
-    borderColor: 'transparent',
-  },
-  turnoMio: { borderColor: colores.primario, borderWidth: 3, backgroundColor: colores.blanco, paddingVertical: espacio.l },
-  posicion: { fontWeight: '800', color: colores.texto, width: 44 },
-  barra: { flex: 1, height: 6, borderRadius: 3, backgroundColor: colores.textoSuave, opacity: 0.5, marginRight: espacio.l },
-  posicionMia: { fontSize: 20, color: colores.primario },
-  etiquetaTu: {
-    backgroundColor: colores.primario,
-    borderRadius: radio.boton,
-    paddingHorizontal: espacio.l,
-    paddingVertical: espacio.xs,
-  },
-  textoTu: { color: colores.blanco, fontSize: 18, fontWeight: '800' },
+  turno: { backgroundColor: colores.superficie, borderRadius: radio.campo, padding: espacio.m },
+  turnoMio: { backgroundColor: colores.primario, paddingVertical: espacio.l },
+  posicion: { fontWeight: '800', color: colores.texto, fontSize: 16 },
+  posicionMia: { color: colores.blanco, fontSize: 20 },
   circulo: {
     width: TAMANO_CIRCULO,
     height: TAMANO_CIRCULO,
@@ -251,5 +233,6 @@ const styles = StyleSheet.create({
   presionado: { opacity: 0.8 },
   textoCirculo: { color: colores.blanco, fontSize: 18, fontWeight: '800', textAlign: 'center' },
   subCirculo: { color: colores.blanco, marginTop: espacio.xs, textAlign: 'center' },
-  salir: { marginTop: espacio.l, alignSelf: 'stretch' },
+  salir: { marginTop: espacio.l, padding: espacio.s },
+  textoSalir: { color: colores.peligro, fontSize: 16, fontWeight: '700', textDecorationLine: 'underline' },
 });
