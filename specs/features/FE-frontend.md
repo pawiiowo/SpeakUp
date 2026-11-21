@@ -60,5 +60,5 @@ clase cerrada mientras el alumno espera (mensaje y regreso a Unirse).
 - La copia es por usuario y se borra al cerrar sesión, para que otra persona en el mismo teléfono no la vea.
 
 ### Criterios
-- [ ] Con modo avión, "Mis clases" muestra la última lista guardada y el aviso, sin pantalla roja.
-- [ ] Al cerrar sesión e iniciar con otra cuenta, no se ven las clases guardadas de la cuenta anterior.
+- [x] Con modo avión, "Mis clases" muestra la última lista guardada y el aviso, sin pantalla roja.
+- [x] Al cerrar sesión e iniciar con otra cuenta, no se ven las clases guardadas de la cuenta anterior.
