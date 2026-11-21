@@ -116,6 +116,7 @@ export default function ClassesScreen() {
     });
 
   // Al tocar una clase se muestran las acciones posibles según si está en curso o no.
+  // "Editar materia" solo aparece si la clase nunca se ha impartido (D35).
   const opciones = (clase: Clase) => {
     const editar = {
       texto: 'Editar materia',
@@ -137,7 +138,6 @@ export default function ClassesScreen() {
               navigation.navigate('TeacherSession', { claseId: clase.id, materia: clase.materia });
             },
           },
-          editar,
           { texto: 'Terminar clase', variante: 'peligro', onPress: () => confirmarTermino(clase) },
         ],
       });
@@ -147,7 +147,7 @@ export default function ClassesScreen() {
         mensaje: 'Inicia la clase cuando estés en el salón para obtener el código.',
         opciones: [
           { texto: 'Iniciar clase', onPress: () => iniciarClase(clase) },
-          editar,
+          ...(clase.tiene_sesiones ? [] : [editar]),
           { texto: 'Eliminar clase', variante: 'peligro', onPress: () => confirmarEliminacion(clase) },
         ],
       });

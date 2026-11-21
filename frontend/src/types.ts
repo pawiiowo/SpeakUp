@@ -16,6 +16,8 @@ export type Clase = {
   activa: boolean;
   fila_pausada: boolean;
   fecha_creacion: string;
+  // Si ya se impartió alguna vez; entonces su materia ya no se edita (D35).
+  tiene_sesiones: boolean;
 };
 
 // Lo que ve el alumno: nunca incluye nombres de otros alumnos (D08).
