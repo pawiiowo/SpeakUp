@@ -20,6 +20,7 @@ export type AppStackParams = {
 // Tabs del alumno (se usan para ir de "Mis clases" a "Unirse").
 export type TabsAlumnoParams = {
   MisClasesAlumno: undefined;
-  Unirse: undefined;
+  // materia: aviso de a qué clase en curso quiere entrar (D32).
+  Unirse: { materia?: string } | undefined;
   Perfil: undefined;
 };

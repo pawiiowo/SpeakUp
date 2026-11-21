@@ -1,6 +1,7 @@
 import { useCallback, useRef, useState } from 'react';
 import { ActivityIndicator, Pressable, ScrollView, StyleSheet, Text, Vibration, View } from 'react-native';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
+import { isAxiosError } from 'axios';
 import Pantalla from '../../components/Pantalla';
 import Boton from '../../components/Boton';
 import ModalOpciones, { ContenidoModal } from '../../components/ModalOpciones';
@@ -21,6 +22,8 @@ export default function StudentQueueScreen({ route, navigation }: Props) {
   const [error, setError] = useState<string | null>(null);
   const [procesando, setProcesando] = useState(false);
   const [dialogo, setDialogo] = useState<ContenidoModal | null>(null);
+  // true si la clase está en curso pero el alumno aún no entra con el QR o el código de hoy (D32).
+  const [sinEntrada, setSinEntrada] = useState(false);
   const estadoAnterior = useRef<string | null>(null);
 
   // Guarda el estado nuevo y avisa (vibración + notificación local) si al alumno le acaba de tocar hablar.
@@ -41,9 +44,12 @@ export default function StudentQueueScreen({ route, navigation }: Props) {
   const consultar = useCallback(async () => {
     try {
       const { data } = await api.get<FilaAlumno>(`/clases/${claseId}/fila/mia`);
+      setSinEntrada(false);
       actualizar(data);
     } catch (e) {
-      setError(mensajeDeError(e));
+      const datos = isAxiosError(e) ? (e.response?.data as { codigo?: string } | undefined) : undefined;
+      if (datos?.codigo === 'SIN_ENTRADA') setSinEntrada(true);
+      else setError(mensajeDeError(e));
     }
   }, [claseId, actualizar]);
 
@@ -83,6 +89,16 @@ export default function StudentQueueScreen({ route, navigation }: Props) {
         },
       ],
     });
+
+  if (sinEntrada) {
+    return (
+      <Pantalla conEncabezado style={styles.centro}>
+        <Text style={styles.titulo}>Entra a la clase de hoy</Text>
+        <Text style={styles.mensaje}>Escanea el QR o escribe el código que muestra tu docente.</Text>
+        <Boton titulo="Ir a unirme" onPress={() => navigation.navigate('Tabs', { screen: 'Unirse', params: { materia } })} />
+      </Pantalla>
+    );
+  }
 
   if (!fila) {
     return (

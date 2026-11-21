@@ -39,6 +39,8 @@ export type ClaseAlumno = {
   materia: string;
   activa: boolean;
   ultima_sesion: string | null;
+  // Si ya entró hoy con el QR o el código (D32).
+  entrada_hoy: boolean;
 };
 
 // Una sesión del historial del alumno (F08).

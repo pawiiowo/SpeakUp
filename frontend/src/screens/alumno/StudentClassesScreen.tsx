@@ -43,10 +43,12 @@ export default function StudentClassesScreen() {
     }, [cargar])
   );
 
-  // La clase en curso lleva directo a la fila; las demás, a su historial de sesiones.
+  // Clase en curso: si ya entró hoy va a la fila; si no, a Unirse para escanear el QR o escribir
+  // el código de hoy (D32). Las demás clases abren su historial de sesiones.
   const abrir = (clase: ClaseAlumno) => {
     const params = { claseId: clase.id, materia: clase.materia };
-    if (clase.activa) navigation.navigate('StudentQueue', params);
+    if (clase.activa && clase.entrada_hoy) navigation.navigate('StudentQueue', params);
+    else if (clase.activa) navigation.navigate('Unirse', { materia: clase.materia });
     else navigation.navigate('ClassHistory', params);
   };
 

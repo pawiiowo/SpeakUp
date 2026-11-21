@@ -1,20 +1,26 @@
 import { useState } from 'react';
 import { Keyboard, KeyboardAvoidingView, Platform, Pressable, StyleSheet, Text } from 'react-native';
-import { useNavigation } from '@react-navigation/native';
+import { CompositeNavigationProp, RouteProp, useNavigation, useRoute } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { BottomTabNavigationProp } from '@react-navigation/bottom-tabs';
 import Pantalla from '../../components/Pantalla';
 import Campo from '../../components/Campo';
 import Boton from '../../components/Boton';
 import api, { mensajeDeError } from '../../services/api';
 import { validarCodigoClase } from '../../utils/validaciones';
-import { AppStackParams } from '../../navigation/tipos';
-import { colores, espacio } from '../../theme';
+import { AppStackParams, TabsAlumnoParams } from '../../navigation/tipos';
+import { colores, espacio, radio } from '../../theme';
 
-type Navegacion = NativeStackNavigationProp<AppStackParams>;
+type Navegacion = CompositeNavigationProp<
+  BottomTabNavigationProp<TabsAlumnoParams, 'Unirse'>,
+  NativeStackNavigationProp<AppStackParams>
+>;
 
 // El alumno escribe el código que el docente muestra en el salón.
 export default function JoinClassScreen() {
   const navigation = useNavigation<Navegacion>();
+  // Si viene de "Mis clases", trae la materia a la que quiere entrar hoy (D32).
+  const materiaPendiente = useRoute<RouteProp<TabsAlumnoParams, 'Unirse'>>().params?.materia;
   const [codigo, setCodigo] = useState('');
   const [error, setError] = useState<string | null>(null);
   const [enviando, setEnviando] = useState(false);
@@ -37,6 +43,7 @@ export default function JoinClassScreen() {
         codigo: codigo.trim(),
       });
       setCodigo('');
+      navigation.setParams({ materia: undefined });
       navigation.navigate('StudentQueue', { claseId: data.clase.id, materia: data.clase.materia });
     } catch (e) {
       setError(mensajeDeError(e));
@@ -51,7 +58,11 @@ export default function JoinClassScreen() {
       <Pressable style={styles.flex} onPress={Keyboard.dismiss} accessible={false}>
       <KeyboardAvoidingView style={styles.contenido} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
         <Text style={styles.titulo}>Unirme a una clase</Text>
-        <Text style={styles.instruccion}>Escribe el código que muestra tu docente.</Text>
+        {materiaPendiente ? (
+          <Text style={styles.aviso}>Para entrar a {materiaPendiente} escanea el QR o escribe el código de hoy.</Text>
+        ) : (
+          <Text style={styles.instruccion}>Escribe el código que muestra tu docente.</Text>
+        )}
         <Campo
           etiqueta="Código de la clase"
           placeholder="ABC123"
@@ -87,5 +98,14 @@ const styles = StyleSheet.create({
   titulo: { fontSize: 32, fontWeight: '800', color: colores.texto, textAlign: 'center' },
   instruccion: { color: colores.textoSuave, textAlign: 'center', marginTop: espacio.s, marginBottom: espacio.xl },
   codigo: { fontSize: 28, letterSpacing: 6, textAlign: 'center', fontWeight: '700' },
+  aviso: {
+    backgroundColor: colores.superficie,
+    color: colores.texto,
+    borderRadius: radio.campo,
+    padding: espacio.m,
+    textAlign: 'center',
+    marginTop: espacio.s,
+    marginBottom: espacio.xl,
+  },
   separador: { color: colores.textoSuave, textAlign: 'center', marginVertical: espacio.m },
 });
