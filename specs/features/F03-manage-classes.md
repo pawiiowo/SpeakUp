@@ -25,7 +25,7 @@ Docente (rol `profesor`).
 | POST   | /api/clases                | Crear clase (genera código único) |
 | GET    | /api/clases                | Listar las clases del docente, más recientes primero |
 | PUT    | /api/clases/:id            | Editar materia |
-| PATCH  | /api/clases/:id/cerrar     | Cerrar clase (sus turnos activos pasan a `cancelado`) |
+| PATCH  | /api/clases/:id/cerrar     | Cerrar clase (los turnos en espera pasan a `cancelado`; quien tenía la palabra queda `atendido`) |
 | PATCH  | /api/clases/:id/abrir      | Reabrir clase cerrada con un código nuevo; la fila empieza vacía |
 | DELETE | /api/clases/:id            | Eliminar clase cerrada y sus turnos |
 
