@@ -66,8 +66,12 @@ router.post('/unirse', verificarToken, exigirRol('alumno'), async (req, res) => 
 // Lista las clases del docente, las más recientes primero.
 router.get('/', verificarToken, exigirRol('profesor'), async (req, res) => {
   try {
+    // tiene_sesiones indica si la clase ya se impartió alguna vez (D35).
     const clases = await pool.query(
-      'SELECT * FROM clases WHERE profesor_id = $1 ORDER BY fecha_creacion DESC',
+      `SELECT c.*, EXISTS (SELECT 1 FROM sesiones s WHERE s.clase_id = c.id) AS tiene_sesiones
+         FROM clases c
+        WHERE c.profesor_id = $1
+        ORDER BY c.fecha_creacion DESC`,
       [req.usuario.id]
     );
     res.json(clases.rows);
@@ -78,6 +82,8 @@ router.get('/', verificarToken, exigirRol('profesor'), async (req, res) => {
 });
 
 // Cambia la materia de una clase del docente. El código no se edita.
+// Solo si la clase nunca ha iniciado una sesión (D35): la condición va en el mismo UPDATE,
+// así no hay hueco entre revisar y guardar.
 router.put('/:id', verificarToken, exigirRol('profesor'), cargarClasePropia, async (req, res) => {
   const { valor: materia, error } = validarMateria(req.body?.materia);
   if (error) {
@@ -86,9 +92,15 @@ router.put('/:id', verificarToken, exigirRol('profesor'), cargarClasePropia, asy
 
   try {
     const resultado = await pool.query(
-      'UPDATE clases SET materia = $1 WHERE id = $2 RETURNING *',
+      `UPDATE clases SET materia = $1
+        WHERE id = $2
+          AND NOT EXISTS (SELECT 1 FROM sesiones WHERE clase_id = $2)
+        RETURNING *`,
       [materia, req.clase.id]
     );
+    if (resultado.rowCount === 0) {
+      return res.status(409).json({ error: 'No puedes cambiar el nombre de una clase que ya iniciaste.' });
+    }
     res.json({ mensaje: 'Clase actualizada', clase: resultado.rows[0] });
   } catch (error) {
     console.error(error);
