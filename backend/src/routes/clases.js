@@ -93,7 +93,7 @@ router.put('/:id', verificarToken, exigirRol('profesor'), cargarClasePropia, asy
   }
 });
 
-// Termina una clase en curso: la marca como cerrada, cancela sus turnos activos y cierra su sesión.
+// Termina una clase en curso: la marca como cerrada, cierra los turnos activos y cierra su sesión.
 // Todo va en una transacción: o se hacen todos los cambios, o ninguno.
 router.patch('/:id/cerrar', verificarToken, exigirRol('profesor'), cargarClasePropia, async (req, res) => {
   if (!req.clase.activa) {
@@ -108,9 +108,16 @@ router.patch('/:id/cerrar', verificarToken, exigirRol('profesor'), cargarClasePr
       'UPDATE clases SET activa = false WHERE id = $1 RETURNING *',
       [req.clase.id]
     );
+    // Quien tenía la palabra sí participó: queda 'atendido' (cuenta en su historial, F08).
+    await cliente.query(
+      `UPDATE turnos SET estado = 'atendido', fecha_fin = NOW()
+       WHERE clase_id = $1 AND estado = 'hablando'`,
+      [req.clase.id]
+    );
+    // Quienes seguían esperando no llegaron a hablar: su turno se cancela.
     await cliente.query(
       `UPDATE turnos SET estado = 'cancelado', fecha_fin = NOW()
-       WHERE clase_id = $1 AND estado IN ('en_espera', 'hablando')`,
+       WHERE clase_id = $1 AND estado = 'en_espera'`,
       [req.clase.id]
     );
     await cliente.query('UPDATE sesiones SET fecha_fin = NOW() WHERE clase_id = $1 AND fecha_fin IS NULL', [
