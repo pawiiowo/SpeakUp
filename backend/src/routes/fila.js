@@ -54,10 +54,12 @@ router.post('/turnos', soloAlumno, async (req, res) => {
   }
 
   try {
-    await pool.query('INSERT INTO turnos (clase_id, alumno_id) VALUES ($1, $2)', [
-      req.clase.id,
-      req.usuario.id,
-    ]);
+    // El turno se guarda en la sesión abierta de la clase, para el historial (F08).
+    await pool.query(
+      `INSERT INTO turnos (clase_id, alumno_id, sesion_id)
+       VALUES ($1, $2, (SELECT id FROM sesiones WHERE clase_id = $1 AND fecha_fin IS NULL))`,
+      [req.clase.id, req.usuario.id]
+    );
     res.status(201).json(await estadoParaAlumno(req.clase, req.usuario.id));
   } catch (error) {
     if (error.code === '23505' && error.constraint === 'turnos_un_activo_por_alumno') {

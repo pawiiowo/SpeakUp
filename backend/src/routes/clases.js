@@ -47,6 +47,12 @@ router.post('/unirse', verificarToken, exigirRol('alumno'), async (req, res) => 
       return res.status(404).json({ error: 'No hay una clase abierta con ese código.' });
     }
 
+    // Se recuerda que el alumno se unió, para mostrarla en "Mis clases" (F08). Si ya estaba, no pasa nada.
+    await pool.query(
+      'INSERT INTO inscripciones (alumno_id, clase_id) VALUES ($1, $2) ON CONFLICT DO NOTHING',
+      [req.usuario.id, resultado.rows[0].id]
+    );
+
     res.json({ mensaje: 'Te uniste a la clase', clase: resultado.rows[0] });
   } catch (error) {
     console.error(error);
