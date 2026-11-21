@@ -6,6 +6,8 @@ import Pantalla from '../../components/Pantalla';
 import Boton from '../../components/Boton';
 import ModalOpciones, { ContenidoModal } from '../../components/ModalOpciones';
 import api, { mensajeDeError } from '../../services/api';
+import { guardarEnCache, leerDeCache } from '../../services/cache';
+import { useAuth } from '../../context/AuthContext';
 import { etiquetaDeFecha } from '../../utils/fechas';
 import { AppStackParams } from '../../navigation/tipos';
 import { PaginaSesiones, SesionHistorial } from '../../types';
@@ -39,6 +41,11 @@ export default function ClassHistoryScreen({ route, navigation }: Props) {
   );
 
   // Carga (o recarga) desde la primera página.
+  const { usuario } = useAuth();
+  const claveCache = `historial-${usuario?.id}-${claseId}`;
+  // true cuando se ve la última copia guardada porque no hubo conexión (D34).
+  const [desdeCache, setDesdeCache] = useState(false);
+
   const cargarInicio = useCallback(async () => {
     try {
       const data = await pedirPagina(1);
@@ -46,13 +53,22 @@ export default function ClassHistoryScreen({ route, navigation }: Props) {
       setHayMas(data.hay_mas);
       setPagina(1);
       setError(null);
+      setDesdeCache(false);
+      guardarEnCache(claveCache, data);
     } catch (e) {
       setError(mensajeDeError(e));
+      // Sin conexión: se muestra la primera página guardada. No se piden más páginas sin internet.
+      const copia = await leerDeCache<PaginaSesiones>(claveCache);
+      if (copia) {
+        setSesiones((actuales) => (actuales.length > 0 ? actuales : copia.datos.sesiones));
+        setHayMas(false);
+        setDesdeCache(true);
+      }
     } finally {
       setCargando(false);
       setRefrescando(false);
     }
-  }, [pedirPagina]);
+  }, [pedirPagina, claveCache]);
 
   useFocusEffect(
     useCallback(() => {
@@ -135,7 +151,9 @@ export default function ClassHistoryScreen({ route, navigation }: Props) {
 
   return (
     <Pantalla conEncabezado>
-      {error && sesiones.length > 0 ? <Text style={styles.aviso}>{error}</Text> : null}
+      {error && sesiones.length > 0 ? (
+        <Text style={styles.aviso}>{desdeCache ? `${error} Se muestra lo último guardado.` : error}</Text>
+      ) : null}
       <View style={styles.leyenda}>
         <View style={styles.puntoParticipo} />
         <Text style={styles.textoLeyenda}>Participaste</Text>
