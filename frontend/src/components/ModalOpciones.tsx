@@ -50,7 +50,7 @@ export default function ModalOpciones({ contenido, onCerrar }: Props) {
                 </View>
               ) : null}
               {contenido.pie ? <Text style={styles.pie}>{contenido.pie}</Text> : null}
-              <View style={styles.opciones}>
+              <View style={contenido.destacado ? styles.opcionesConDestacado : styles.opciones}>
                 {contenido.opciones.map((opcion) => (
                   <Boton
                     key={opcion.texto}
@@ -96,6 +96,8 @@ const styles = StyleSheet.create({
   // Con subtítulo, el mensaje se separa más para que el encabezado y el contenido se lean como dos bloques.
   mensajeSeparado: { marginTop: espacio.xl },
   opciones: { marginTop: espacio.s },
+  // Con un número destacado, el mismo espacio arriba y abajo de su grupo para que quede en medio de la ventana.
+  opcionesConDestacado: { marginTop: espacio.m },
   opcion: { marginTop: espacio.m },
   destacado: {
     width: 72,
@@ -107,8 +109,18 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     marginTop: espacio.m,
   },
-  textoDestacado: { color: colores.blanco, fontSize: 30, fontWeight: '800' },
-  pie: { fontSize: 18, fontWeight: '700', color: colores.texto, textAlign: 'center', marginTop: espacio.s },
+  // Sin el espacio extra que Android agrega arriba del texto y con números del mismo ancho,
+  // para que el número quede en el centro exacto del círculo.
+  textoDestacado: {
+    color: colores.blanco,
+    fontSize: 30,
+    lineHeight: 36,
+    fontWeight: '800',
+    textAlign: 'center',
+    includeFontPadding: false,
+    fontVariant: ['tabular-nums'],
+  },
+  pie: { fontSize: 18, fontWeight: '700', color: colores.texto, textAlign: 'center', marginTop: espacio.m },
   cancelar: { marginTop: espacio.m, paddingVertical: espacio.s, alignItems: 'center' },
   textoCancelar: { color: colores.textoSuave, fontSize: 16, fontWeight: '600' },
 });
