@@ -40,7 +40,9 @@
       [
         "expo-camera",
         {
-          "cameraPermission": "SpeakUp usa la cámara para leer el código QR de tu clase."
+          "cameraPermission": "SpeakUp usa la cámara para leer el código QR de tu clase.",
+          "microphonePermission": false,
+          "recordAudioAndroid": false
         }
       ]
     ],
