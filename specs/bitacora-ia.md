@@ -272,3 +272,12 @@ Formato de cada entrada:
   en mi laptop; en producción sería `https`.
 - **Verifiqué:** 11 pruebas unitarias, el patrón con correos válidos e inválidos y con un texto de 50,000
   caracteres, `tsc` sin errores, la app en el iPhone y el nuevo análisis de SonarQube en el PR.
+
+### 29. Build del APK con EAS
+- **Pedí:** generar el APK de Android que pide la entrega.
+- **Propuso:** un perfil `preview` en `eas.json` que genera un APK, la URL del backend en ese perfil (el `.env` no
+  se sube a la nube de Expo) y permitir `http` en Android con `expo-build-properties`, porque el backend corre en
+  mi red local (D36).
+- **Decidí:** aceptar. Al vincular el proyecto, `eas init` agregó el permiso de micrófono; la IA lo notó y lo
+  quitamos, porque la app solo usa la cámara para leer el QR y no debe pedir permisos que no usa.
+- **Verifiqué:** el build terminó en EAS y generó el APK con su link de descarga.
