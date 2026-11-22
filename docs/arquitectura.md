@@ -37,7 +37,8 @@ flowchart LR
 ### Backend (`backend/`)
 | Archivo | Qué contiene |
 |---|---|
-| `index.js` | Arranca Express, monta las rutas y tiene registro, login y perfil. |
+| `index.js` | Punto de entrada: carga el `.env`, exige `JWT_SECRET` y abre el puerto. |
+| `app.js` | La app de Express: monta las rutas y tiene registro, login y perfil. Las pruebas de integración la cargan sin abrir el puerto. |
 | `db.js` | Conexión a PostgreSQL (`DATABASE_URL`). |
 | `authMiddleware.js` | `verificarToken` (401) y `exigirRol` (403). |
 | `utils.js` | `validarMateria`, `generarCodigo` y `conCodigoUnico` (reintenta si el código se repite, D16). |
@@ -46,7 +47,7 @@ flowchart LR
 | `src/routes/fila.js` | La fila: pedir la palabra, salir, ver la fila, dar la palabra. |
 | `src/routes/alumno.js` | Mis clases del alumno e historial paginado. |
 | `schema.sql` / `setupDb.js` | Tablas e índices; se aplican con `node setupDb.js` (idempotente, D17). |
-| `__tests__/` | Pruebas con `node --test`. |
+| `__tests__/` | Pruebas con `node --test`: unitarias (`utils.test.js`) y de integración de la API (`api.test.js`). |
 
 ### Frontend (`frontend/`)
 | Carpeta o archivo | Qué contiene |
@@ -65,6 +66,7 @@ flowchart LR
 | `src/screens/PerfilScreen.tsx` | Perfil y cerrar sesión. |
 | `src/components/` | Componentes propios: `Pantalla`, `Boton`, `Campo`, `ModalOpciones`, `Icono`, `Logo` (D25). |
 | `src/utils/` | Funciones puras: validaciones de formularios y fechas ("Hoy", "Ayer"). |
+| `__tests__/` | Pruebas unitarias de `src/utils/` con `node --test`. |
 | `src/theme.ts` / `src/types.ts` | Colores y espacios del Figma; tipos de los datos de la API. |
 
 ### Documentación
