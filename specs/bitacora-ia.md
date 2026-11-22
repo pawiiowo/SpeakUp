@@ -322,3 +322,13 @@ Formato de cada entrada:
   inicio y fin, que ayuda a distinguir dos sesiones del mismo día.
 - **Decidí:** aceptar la propuesta del modal.
 - **Verifiqué:** 2 pruebas unitarias nuevas de `horarioDeSesion` (13 en el frontend) y el modal en el emulador.
+
+### 34. Fechas adelantadas 8 horas
+- **Pedí:** revisar el historial, porque sesiones que no eran de hoy aparecían en "Hoy" y el modal nuevo decía
+  "Domingo, 22 de noviembre · 4:47 a.m." para una sesión que di el sábado en la noche.
+- **Propuso:** la IA encontró la causa: las fechas se guardan en UTC, pero `pg` las leía como hora de mi laptop
+  (UTC-8), así que llegaban 8 horas adelantadas. Propuso indicarle a `pg` que lea esas fechas como UTC, en vez de
+  migrar las columnas a `TIMESTAMPTZ` (D37).
+- **Decidí:** aceptar, por ser un cambio pequeño y en un solo archivo.
+- **Verifiqué:** una prueba unitaria nueva que lee una fecha de la base con la zona de Tijuana y revisa que quede
+  en UTC (20 pruebas en el backend), y el historial y el modal en el emulador con las fechas correctas.
