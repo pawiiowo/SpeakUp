@@ -13,6 +13,9 @@ const alumnoRoutes = require('./src/routes/alumno');
 // Así las pruebas de integración pueden cargar la app y levantarla en un puerto libre.
 const app = express();
 
+// No anuncia que el servidor usa Express (encabezado X-Powered-By): es información que solo le sirve a un atacante.
+app.disable('x-powered-by');
+
 app.use(cors());
 app.use(express.json());
 
