@@ -10,6 +10,8 @@ export type Opcion = {
 
 export type ContenidoModal = {
   titulo: string;
+  // Línea pegada al título (por ejemplo, el día y horario de una sesión). Separa el encabezado del contenido.
+  subtitulo?: string;
   mensaje?: string;
   // Número grande dentro de un círculo verde (por ejemplo, participaciones en una sesión).
   destacado?: string;
@@ -38,22 +40,27 @@ export default function ModalOpciones({ contenido, onCerrar }: Props) {
           {contenido ? (
             <View>
               <Text style={styles.titulo} numberOfLines={2}>{contenido.titulo}</Text>
-              {contenido.mensaje ? <Text style={styles.mensaje}>{contenido.mensaje}</Text> : null}
+              {contenido.subtitulo ? <Text style={styles.subtitulo}>{contenido.subtitulo}</Text> : null}
+              {contenido.mensaje ? (
+                <Text style={[styles.mensaje, contenido.subtitulo ? styles.mensajeSeparado : null]}>{contenido.mensaje}</Text>
+              ) : null}
               {contenido.destacado ? (
                 <View style={styles.destacado}>
                   <Text style={styles.textoDestacado}>{contenido.destacado}</Text>
                 </View>
               ) : null}
               {contenido.pie ? <Text style={styles.pie}>{contenido.pie}</Text> : null}
-              {contenido.opciones.map((opcion) => (
-                <Boton
-                  key={opcion.texto}
-                  titulo={opcion.texto}
-                  variante={opcion.variante ?? 'primario'}
-                  onPress={opcion.onPress}
-                  style={styles.opcion}
-                />
-              ))}
+              <View style={contenido.destacado ? styles.opcionesConDestacado : styles.opciones}>
+                {contenido.opciones.map((opcion) => (
+                  <Boton
+                    key={opcion.texto}
+                    titulo={opcion.texto}
+                    variante={opcion.variante ?? 'primario'}
+                    onPress={opcion.onPress}
+                    style={styles.opcion}
+                  />
+                ))}
+              </View>
               {contenido.sinCancelar ? null : (
                 <Pressable onPress={onCerrar} style={styles.cancelar} accessibilityRole="button">
                   <Text style={styles.textoCancelar}>Cancelar</Text>
@@ -77,13 +84,20 @@ const styles = StyleSheet.create({
   hoja: {
     backgroundColor: colores.fondo,
     borderRadius: radio.tarjeta,
-    padding: espacio.l,
+    paddingVertical: espacio.xl,
+    paddingHorizontal: espacio.l,
     width: '100%',
     maxWidth: 420,
     alignSelf: 'center',
   },
   titulo: { fontSize: 22, fontWeight: '800', color: colores.texto, textAlign: 'center' },
+  subtitulo: { color: colores.textoSuave, textAlign: 'center', marginTop: espacio.xs, fontSize: 15, lineHeight: 22 },
   mensaje: { color: colores.textoSuave, textAlign: 'center', marginTop: espacio.s, fontSize: 15 },
+  // Con subtítulo, el mensaje se separa más para que el encabezado y el contenido se lean como dos bloques.
+  mensajeSeparado: { marginTop: espacio.xl },
+  opciones: { marginTop: espacio.s },
+  // Con un número destacado, el mismo espacio arriba y abajo de su grupo para que quede en medio de la ventana.
+  opcionesConDestacado: { marginTop: espacio.m },
   opcion: { marginTop: espacio.m },
   destacado: {
     width: 72,
@@ -93,9 +107,19 @@ const styles = StyleSheet.create({
     alignSelf: 'center',
     alignItems: 'center',
     justifyContent: 'center',
-    marginTop: espacio.l,
+    marginTop: espacio.m,
   },
-  textoDestacado: { color: colores.blanco, fontSize: 30, fontWeight: '800' },
+  // Sin el espacio extra que Android agrega arriba del texto y con números del mismo ancho,
+  // para que el número quede en el centro exacto del círculo.
+  textoDestacado: {
+    color: colores.blanco,
+    fontSize: 30,
+    lineHeight: 36,
+    fontWeight: '800',
+    textAlign: 'center',
+    includeFontPadding: false,
+    fontVariant: ['tabular-nums'],
+  },
   pie: { fontSize: 18, fontWeight: '700', color: colores.texto, textAlign: 'center', marginTop: espacio.m },
   cancelar: { marginTop: espacio.m, paddingVertical: espacio.s, alignItems: 'center' },
   textoCancelar: { color: colores.textoSuave, fontSize: 16, fontWeight: '600' },

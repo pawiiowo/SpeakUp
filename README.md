@@ -87,11 +87,11 @@ npx expo start
 ## Pruebas
 ```
 cd backend
-npm test                  # 11 unitarias + 8 de integración de la API
+npm test                  # 12 unitarias + 8 de integración de la API
 npm run test:cobertura
 
 cd frontend
-npm test                  # 11 unitarias (validaciones y fechas)
+npm test                  # 13 unitarias (validaciones y fechas)
 npm run test:cobertura
 npx tsc --noEmit          # TypeScript sin errores
 ```

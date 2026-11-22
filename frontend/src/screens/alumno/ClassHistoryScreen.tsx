@@ -8,7 +8,7 @@ import ModalOpciones, { ContenidoModal } from '../../components/ModalOpciones';
 import api, { mensajeDeError } from '../../services/api';
 import { guardarEnCache, leerDeCache } from '../../services/cache';
 import { useAuth } from '../../context/AuthContext';
-import { etiquetaDeFecha } from '../../utils/fechas';
+import { etiquetaDeFecha, horarioDeSesion } from '../../utils/fechas';
 import { AppStackParams } from '../../navigation/tipos';
 import { PaginaSesiones, SesionHistorial } from '../../types';
 import { colores, espacio, radio } from '../../theme';
@@ -99,6 +99,7 @@ export default function ClassHistoryScreen({ route, navigation }: Props) {
     }
     setDialogo({
       titulo: `Sesión ${sesion.numero}`,
+      subtitulo: horarioDeSesion(sesion.fecha_inicio, sesion.fecha_fin),
       mensaje: 'En esta sesión realizaste:',
       destacado: String(sesion.participaciones),
       pie: sesion.participaciones === 1 ? 'participación' : 'participaciones',

@@ -314,3 +314,21 @@ Formato de cada entrada:
   y cambió `KeyboardAvoidingView` a `padding` en iOS y Android, en los cuatro formularios.
 - **Verifiqué:** el flujo completo en el emulador (alumno) con la laptop (docente): unirse, pedir la palabra,
   recibir la notificación y terminar la clase; el teclado ya no tapa los campos y en el iPhone se ve igual.
+
+### 33. Día y horario de cada sesión en el historial
+- **Pedí:** ver la fecha de cada sesión, abajo de cada una en la lista o en el modal de participaciones.
+- **Propuso:** ponerla en el modal y no en la lista, porque la lista ya está agrupada por fecha (Hoy, Ayer,
+  fecha) y repetirla en cada fila agregaría ruido (D31). En el modal sí aporta: el día completo y el horario de
+  inicio y fin, que ayuda a distinguir dos sesiones del mismo día.
+- **Decidí:** aceptar la propuesta del modal.
+- **Verifiqué:** 2 pruebas unitarias nuevas de `horarioDeSesion` (13 en el frontend) y el modal en el emulador.
+
+### 34. Fechas adelantadas 8 horas
+- **Pedí:** revisar el historial, porque sesiones que no eran de hoy aparecían en "Hoy" y el modal nuevo decía
+  "Domingo, 22 de noviembre · 4:47 a.m." para una sesión que di el sábado en la noche.
+- **Propuso:** la IA encontró la causa: las fechas se guardan en UTC, pero `pg` las leía como hora de mi laptop
+  (UTC-8), así que llegaban 8 horas adelantadas. Propuso indicarle a `pg` que lea esas fechas como UTC, en vez de
+  migrar las columnas a `TIMESTAMPTZ` (D37).
+- **Decidí:** aceptar, por ser un cambio pequeño y en un solo archivo.
+- **Verifiqué:** una prueba unitaria nueva que lee una fecha de la base con la zona de Tijuana y revisa que quede
+  en UTC (20 pruebas en el backend), y el historial y el modal en el emulador con las fechas correctas.
