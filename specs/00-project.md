@@ -16,32 +16,39 @@ cuándo les tocará hablar, y el docente suele dar la palabra a los mismos alumn
 
 ## Propuesta de solución
 Una app móvil que reemplaza "levantar la mano" por una solicitud digital discreta.
-El alumno se une a la clase con un código o QR, pide la palabra y ve su posición exacta
-en una fila virtual. El docente ve la fila en tiempo real y decide cuándo dar la palabra,
-pasar al siguiente o pausar.
+El alumno entra a la clase de hoy con el QR o el código, pide la palabra y ve su posición
+exacta en una fila virtual. El docente ve la fila (se actualiza cada 3 segundos) y da la
+palabra al siguiente en orden de llegada.
 
 ## Principio central: privacidad en la fila
 - Solo el **docente** ve los nombres de los alumnos en la fila, en su propio dispositivo.
 - Un **alumno** solo ve su propia posición (p. ej. "Eres el #3") y el estado de la fila.
   Nunca ve nombres de otros alumnos.
-- El docente puede **proyectar** la fila en el salón. La vista proyectada es **anónima**:
-  muestra turnos sin nombres.
+- Una futura vista para **proyectar** la fila en el salón tendría que ser **anónima**: turnos
+  sin nombres. La pantalla actual del docente muestra nombres, así que no es para proyectar.
 - Toda feature nueva debe respetar este principio.
 
 ## MVP
-| ID  | Feature                                              | Actor   | Estado actual |
-|-----|------------------------------------------------------|---------|---------------|
-| F01 | Registro de usuario (alumno/docente)                 | Ambos   | Implementado (JS, falta pasar a TS) |
-| F02 | Inicio y cierre de sesión persistente                | Ambos   | Parcial (no navega después del login, no hay logout) |
-| F03 | Gestionar clases (crear, listar, editar, cerrar, reabrir, eliminar) + QR | Docente | Backend terminado; falta frontend |
-| F04 | Unirse a clase (código manual o QR)                  | Alumno  | Solo backend |
-| F05 | Pedir / cancelar la palabra y ver mi posición        | Alumno  | Pendiente |
-| F06 | Moderar la fila (dar palabra, siguiente) | Docente | Pendiente |
-| F07 | Aviso de turno (vibración + notificación)            | Alumno  | Fuera del sprint final (D23) |
-| F08 | Historial de participación (lista paginada)          | Ambos   | Fuera del sprint final (D23) |
+El alcance cambió durante el sprint final: F07 y F08 se habían dejado fuera (D23), pero se
+agregaron después (D28, D29). Estado al 21 de noviembre de 2026:
+
+| ID  | Feature                                              | Actor   | Estado | Spec |
+|-----|------------------------------------------------------|---------|--------|------|
+| F01 | Registro con correo institucional (D11)              | Ambos   | Terminado | FE-frontend |
+| F02 | Inicio y cierre de sesión persistente                | Ambos   | Terminado | FE-frontend |
+| F03 | Gestionar clases (crear, listar, editar, iniciar, terminar, eliminar) + QR | Docente | Terminado | F03 |
+| F04 | Entrar a la clase de hoy con QR o código (D32)       | Alumno  | Terminado | F05, F08 |
+| F05 | Pedir / cancelar la palabra y ver mi posición        | Alumno  | Terminado | F05 |
+| F06 | Moderar la fila (dar la palabra al siguiente)        | Docente | Terminado | F05 |
+| F07 | Aviso de turno (vibración + notificación local)      | Alumno  | Terminado (D29) | F05, FE-frontend |
+| F08 | Historial de participación del alumno (paginado)     | Alumno  | Terminado (D28, D33) | F08 |
+
+Las features sin spec propia (F01, F02, F04, F06, F07) quedaron dentro de otras specs porque
+son parte del mismo flujo.
 
 ## Funcionalidades futuras
-- Vista de proyección anónima, escáner de QR y pausar la fila (D23).
+- Vista de proyección anónima y pausar la fila (la columna `fila_pausada` ya existe, pero no se usa).
+- Historial de participación para el docente.
 - Actualización en tiempo real con Socket.io en lugar de polling (D22).
 - Estadísticas de participación por alumno para el docente.
 - Preguntas escritas anónimas.
@@ -50,13 +57,18 @@ pasar al siguiente o pausar.
 ## Requisitos del curso (no funcionales)
 - Navegación con Stack + Tabs + Modal (mínimo 5 pantallas).
 - Estado global con Context API.
-- TypeScript en modo strict (migrar pantallas `.js` a `.tsx`).
+- TypeScript en modo strict.
 - 12+ pruebas unitarias y 4+ de integración.
 - README, diagrama de arquitectura, documentación de la API, `.env.example`, build con EAS.
 - Diario de decisiones en `specs/decisiones.md`.
 
+Todos están cubiertos; ver la sección "Pruebas" del README.
+
 ## Restricciones técnicas (ya decididas)
-- Frontend: React Native + Expo SDK 57, React Navigation, React Native Paper.
+- Frontend: React Native + Expo SDK 58 (D26), TypeScript, React Navigation 7 y componentes
+  propios con el estilo del prototipo de Figma en lugar de React Native Paper (D25).
 - Backend: Node.js + Express 5 (API REST); la fila se actualiza con polling (D22).
 - Base de datos: PostgreSQL en Supabase.
-- Pruebas en dispositivo físico (iPhone) con Expo Go; build final de EAS para Android (D24).
+- Pruebas en dispositivo físico (iPhone) con Expo Go, el rol docente en la versión web y un
+  emulador de Android; build final de EAS para Android como APK (D24, D36).
+- Funciones nativas: compartir, notificación local y cámara para leer el QR (D29).
