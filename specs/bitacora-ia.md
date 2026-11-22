@@ -314,3 +314,11 @@ Formato de cada entrada:
   y cambió `KeyboardAvoidingView` a `padding` en iOS y Android, en los cuatro formularios.
 - **Verifiqué:** el flujo completo en el emulador (alumno) con la laptop (docente): unirse, pedir la palabra,
   recibir la notificación y terminar la clase; el teclado ya no tapa los campos y en el iPhone se ve igual.
+
+### 33. Día y horario de cada sesión en el historial
+- **Pedí:** ver la fecha de cada sesión, abajo de cada una en la lista o en el modal de participaciones.
+- **Propuso:** ponerla en el modal y no en la lista, porque la lista ya está agrupada por fecha (Hoy, Ayer,
+  fecha) y repetirla en cada fila agregaría ruido (D31). En el modal sí aporta: el día completo y el horario de
+  inicio y fin, que ayuda a distinguir dos sesiones del mismo día.
+- **Decidí:** aceptar la propuesta del modal.
+- **Verifiqué:** 2 pruebas unitarias nuevas de `horarioDeSesion` (13 en el frontend) y el modal en el emulador.
