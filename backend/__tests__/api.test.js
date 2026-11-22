@@ -73,3 +73,11 @@ test('el historial rechaza un límite de página mayor a 50 (400)', async () => 
   const { status } = await peticion('GET', '/alumno/clases/1/sesiones?limite=100', { tokenUsado: token('alumno') });
   assert.strictEqual(status, 400);
 });
+
+test('CORS solo permite el origen de la versión web de Expo', async () => {
+  const permitido = await fetch(`${base}/clases`, { headers: { Origin: 'http://localhost:8081' } });
+  assert.strictEqual(permitido.headers.get('access-control-allow-origin'), 'http://localhost:8081');
+  const otro = await fetch(`${base}/clases`, { headers: { Origin: 'https://pagina-ajena.com' } });
+  assert.strictEqual(otro.headers.get('access-control-allow-origin'), null);
+  assert.strictEqual(otro.headers.get('x-powered-by'), null);
+});
