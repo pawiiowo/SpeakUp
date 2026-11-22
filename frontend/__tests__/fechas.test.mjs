@@ -20,14 +20,14 @@ test('etiquetaDeFecha muestra la fecha para sesiones más viejas', () => {
   assert.match(etiqueta, /noviembre/);
 });
 
-test('horarioDeSesion muestra el día con mayúscula y la hora de inicio y fin', () => {
+test('horarioDeSesion muestra el día con mayúscula y abajo la hora de inicio y fin', () => {
   const texto = horarioDeSesion(new Date(2026, 10, 20, 10, 5).toISOString(), new Date(2026, 10, 20, 11, 30).toISOString());
   assert.match(texto, /^Viernes/);
   assert.match(texto, /20 de noviembre/);
-  assert.match(texto, /10:05.* a .*11:30/);
+  assert.match(texto, /noviembre\n10:05.* a .*11:30/);
 });
 
-test('horarioDeSesion dice "desde" si la sesión no ha terminado', () => {
+test('horarioDeSesion dice "Desde" si la sesión no ha terminado', () => {
   const texto = horarioDeSesion(new Date(2026, 10, 21, 9, 0).toISOString(), null);
-  assert.match(texto, /desde 9:00/);
+  assert.match(texto, /\nDesde 9:00/);
 });
