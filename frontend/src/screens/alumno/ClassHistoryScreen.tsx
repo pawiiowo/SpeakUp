@@ -99,7 +99,8 @@ export default function ClassHistoryScreen({ route, navigation }: Props) {
     }
     setDialogo({
       titulo: `Sesión ${sesion.numero}`,
-      mensaje: `${horarioDeSesion(sesion.fecha_inicio, sesion.fecha_fin)}\n\nEn esta sesión realizaste:`,
+      subtitulo: horarioDeSesion(sesion.fecha_inicio, sesion.fecha_fin),
+      mensaje: 'En esta sesión realizaste:',
       destacado: String(sesion.participaciones),
       pie: sesion.participaciones === 1 ? 'participación' : 'participaciones',
       opciones: [{ texto: 'Regresar a las sesiones', onPress: () => setDialogo(null) }],
