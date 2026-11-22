@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { KeyboardAvoidingView, Platform, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { KeyboardAvoidingView, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import Pantalla from '../../components/Pantalla';
 import Campo from '../../components/Campo';
@@ -39,7 +39,9 @@ export default function LoginScreen({ navigation }: Props) {
 
   return (
     <Pantalla style={styles.sinPadding}>
-      <KeyboardAvoidingView style={styles.flex} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
+      {/* "padding" en iOS y Android: con la pantalla de borde a borde de Android, el sistema ya no encoge la
+          ventana al abrir el teclado, así que la app tiene que dejarle espacio. */}
+      <KeyboardAvoidingView style={styles.flex} behavior="padding">
         <ScrollView contentContainerStyle={styles.contenido} keyboardShouldPersistTaps="handled">
           <View style={styles.encabezado}>
             <Logo />

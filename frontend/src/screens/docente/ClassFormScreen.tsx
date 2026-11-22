@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { KeyboardAvoidingView, Platform, StyleSheet, Text } from 'react-native';
+import { KeyboardAvoidingView, StyleSheet, Text } from 'react-native';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import Pantalla from '../../components/Pantalla';
 import Campo from '../../components/Campo';
@@ -39,7 +39,7 @@ export default function ClassFormScreen({ navigation, route }: Props) {
 
   return (
     <Pantalla>
-      <KeyboardAvoidingView style={styles.flex} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
+      <KeyboardAvoidingView style={styles.flex} behavior="padding">
         <Text style={styles.titulo}>{clase ? 'Editar clase' : 'Nueva clase'}</Text>
         <Campo
           etiqueta="Materia"
