@@ -8,3 +8,15 @@ export function etiquetaDeFecha(fechaIso: string, ahora: Date = new Date()): str
   if (dias === 1) return 'Ayer';
   return fecha.toLocaleDateString('es-MX', { day: 'numeric', month: 'long' });
 }
+
+// Día y horario de una sesión para el modal del historial, por ejemplo
+// "Viernes, 20 de noviembre · 10:05 a.m. a 11:30 a.m.". Si la sesión no ha terminado, solo dice desde qué hora.
+export function horarioDeSesion(inicioIso: string, finIso: string | null): string {
+  const inicio = new Date(inicioIso);
+  const dia = inicio.toLocaleDateString('es-MX', { weekday: 'long', day: 'numeric', month: 'long' });
+  const hora = (fecha: Date) => fecha.toLocaleTimeString('es-MX', { hour: 'numeric', minute: '2-digit' });
+  const diaConMayuscula = dia.charAt(0).toUpperCase() + dia.slice(1);
+  return finIso
+    ? `${diaConMayuscula} · ${hora(inicio)} a ${hora(new Date(finIso))}`
+    : `${diaConMayuscula} · desde ${hora(inicio)}`;
+}
