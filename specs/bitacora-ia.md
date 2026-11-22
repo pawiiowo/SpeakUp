@@ -281,3 +281,15 @@ Formato de cada entrada:
 - **Decidí:** aceptar. Al vincular el proyecto, `eas init` agregó el permiso de micrófono; la IA lo notó y lo
   quitamos, porque la app solo usa la cámara para leer el QR y no debe pedir permisos que no usa.
 - **Verifiqué:** el build terminó en EAS y generó el APK con su link de descarga.
+
+### 30. Pruebas unitarias, de integración y cobertura
+- **Pedí:** completar las pruebas que pide el curso (12 unitarias, 4 de integración y cobertura).
+- **Propuso:** probar las funciones puras del frontend (`validaciones.ts` y `fechas.ts`) con `node --test`, que
+  ya lee TypeScript sin instalar Jest; separar `app.js` de `index.js` para que las pruebas carguen la app sin abrir
+  el puerto; y pruebas de integración que hacen peticiones HTTP reales pero terminan antes de la base de datos
+  (token faltante o expirado, rol equivocado, correo no institucional, materia vacía, id inválido, página muy
+  grande), para no tocar Supabase ni crear datos.
+- **Decidí:** aceptar. La cobertura del backend queda en 50 % porque las rutas que consultan la base no se cubren
+  con estas pruebas; esas rutas las probó la IA contra una base de prueba durante el desarrollo.
+- **Verifiqué:** `npm test` en `backend` (18 pruebas: 11 unitarias y 7 de integración) y en `frontend`
+  (11 unitarias), y el reporte con `npm run test:cobertura`.
