@@ -34,8 +34,8 @@ el historial de sesiones con cuántas participaciones tuvo en cada una (prototip
   escanea el QR o escribe el código de hoy". Al tocar otra, a su historial.
 - **Historial de la clase**: FlatList **paginada** (carga 10 y pide más al llegar al final), agrupada por
   fecha (Hoy, Ayer, fecha). Las sesiones en las que el alumno participó llevan un punto terracota y, al
-  tocarlas, abren un modal con el día y el horario de la sesión (por ejemplo, "Viernes, 20 de noviembre ·
-  10:05 a.m. a 11:30 a.m.") y "En esta sesión realizaste N participaciones". Las sesiones sin participaciones
+  tocarlas, abren un modal con el día en una línea y el horario abajo (por ejemplo, "Viernes, 20 de noviembre"
+  y "10:05 a.m. a 11:30 a.m.") y "En esta sesión realizaste N participaciones". Las sesiones sin participaciones
   se ven en gris con un punto gris y no se pueden tocar (D33). Una leyenda arriba de la lista explica los
   dos puntos: "● Participaste" y "● Sin participaciones".
 
