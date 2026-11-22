@@ -306,3 +306,14 @@ Formato de cada entrada:
   las sesiones pasadas aparecerían con otro nombre y el alumno no reconocería su clase. Antes de la primera
   sesión nadie la ha visto, así que corregir un error de dedo sigue siendo posible. La validación va en el
   backend en la misma consulta del `UPDATE`, para que no se pueda saltar desde otra app.
+
+### D36 — APK con EAS y backend en la red local
+- **Fecha:** 2026-11-21 · **Spec:** 00-project
+- **Decisión:** El build de Android es un APK con el perfil `preview` de EAS (`distribution: internal`,
+  `buildType: apk`). La URL del backend va en `eas.json` y apunta a la IP de la laptop en la red Wi-Fi.
+  Se permite `http` en Android con `expo-build-properties` (`usesCleartextTraffic`).
+- **Alternativas:** AAB para Play Store; desplegar el backend en un servidor con `https`.
+- **Por qué:** El APK se instala directo en cualquier Android, que es lo que pide la entrega. El backend corre en
+  mi laptop, así que en la red local no hay `https`, y Android bloquea `http` en los builds si no se permite.
+  Limitación: el APK solo funciona en la misma red que la laptop y con esa IP; si la IP cambia hay que volver a
+  generar el APK. Desplegar el backend con `https` quitaría esa limitación, pero queda fuera del sprint.
