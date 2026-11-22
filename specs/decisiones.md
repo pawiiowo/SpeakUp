@@ -317,3 +317,13 @@ Formato de cada entrada:
   mi laptop, así que en la red local no hay `https`, y Android bloquea `http` en los builds si no se permite.
   Limitación: el APK solo funciona en la misma red que la laptop y con esa IP; si la IP cambia hay que volver a
   generar el APK. Desplegar el backend con `https` quitaría esa limitación, pero queda fuera del sprint.
+
+### D37 — Las fechas de la base se leen como UTC
+- **Fecha:** 2026-11-21 · **Spec:** 02-data-model, F08
+- **Decisión:** Las columnas de fecha siguen siendo `TIMESTAMP` sin zona horaria, llenadas con `NOW()` de
+  Supabase, que trabaja en UTC. En `db.js` se le indica a `pg` que esas fechas están en UTC.
+- **Alternativas:** Cambiar todas las columnas a `TIMESTAMPTZ`.
+- **Por qué:** `pg` lee un `TIMESTAMP` sin zona como hora local de la computadora donde corre el backend. En mi
+  laptop (UTC-8) todas las fechas llegaban a la app 8 horas adelantadas: sesiones de la tarde aparecían como del
+  día siguiente y el horario del modal no coincidía. Indicar UTC en un solo lugar lo corrige sin migrar la base,
+  que sería más riesgoso a días de la entrega.
