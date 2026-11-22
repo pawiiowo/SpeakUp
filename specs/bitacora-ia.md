@@ -303,3 +303,14 @@ Formato de cada entrada:
 - **Decidí:** aceptar, porque antes cualquier página web podía llamar a mi API desde el navegador de alguien.
 - **Verifiqué:** una prueba de integración nueva (el origen permitido recibe el encabezado de CORS, otro origen
   no, y ya no aparece `X-Powered-By`), 19 pruebas en total en el backend, y la versión web en la laptop.
+
+### 32. Emulador de Android y el teclado que tapaba la contraseña
+- **Pedí:** una forma de mostrar la app como teléfono en el proyector. Primero probé el modo celular del
+  navegador, pero me pareció engorroso, así que pedí usar un emulador.
+- **Propuso:** instalar Android Studio, crear un Pixel 7 y abrir la app con la tecla `a` de Expo. Revisó antes
+  que mi laptop tuviera la RAM y el espacio suficientes.
+- **Decidí:** usar el emulador. Al probar, encontré que en Android el teclado tapaba el campo de contraseña. La IA
+  explicó que con la pantalla de borde a borde de Android el sistema ya no encoge la ventana al abrir el teclado,
+  y cambió `KeyboardAvoidingView` a `padding` en iOS y Android, en los cuatro formularios.
+- **Verifiqué:** el flujo completo en el emulador (alumno) con la laptop (docente): unirse, pedir la palabra,
+  recibir la notificación y terminar la clase; el teclado ya no tapa los campos y en el iPhone se ve igual.
