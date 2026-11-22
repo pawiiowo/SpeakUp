@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Keyboard, KeyboardAvoidingView, Platform, Pressable, StyleSheet, Text } from 'react-native';
+import { Keyboard, KeyboardAvoidingView, Pressable, StyleSheet, Text } from 'react-native';
 import { CompositeNavigationProp, RouteProp, useNavigation, useRoute } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { BottomTabNavigationProp } from '@react-navigation/bottom-tabs';
@@ -56,7 +56,7 @@ export default function JoinClassScreen() {
     <Pantalla>
       {/* Tocar cualquier parte fuera del campo cierra el teclado. */}
       <Pressable style={styles.flex} onPress={Keyboard.dismiss} accessible={false}>
-      <KeyboardAvoidingView style={styles.contenido} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
+      <KeyboardAvoidingView style={styles.contenido} behavior="padding">
         <Text style={styles.titulo}>Unirme a una clase</Text>
         {materiaPendiente ? (
           <Text style={styles.aviso}>Para entrar a {materiaPendiente} escanea el QR o escribe el código de hoy.</Text>

@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { KeyboardAvoidingView, Platform, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { KeyboardAvoidingView, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import Pantalla from '../../components/Pantalla';
 import Campo from '../../components/Campo';
@@ -58,7 +58,7 @@ export default function RegisterScreen({ navigation }: Props) {
 
   return (
     <Pantalla style={styles.sinPadding}>
-      <KeyboardAvoidingView style={styles.flex} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
+      <KeyboardAvoidingView style={styles.flex} behavior="padding">
         <ScrollView contentContainerStyle={styles.contenido} keyboardShouldPersistTaps="handled">
           <Text style={styles.titulo}>Crear cuenta</Text>
 
