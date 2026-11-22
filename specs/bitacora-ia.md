@@ -293,3 +293,13 @@ Formato de cada entrada:
   con estas pruebas; esas rutas las probó la IA contra una base de prueba durante el desarrollo.
 - **Verifiqué:** `npm test` en `backend` (18 pruebas: 11 unitarias y 7 de integración) y en `frontend`
   (11 unitarias), y el reporte con `npm run test:cobertura`.
+
+### 31. SonarQube y la seguridad de Express
+- **Pedí:** corregir dos avisos de seguridad de SonarQube en `app.js`: CORS abierto y el encabezado que revela
+  que el servidor usa Express.
+- **Propuso:** desactivar `X-Powered-By` y limitar CORS a una lista de orígenes (por defecto, la versión web de
+  Expo en `localhost:8081`), configurable con `CORS_ORIGINS` en el `.env`. Explicó que CORS solo aplica a
+  navegadores, así que la app del teléfono no se ve afectada.
+- **Decidí:** aceptar, porque antes cualquier página web podía llamar a mi API desde el navegador de alguien.
+- **Verifiqué:** una prueba de integración nueva (el origen permitido recibe el encabezado de CORS, otro origen
+  no, y ya no aparece `X-Powered-By`), 19 pruebas en total en el backend, y la versión web en la laptop.
