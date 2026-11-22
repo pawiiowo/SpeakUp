@@ -16,7 +16,14 @@ const app = express();
 // No anuncia que el servidor usa Express (encabezado X-Powered-By): es información que solo le sirve a un atacante.
 app.disable('x-powered-by');
 
-app.use(cors());
+// CORS solo aplica a navegadores: la app del teléfono no lo usa. Se permite únicamente el origen de la versión
+// web de Expo (con la que se prueba el rol docente en la laptop), no cualquier página.
+// Para agregar otros orígenes, sepáralos con comas en CORS_ORIGINS dentro del .env.
+const origenesPermitidos = (process.env.CORS_ORIGINS || 'http://localhost:8081')
+  .split(',')
+  .map((origen) => origen.trim())
+  .filter(Boolean);
+app.use(cors({ origin: origenesPermitidos }));
 app.use(express.json());
 
 app.use('/api/clases', clasesRoutes);
