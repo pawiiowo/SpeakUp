@@ -289,7 +289,7 @@ Formato de cada entrada:
   el puerto; y pruebas de integración que hacen peticiones HTTP reales pero terminan antes de la base de datos
   (token faltante o expirado, rol equivocado, correo no institucional, materia vacía, id inválido, página muy
   grande), para no tocar Supabase ni crear datos.
-- **Decidí:** aceptar. La cobertura del backend queda en 50 % porque las rutas que consultan la base no se cubren
+- **Decidí:** aceptar. La cobertura de líneas del backend queda en 40 % (el frontend, en 100 %) porque las rutas que consultan la base no se cubren
   con estas pruebas; esas rutas las probó la IA contra una base de prueba durante el desarrollo.
 - **Verifiqué:** `npm test` en `backend` (18 pruebas: 11 unitarias y 7 de integración) y en `frontend`
   (11 unitarias), y el reporte con `npm run test:cobertura`.
