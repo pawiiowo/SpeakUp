@@ -23,8 +23,9 @@ async function cargarClase(req, res, next) {
 
 // Igual que cargarClase, pero además revisa que la clase sea del docente que hace la petición.
 // Usar después de verificarToken y exigirRol('profesor').
-function cargarClasePropia(req, res, next) {
-  cargarClase(req, res, () => {
+// Es async y espera a cargarClase para que ninguna promesa quede sin esperar.
+async function cargarClasePropia(req, res, next) {
+  await cargarClase(req, res, () => {
     if (req.clase.profesor_id !== req.usuario.id) {
       return res.status(403).json({ error: 'No tienes permiso sobre esta clase.' });
     }
